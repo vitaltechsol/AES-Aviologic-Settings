@@ -1,0 +1,32 @@
+{
+  "sim_type": "prosim",
+  "host": "192.168.1.142",
+  "parse": true,
+  "datarefs": {
+    "flaps_l": {
+      "name": "system.gauge.G_MIP_FLAP",
+      "read_interval_ms": 100,
+      "reset_value": 0.0
+    },
+    "flaps_r": {
+      "name": "system.gauge.G_MIP_FLAP_RIGHT",
+      "read_interval_ms": 100,
+      "reset_value": 0.0
+    },
+    "rudder_trim": {
+      "name": "system.gauge.G_PED_RUDDER_TRIM",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "asi_pitch": {
+      "name": "system.gauge.G_MIP_STDBY_ATT_PITCH",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "asi_roll": {
+      "name": "system.gauge.G_MIP_STDBY_ATT_BANK",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    }
+  }
+}
