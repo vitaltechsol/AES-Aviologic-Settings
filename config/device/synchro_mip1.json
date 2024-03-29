@@ -1,81 +1,81 @@
 {
-    "product": "SSD_10",
-    "uuid": "14000e801843303859373320",
-    "type": "SYNCHRO",
-    "settings": {
-        "functions": [
-            {
-                "var_name": "flaps_l",
-                "enable": true,
-                "mode": "SYNCHRO_2_PHASE",
-                "channels": [
-                    0,
-                    1
-                ],
-                "offset": -3.15,
-                "immediate_start": true,
-                "voltage_max": 16.4,
-                "voltage_min": 0.0,
-                "setting_time": 0.0001
-            },
-            {
-                "var_name": "flaps_r",
-                "enable": true,
-                "mode": "SYNCHRO_2_PHASE",
-                "channels": [
-                    2,
-                    3
-                ],
-                "offset": -3.15,
-                "immediate_start": true,
-                "voltage_max": 16.4,
-                "voltage_min": 0.0,
-                "setting_time": 0.0001
-            },
-            {
-                "var_name": "rudder_trim",
-                "enable": true,
-                "mode": "RVDT_1_PHASE",
-                "channels": [
-                    5
-                ],
-                "offset": 0.0,
-                "immediate_start": true,
-                "voltage_max": 5.0,
-                "voltage_min": 0.0,
-                "setting_time": 0.0001
-            },
-            {
-                "var_name": "sai_roll",
-                "enable": true,
-                "mode": "RESOLVER_NO_MOD",
-                "channels": [
-                    6,
-                    7
-                ],
-                "offset": 0.0,
-                "immediate_start": true,
-                "voltage_max": 5.0,
-                "voltage_min": 0.0,
-                "setting_time": 0.0001
-            },
-            {
-                "var_name": "sai_pitch",
-                "enable": true,
-                "mode": "RESOLVER_NO_MOD",
-                "channels": [
-                    8,
-                    9
-                ],
-                "offset": 0.0,
-                "immediate_start": true,
-                "voltage_max": 15.0,
-                "voltage_min": 0.0,
-                "setting_time": 0.0001
-            }
+  "product": "SSD_10",
+  "uuid": "14000e801843303859373320",
+  "type": "SYNCHRO",
+  "settings": {
+    "functions": [
+      {
+        "var_name": "flaps_l",
+        "enable": true,
+        "mode": "SYNCHRO_2_PHASE",
+        "channels": [
+          0,
+          1
         ],
-        "name": "mip1",
-        "ext_sync_enable": true,
-        "enable": true
-    }
+        "offset": -3.15,
+        "immediate_start": true,
+        "voltage_max": 16.4,
+        "voltage_min": 0.0,
+        "setting_time": 0.0001
+      },
+      {
+        "var_name": "flaps_r",
+        "enable": true,
+        "mode": "SYNCHRO_2_PHASE",
+        "channels": [
+          2,
+          3
+        ],
+        "offset": -3.15,
+        "immediate_start": true,
+        "voltage_max": 16.4,
+        "voltage_min": 0.0,
+        "setting_time": 0.0001
+      },
+      {
+        "var_name": "rudder_trim",
+        "enable": true,
+        "mode": "RVDT_1_PHASE",
+        "channels": [
+          5
+        ],
+        "offset": 0.0,
+        "immediate_start": true,
+        "voltage_max": 5.0,
+        "voltage_min": 0.0,
+        "setting_time": 0.0001
+      },
+      {
+        "var_name": "sai_roll",
+        "enable": true,
+        "mode": "RESOLVER_NO_MOD",
+        "channels": [
+          6,
+          7
+        ],
+        "offset": 0.0,
+        "immediate_start": true,
+        "voltage_max": 15.0,
+        "voltage_min": 0.0,
+        "setting_time": 0.0001
+      },
+      {
+        "var_name": "sai_pitch",
+        "enable": true,
+        "mode": "RESOLVER_NO_MOD",
+        "channels": [
+          8,
+          9
+        ],
+        "offset": 0.0,
+        "immediate_start": true,
+        "voltage_max": 15.0,
+        "voltage_min": 0.0,
+        "setting_time": 0.0001
+      }
+    ],
+    "name": "mip1",
+    "ext_sync_enable": true,
+    "enable": true
+  }
 }

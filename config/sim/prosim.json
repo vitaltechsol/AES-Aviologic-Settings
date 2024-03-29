@@ -18,12 +18,12 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "asi_pitch": {
+    "sai_pitch": {
       "name": "system.gauge.G_MIP_STDBY_ATT_PITCH",
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "asi_roll": {
+    "sai_roll": {
       "name": "system.gauge.G_MIP_STDBY_ATT_BANK",
       "read_interval_ms": 100,
       "reset_value": 0
