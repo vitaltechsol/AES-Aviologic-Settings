@@ -559,13 +559,6 @@
         "data_type": "System.Int32",
         "date_unit": null
     },
-    "system.config.FMS/CDU.gradualCmdSpeed": {
-        "description": "Gradual commanded speed change (beta)",
-        "can_read": true,
-        "can_write": true,
-        "data_type": "System.Boolean",
-        "date_unit": null
-    },
     "system.numerical.N_FUEL_FLOW_1": {
         "description": "Fuel Flow left",
         "can_read": true,
@@ -1287,18 +1280,18 @@
         "data_type": "System.Int32",
         "date_unit": null
     },
-    "system.indicators.I_OH_FLT_CTRL_LOW_PRESS_B": {
-        "description": "FLT Control low pressure B",
-        "can_read": true,
-        "can_write": false,
-        "data_type": "System.Byte",
-        "date_unit": null
-    },
     "system.switches.S_OH_FLT_CTRL_A": {
         "description": "Flt Ctrl A [0:Off, 1:Stby Rud, 2:A On]",
         "can_read": true,
         "can_write": true,
         "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "system.indicators.I_OH_FLT_CTRL_LOW_PRESS_B": {
+        "description": "FLT Control low pressure B",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Byte",
         "date_unit": null
     },
     "system.indicators.I_OH_FLT_CTRL_LOW_PRESS_A": {
@@ -1714,18 +1707,18 @@
         "data_type": "System.Double",
         "date_unit": null
     },
-    "system.indicators.I_MIP_GEAR_NOSE_TRANSIT": {
-        "description": "Gear nose transit",
-        "can_read": true,
-        "can_write": false,
-        "data_type": "System.Byte",
-        "date_unit": null
-    },
     "system.config.HGS (HUD).HGSAIIIROLL": {
         "description": "AIII Rollout",
         "can_read": true,
         "can_write": true,
         "data_type": "System.Boolean",
+        "date_unit": null
+    },
+    "system.indicators.I_MIP_GEAR_NOSE_TRANSIT": {
+        "description": "Gear nose transit",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Byte",
         "date_unit": null
     },
     "system.switches.S_XPDR_OPERATION": {
@@ -5067,18 +5060,18 @@
         "data_type": "System.Int32",
         "date_unit": null
     },
-    "system.indicators.I_OH_GEAR_NOSE_DOWN": {
-        "description": "Gear nose aft ovh",
-        "can_read": true,
-        "can_write": false,
-        "data_type": "System.Byte",
-        "date_unit": null
-    },
     "system.switches.S_CDU1_KEY_N": {
         "description": "CDU 1 KEY_N [0:Normal, 1:Pushed]",
         "can_read": true,
         "can_write": true,
         "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "system.indicators.I_OH_GEAR_NOSE_DOWN": {
+        "description": "Gear nose aft ovh",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Byte",
         "date_unit": null
     },
     "system.indicators.I_MCP_VS": {
@@ -6782,13 +6775,6 @@
         "data_type": "System.Double",
         "date_unit": null
     },
-    "system.config.Display.vnavSpeedBand": {
-        "description": "VNAV Speed band (beta)",
-        "can_read": true,
-        "can_write": true,
-        "data_type": "System.Boolean",
-        "date_unit": null
-    },
     "system.switches.S_CDU2_KEY_MINUS": {
         "description": "CDU 2 KEY_MINUS [0:Normal, 1:Pushed]",
         "can_read": true,
@@ -6822,13 +6808,6 @@
         "can_read": true,
         "can_write": true,
         "data_type": "System.Int32",
-        "date_unit": null
-    },
-    "system.config.Options.ILSVirtualization": {
-        "description": "ILS virtualization (BETA)",
-        "can_read": true,
-        "can_write": true,
-        "data_type": "System.Boolean",
         "date_unit": null
     },
     "system.indicators.I_OH_HIGH_ALT_LDG_ON": {
@@ -8756,19 +8735,19 @@
         "data_type": "System.Double",
         "date_unit": null
     },
-    "system.indicators.I_OH_ENGINE_CONTROL1": {
-        "description": "Engine control left",
-        "can_read": true,
-        "can_write": false,
-        "data_type": "System.Byte",
-        "date_unit": null
-    },
     "system.config.FMS/CDU.thrustModeDisplay": {
         "description": "Thrust Mode Display header",
         "can_read": true,
         "can_write": true,
         "data_type": "System.String",
         "date_unit": "Option 1,Option 2"
+    },
+    "system.indicators.I_OH_ENGINE_CONTROL1": {
+        "description": "Engine control left",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Byte",
+        "date_unit": null
     },
     "system.indicators.I_OH_PRES_AUTO_FAIL": {
         "description": "Pressurization auto fail",
@@ -11157,18 +11136,18 @@
         "data_type": "System.Boolean",
         "date_unit": null
     },
-    "system.indicators.I_MIP_FLAP_LOAD_RELIEF": {
-        "description": "Flap load relief",
-        "can_read": true,
-        "can_write": false,
-        "data_type": "System.Byte",
-        "date_unit": null
-    },
     "system.switches.S_OH_IRS_KEY_3": {
         "description": "IRS Keypad 3 [0:Off, 1:Pushed]",
         "can_read": true,
         "can_write": true,
         "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "system.indicators.I_MIP_FLAP_LOAD_RELIEF": {
+        "description": "Flap load relief",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Byte",
         "date_unit": null
     },
     "system.indicators.I_OH_DUCT_PRESS_R_0": {

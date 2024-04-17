@@ -46,7 +46,7 @@
                 "setting_time": 0.0001
             },
             {
-                "var_name": "sai_roll",
+                "var_name": "sai_pitch",
                 "enable": true,
                 "mode": "RESOLVER_NO_MOD",
                 "channels": [
@@ -60,7 +60,7 @@
                 "setting_time": 0.0001
             },
             {
-                "var_name": "sai_pitch",
+                "var_name": "sai_roll",
                 "enable": true,
                 "mode": "RESOLVER_NO_MOD",
                 "channels": [
