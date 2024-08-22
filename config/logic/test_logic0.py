@@ -21,9 +21,9 @@ class Logic:
         self.flpInpl = interpolate.interp1d(flaps_x, flaps_y, kind="linear")
 
         # Rudder Angles
-        rudder_y = [-0.9, -0.8, -0.5, -0.3, -0.03, 0.3, 0.5, 0.8, 0.9]
+        rudder_y = [-0.99, -0.95, -0.8, -0.4, -0.1, 0.24, 0.57, 0.95, 0.99]
         # Rudder prosim Values
-        rudder_x = [-17.0, -15.0, -10.0, -5.0, 0, 5.0, 10.0, 15.0, 17.0]
+        rudder_x = [-17, -15, -10, -5, 0, 5, 10, 15, 17]
         self.rdsInp = interpolate.interp1d(rudder_x, rudder_y, kind="linear")
 
         # Roll Angles
