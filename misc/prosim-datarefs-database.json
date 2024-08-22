@@ -3241,7 +3241,7 @@
         "date_unit": null
     },
     "system.numerical.N_MAP_CHART_CAPT": {
-        "description": "Chart light caoptain output",
+        "description": "Chart light captain output",
         "can_read": true,
         "can_write": false,
         "data_type": "System.Double",
@@ -3969,7 +3969,7 @@
         "date_unit": null
     },
     "system.analog.A_CHART_LIGHT_CAPT": {
-        "description": "Chart light caoptain",
+        "description": "Chart light captain",
         "can_read": true,
         "can_write": true,
         "data_type": "System.Int32",
@@ -7369,6 +7369,13 @@
         "can_write": true,
         "data_type": "System.Int32",
         "date_unit": null
+    },
+    "system.config.Config.failureRate": {
+        "description": "Maintenance",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.String",
+        "date_unit": "Realistic,High"
     },
     "system.switches.S_CDU1_KEY_LSK1L": {
         "description": "CDU 1 KEY_LSK1L [0:Normal, 1:Pushed]",
@@ -12347,6 +12354,13 @@
         "data_type": "System.Int32",
         "date_unit": null
     },
+    "system.config.Config.autoFailure": {
+        "description": "Auto failures",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.String",
+        "date_unit": "None,Minor,All"
+    },
     "system.gates.B_REVERSER_2_INTERLOCK": {
         "description": "TR 2 interlock retract signal",
         "can_read": true,
@@ -12934,6 +12948,13 @@
         "can_write": true,
         "data_type": "System.Boolean",
         "date_unit": null
+    },
+    "system.config.FMS/CDU.FIX_PAGES": {
+        "description": "FIX pages",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.String",
+        "date_unit": "6,4,2"
     },
     "system.switches.S_MIP_GPWS_INOP_PTT": {
         "description": "GPWS Inop PTT [0:Normal, 1:Pushed]",
@@ -14714,28 +14735,28 @@
         "date_unit": null
     },
     "aircraft.hidraulics.sysA.pressure": {
-        "description": "Hydraulics system A pressure",
+        "description": "Depraceted - Use aircraft.hydraulics.sysA.pressure",
         "can_read": true,
         "can_write": false,
         "data_type": "System.Int32",
         "date_unit": null
     },
     "aircraft.hidraulics.sysB.pressure": {
-        "description": "Hydraulics system B pressure",
+        "description": "Depraceted - Use aircraft.hydraulics.sysB.pressure",
         "can_read": true,
         "can_write": false,
         "data_type": "System.Int32",
         "date_unit": null
     },
     "aircraft.hidraulics.sysA.quantity": {
-        "description": "Hydraulics system A quantity",
+        "description": "Depraceted - Use aircraft.hydraulics.sysA.quantity",
         "can_read": true,
         "can_write": false,
         "data_type": "System.Int32",
         "date_unit": null
     },
     "aircraft.hidraulics.sysB.quantity": {
-        "description": "Hydraulics system B quantity",
+        "description": "Depraceted - Use aircraft.hydraulics.sysB.quantity",
         "can_read": true,
         "can_write": false,
         "data_type": "System.Int32",
@@ -14867,6 +14888,34 @@
         "data_type": "ProSimSDK.AircraftStateType",
         "date_unit": null
     },
+    "visual.thunderstormlocation": {
+        "description": "lat lon",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "ProSimSDK.LatLng",
+        "date_unit": null
+    },
+    "visual.thunderstormorientation": {
+        "description": "degrees",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+        "date_unit": null
+    },
+    "visual.thunderstormradius": {
+        "description": "meters",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+        "date_unit": null
+    },
+    "visual.thunderstormseverity": {
+        "description": "0-X",
+        "can_read": true,
+        "can_write": true,
+        "data_type": "System.Nullable`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]",
+        "date_unit": null
+    },
     "aircraft.electrical.generator.apu.ampere": {
         "description": "APU generator amps",
         "can_read": true,
@@ -14970,6 +15019,62 @@
         "can_read": true,
         "can_write": true,
         "data_type": "System.Boolean",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysA.pressure": {
+        "description": "Hydraulics system A pressure",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysB.pressure": {
+        "description": "Hydraulics system B pressure",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysA.quantity": {
+        "description": "Hydraulics system A quantity (Fluid quantity with thermal factor in %)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysB.quantity": {
+        "description": "Hydraulics system B quantity (Fluid quantity with thermal factor in %)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysA.quantity.calibrated": {
+        "description": "Hydraulics system A quantity (Calibrated quantity used for DEUs in %)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysB.quantity.calibrated": {
+        "description": "Hydraulics system B quantity (Calibrated quantity used for DEUs in %)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Int32",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysA.quantity.liters": {
+        "description": "Hydraulics system A quantity (Raw quantity in liters)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Double",
+        "date_unit": null
+    },
+    "aircraft.hydraulics.sysB.quantity.liters": {
+        "description": "Hydraulics system B quantity (Raw quantity in liters)",
+        "can_read": true,
+        "can_write": false,
+        "data_type": "System.Double",
         "date_unit": null
     },
     "aircraft.fms.origin": {
