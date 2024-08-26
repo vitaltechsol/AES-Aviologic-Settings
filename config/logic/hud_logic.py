@@ -1,6 +1,6 @@
 """ Head Up Display control panel Logic script
 
-Author: Lucas Matias Angarola (737goodness@gmail.com)
+Author: Lucas M. Angarola (737goodness@gmail.com)
 
 This script implements an API to interface the HUD control panel from Flight Dynamics.
 The script also binds the HUD inputs/outputs to Prosim datarefs.
@@ -36,7 +36,7 @@ from resources.libs.arinc_lib.arinc_lib import ArincLabel
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
-ARINC_CARD_TX_CHNL: int = 1
+ARINC_CARD_TX_CHNL: int = 2
 ARINC_CARD_RX_CHNL: int = 1
 
 
@@ -162,12 +162,12 @@ class HUD:
                 self._buffer.append(disp_line)
                 self._labels.append(label_line)
 
-        def get_labels(self) -> list:
+        def get_labels(self, always: bool = True) -> list:
             labels = []
             for i in range(self.DISP_ROW):
                 for j in range(4):
                     l = self._labels[i][j]
-                    if l.changed:
+                    if l.changed or always:
                         labels.append((3, self._labels[i][j].label))
             return labels
 
@@ -221,7 +221,7 @@ class HUD:
         ALL_KEYS = 0x0FFFFF00
 
     # Timeout in seconds to detect panel inactivity.
-    RX_CHNL_TIMEOUT: int = 1
+    RX_CHNL_TIMEOUT: float = 5.0
 
     class ArgumentException(Exception):
         pass
@@ -243,8 +243,20 @@ class HUD:
         self._device = arinc_device
         self._tx_chnl = tx_chnl_number
         self._rx_chnl = rx_chnl_number
-        self._display = self.Display()
         self._debug = debug
+
+        # Initialize or reset class variables
+        self._reset()
+
+        # Get reference to receiving queue. This is to make things faster
+        self._rx_queue = self._device._rx_chnl[self._rx_chnl]._label_queue
+
+    def _reset(self):
+        """Initialize or reset internal class variables. This method
+        is intended to be use internally to this class in synchronous
+        manner.
+        """
+        self._display = self.Display()
 
         # Container for the holding the parsed received labels
         self._rx_label = {}
@@ -265,8 +277,9 @@ class HUD:
         # Labels buffer to send to the panel
         self._tx_buffer = []
 
-        # Get reference to receiving queue. This is to make things faster
-        self._rx_queue = self._device._rx_chnl[self._rx_chnl]._label_queue
+        # Indicates if the panel is alive, this means we
+        # receive arinc data from panel.
+        self._panel_is_alive = False
 
     def _handle_keypad_dimmer(self, keypad: int):
         """Handle the DIM+ and DIM- buttons to change
@@ -300,8 +313,12 @@ class HUD:
     def _update_panel(self):
         """Update panel sending the TX buffer"""
         self._tx_buffer += self._display.get_labels()
-        self._device.send_manual_list_fast(self._tx_buffer)
-        self._tx_buffer = []
+        try:
+            self._device.send_manual_list_fast(self._tx_buffer)
+        except Exception:
+            self._reset()
+        else:
+            self._tx_buffer = []
 
     def _brightness_label(self, brightness: int) -> int:
         """Create brightness label
@@ -395,6 +412,7 @@ class HUD:
                             "raw": label,
                         }
                     self._timestamp_prev = time()
+                    self._panel_is_alive = True
 
             if self._debug:
                 # Print table of received labels
@@ -406,12 +424,8 @@ class HUD:
                 print("")
 
             # Clean variables if timeout occurred
-            # if (time() - self._timestamp_prev) > self.RX_CHNL_TIMEOUT:
-            #     self._indicators_bitmap = 0
-            #     self._buttons_bitmap = 0
-            #     # self._display.clear()
-            #     # self._rx_label = {}
-            #     print("TIMEOUT")
+            if (time() - self._timestamp_prev) > self.RX_CHNL_TIMEOUT:
+                self._reset()
 
             # Process keypad inputs
             if 192 in self._rx_label:
@@ -427,19 +441,23 @@ class HUD:
             # # self.disp.write(0, 0, [0x68, 0x65 | 0x80, 0x79])
             # self._display.write_str(0, 0, self._scratch_pad)
 
-            # Add brightness label to buffer
-            self._tx_buffer_append_label(self._brightness_label(self._brightness))
+            # Update panel sending labels only if the panel is alive
+            if self._panel_is_alive:
+                # Add brightness label to buffer
+                self._tx_buffer_append_label(self._brightness_label(self._brightness))
 
-            # Add indicators label. This will update the panel status LEDs
-            self._tx_buffer_append_label(self._indicator_label(self._indicators_bitmap))
+                # Add indicators label. This will update the panel status LEDs
+                self._tx_buffer_append_label(
+                    self._indicator_label(self._indicators_bitmap)
+                )
 
-            # Send data to panel
-            self._update_panel()
+                # Send data to panel
+                self._update_panel()
 
 
 class Logic:
     def __init__(self):
-        self.version = "v1.0.0"
+        self.version = "v1.1.0"
         self.is_enable = True
         self.count = 0
         self.init = False
@@ -468,6 +486,8 @@ class Logic:
         # aircraft.HGSCP.display.line4 HGSCP display line 4 System.String
         self.hud.set_text(3, "line-4")
 
+        test_is_pressed = self.hud.get_button(HUD.ButtonEnum.TEST)
+
         # system.indicators.I_HGS_CLR HGS CP CLR System.Byte
         self.hud.set_indicator(HUD.IndicatorEnum.LED_CLR, True)
         # system.indicators.I_HGS_GS HGS CP G/S System.Byte
@@ -475,42 +495,42 @@ class Logic:
         # system.indicators.I_HGS_RWY HGS CP RWY System.Byte
         self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, True)
         # system.indicators.I_HGS_TEST HGS CP TEST System.Byte
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, True)
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, test_is_pressed)
 
         # system.switches.S_HGS_BRTTEST HGS CP TEST [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.TEST))
+        # self.hud.get_button(HUD.ButtonEnum.TEST)
         # system.switches.S_HGS_CLR HGS CP CLR [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.CLR))
+        # self.hud.get_button(HUD.ButtonEnum.CLR)
         # system.switches.S_HGS_ENTER HGS CP ENTER [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.ENTER))
+        # self.hud.get_button(HUD.ButtonEnum.ENTER)
         # system.switches.S_HGS_GS HGS CP G/S [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.GS))
+        # self.hud.get_button(HUD.ButtonEnum.GS)
         # system.switches.S_HGS_KEY0 HGS CP Key 0 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_0))
+        # self.hud.get_button(HUD.ButtonEnum.NR_0)
         # system.switches.S_HGS_KEY1 HGS CP Key 1 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_1))
+        # self.hud.get_button(HUD.ButtonEnum.NR_1)
         # system.switches.S_HGS_KEY2 HGS CP Key 2 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_2))
+        # self.hud.get_button(HUD.ButtonEnum.NR_2)
         # system.switches.S_HGS_KEY3 HGS CP Key 3 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_3))
+        # self.hud.get_button(HUD.ButtonEnum.NR_3)
         # system.switches.S_HGS_KEY4 HGS CP Key 4 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_4))
+        # self.hud.get_button(HUD.ButtonEnum.NR_4)
         # system.switches.S_HGS_KEY5 HGS CP Key 5 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_5))
+        # self.hud.get_button(HUD.ButtonEnum.NR_5)
         # system.switches.S_HGS_KEY6 HGS CP Key 6 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_6))
+        # self.hud.get_button(HUD.ButtonEnum.NR_6)
         # system.switches.S_HGS_KEY7 HGS CP Key 7 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_7))
+        # self.hud.get_button(HUD.ButtonEnum.NR_7)
         # system.switches.S_HGS_KEY8 HGS CP Key 8 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_8))
+        # self.hud.get_button(HUD.ButtonEnum.NR_8)
         # system.switches.S_HGS_KEY9 HGS CP Key 9 [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.NR_9))
+        # self.hud.get_button(HUD.ButtonEnum.NR_9)
         # system.switches.S_HGS_MODE HGS CP MODE [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.MODE))
+        # self.hud.get_button(HUD.ButtonEnum.MODE)
         # system.switches.S_HGS_RWY HGS CP RWY [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.RWY))
+        # self.hud.get_button(HUD.ButtonEnum.RWY)
         # system.switches.S_HGS_STBY HGS CP STBY [0:Normal, 1:Pushed] System.Int32
-        print(self.hud.get_button(HUD.ButtonEnum.STBY))
+        # self.hud.get_button(HUD.ButtonEnum.STBY)
 
         # ----- User Space END -----
 

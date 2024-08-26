@@ -2,6 +2,6 @@
     "settings_path": "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic",
     "config_path": "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config",
     "general": {
-        "start_minimized": true
+        "start_minimized": false
     }
 }

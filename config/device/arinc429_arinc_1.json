@@ -15,18 +15,18 @@
                 "link_equipment": {}
             },
             "1": {
-                "enable": true,
+                "enable": false,
                 "speed": "S12_KHZ",
                 "mode": "TX_MANUAL",
                 "description": "hud_tx",
                 "name": "hud_tx"
             },
             "2": {
-                "enable": false,
+                "enable": true,
                 "speed": "S12_KHZ",
-                "mode": "TX_TIMETABLE",
-                "description": "<describe what this channel is used for>",
-                "link_equipment": {}
+                "mode": "TX_MANUAL",
+                "description": "hud_tx",
+                "name": "hud_tx"
             },
             "3": {
                 "enable": false,
