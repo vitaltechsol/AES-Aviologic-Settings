@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 from resources.libs.arinc_lib.arinc_lib import ArincLabel
 import re
 import xml.etree.ElementTree as ET
@@ -82,8 +82,15 @@ class Screen:
         # for i in block:
         #     print(hex(i))
         if len(text) > 0:
-            block += [self._char_label(c, control) for c in text.encode("iso-8859-5")]
-            if end_line:
+             for c in text:
+                if c == "Д":
+                    # Special case for `Д` which is the empty box, add the corresponding int (64)
+                    block += [self._char_label(64, control)]
+                else:
+                    # Encode other characters in ISO-8859-5 and add them to the block
+                    block += [self._char_label(b, control) for b in c.encode("iso-8859-5")]
+            
+             if end_line:
                 block[-1] |= 0x3 << 11
         self._labels += block
 
@@ -142,6 +149,8 @@ class Screen:
 
         input_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: m.group(1).lower(), input_str)
         input_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: m.group(1).lower(), input_str)
+        # Prosim uses [] for a box, but need to replace to a single character to keep the space count correct
+        input_str = input_str.replace("[]", "Д")
         delimiter_count = input_str.count(DELIMITER)
 
         # Handle cases with two delimiters (left, center, right)
@@ -282,7 +291,7 @@ class Logic:
               <line> GMT-MON/DY\u00A8</line>
               <line>0440.4Z 08/27\u00A8</line>
               <line>------------\u00A8------------</line>
-              <line>&lt;INDEX\u00A83ROUTE&gt;</line>
+              <line>&lt;INDEX\u00A8ROUTE&gt;</line>
               <scratchpad></scratchpad>
             </root>"""
 
@@ -321,6 +330,15 @@ class Logic:
 
             # data = 0x20
             # self.screen.block_add_data(data)
+
+            # self.screen.block_open(1)
+            # self.screen.block_cfg(0x00)
+
+
+
+            # for j in range(8):
+            #     self.screen.block_add_data(64)
+
 
             # tpm = self.screen.format_row("left", "mid", "right")
             # self.screen.add_text(0, tpm)
