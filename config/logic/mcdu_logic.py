@@ -142,12 +142,19 @@ class Screen:
 
         input_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: m.group(1).lower(), input_str)
         input_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: m.group(1).lower(), input_str)
+        delimiter_count = input_str.count(DELIMITER)
 
-        # Split the string by the DELIMITER into left and right parts
-        if DELIMITER in input_str:
+        # Handle cases with two delimiters (left, center, right)
+        if delimiter_count == 2:
+            left, center, right = input_str.split(DELIMITER, 2)
+        # Handle cases with one delimiter (left, right)
+        elif delimiter_count == 1:
             left, right = input_str.split(DELIMITER, 1)
+            center = ""
+        # Handle cases with no delimiters
         else:
-            left = input_str
+            left, center, right = input_str, "", ""
+
 
         # Find the text wrapped in [m][/m] tags for the center part
         center_match = re.search(r'\[m\](.*?)\[/m\]', input_str)
@@ -190,10 +197,7 @@ class Logic:
         self.rx_label = {}
 
         for i in range(13):
-            # self.screen.add_text(0, "123456789012345678901234")
-            self.screen.add_text(1, "                       ")
-
-        self.loading = ""
+            self.screen.add_text(1, "                       ")        
 
         self.first = 1
         self.other = 1
@@ -227,7 +231,7 @@ class Logic:
             #     print(f'[{oct(label_id)}]({label_id}) {(obj["raw"] & 0x7FFFFF00):8X} {obj["sdi"]}')
             # print("")
 
-            self.loading
+            #self.loading
             file = self.screen.pack()
             # print(file)
 
@@ -238,16 +242,10 @@ class Logic:
             # print(lwc)
             self.dev.send_manual_list_fast(lwc)
             # self.dev.send_manual_list_fast(buffer)
-            await asyncio.sleep(0.80)
+            await asyncio.sleep(0.5)
 
             self.screen = Screen(40)
-           # self.screen.add_text(1, "     N1 LIMITS         " + "sel/aot                 " + "<FROM Lucas              " + "                       " + "<TO OC737.COM         ")
-           # self.screen.add_text(self.first, "> WHAT THE WHAT THEWHAT >        []     WHAT 1 > Option [] THEWHAT THEWHAT THEWHAT THE    "  , control=0)
-
-            self.loading    
-            # self.screen.add_text(295 - self.first, self.loading, control=0)
-            # self.screen.add_text(0, "XX34567890123456789012XX")
-            # self.screen.add_text(0, "YY34567890123456789012YY")
+            #self.loading    
 
 
             xml_string_1 = """
@@ -289,10 +287,10 @@ class Logic:
             </root>"""
 
             xml_string = """<root>
-              <title>False\u00A80\u00A8MOD PERF INIT</title>
+              <title>False\u00A8x\u00A8MOD PERF INIT</title>
               <titlePage>1/2</titlePage>
               <line> GW/CRZ CG\u00A8TRIP/CRZ ALT</line>
-              <line>142.9/26.2%\u00A8FL258/FL280</line>
+              <line>144.9/26.2%\u00A8FL258/FL280</line>
               <line> FUEL\u00A8CRZ WIND</line>
               <line>12.4\u00A8231`/ 35</line>
               <line> ZFW\u00A8ISA DEV</line>
@@ -310,12 +308,19 @@ class Logic:
             
             xml_result = self.screen.parse_xml(xml_string)
             xml_lines = xml_result["lines"]
+            xml_title_page = xml_result["title_page"]
+            xml_title =  self.screen.parse_display_line(xml_result["title"])
 
-            for ln in range(7):
+            self.screen.add_text(0,  self.screen.format_row(False, "", xml_title[2], xml_title_page))
+
+            for ln in range(12):
                 xml1 = self.screen.parse_display_line(xml_lines[ln])
                 self.screen.add_text(0, 
                     self.screen.format_row(ln % 2 == 0, *xml1)
                 )
+
+            # data = 0x20
+            # self.screen.block_add_data(data)
 
             # tpm = self.screen.format_row("left", "mid", "right")
             # self.screen.add_text(0, tpm)
@@ -328,5 +333,38 @@ class Logic:
 
             # self.first += 1
             # self.loading = datetime.today().strftime('%H:%M:%S')
-            if self.first > 250:
-                self.first = 1
+            #if self.first > 250:
+            #    self.first = 1
+
+
+
+
+
+
+            # pr = ""
+            # self.text = []
+            # self.char = 0;
+            # for i in range(12):
+            #     t = bytearray()
+
+            #     self.screen.block_open(1)
+            #     self.screen.block_cfg(0x00)
+            #     for j in range(24):
+            #         data = 0x00
+            #         if self.char > 0xFF:
+            #             pr += hex(0) + " "
+            #             data = 0x20
+
+            #         else:
+            #             pr += hex(self.char) + " "
+            #             data = self.char
+
+            #         self.screen.block_add_data(data)
+            #         self.char += 1
+
+            #     self.text.append(t)
+
+            # if self.char > 0xFF:
+            #     self.char = 0x00
+
+            #0x41 so the box char is 0x40
