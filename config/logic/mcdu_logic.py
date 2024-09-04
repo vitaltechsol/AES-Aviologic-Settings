@@ -74,7 +74,7 @@ class Screen:
         self._labels += [null_char] * 24
         self._labels += [0x00008104, 0x80000204]
 
-    def add_text(self, offset: int, text: str, end_line=False, control: int = 0):
+    def add_text(self, offset: int, text: str, lower_case=False, control: int = 0):
         block = [
             self._apply_par(self._block_base | (offset << 13)),
             self._apply_par(self._block2_base),
@@ -82,16 +82,24 @@ class Screen:
         # for i in block:
         #     print(hex(i))
         if len(text) > 0:
+
+             if lower_case:
+                 text = text.lower()
+
              for c in text:
-                if c == "Д":
-                    # Special case for `Д` which is the empty box, add the corresponding int (64)
+                if c == "#":
+                    # Special case for `#` which is the empty box, add the corresponding int (64)
                     block += [self._char_label(64, control)]
+                    # for lower case digits use the special character
+                elif c == "`":
+                    # for degrees symbol prosim uses `
+                    block += [self._char_label(36, control)]
+                elif c.isdigit() and lower_case:
+                    block += [self._char_label(16 + int(c), control)]
                 else:
                     # Encode other characters in ISO-8859-5 and add them to the block
                     block += [self._char_label(b, control) for b in c.encode("iso-8859-5")]
             
-             if end_line:
-                block[-1] |= 0x3 << 11
         self._labels += block
 
     def block_open(self, offset: int):
@@ -108,14 +116,9 @@ class Screen:
         # self._labels += [0x80001f04]
         return self._labels + [0x80001F04]
 
-    def format_row(self, lower_case = False, left="", center="", right=""):
+    def format_row(self, left="", center="", right=""):
         # Start with an empty 24-character line filled with spaces
         row = [' '] * 24
-
-        if lower_case:
-            left = left.lower()
-            center = center.lower()
-            right = right.lower()
     
         # Add the left text, starting at index 0
         for i, char in enumerate(left):
@@ -150,7 +153,7 @@ class Screen:
         input_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: m.group(1).lower(), input_str)
         input_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: m.group(1).lower(), input_str)
         # Prosim uses [] for a box, but need to replace to a single character to keep the space count correct
-        input_str = input_str.replace("[]", "Д")
+        input_str = input_str.replace("[]", "#")
         delimiter_count = input_str.count(DELIMITER)
 
         # Handle cases with two delimiters (left, center, right)
@@ -240,7 +243,6 @@ class Logic:
             #     print(f'[{oct(label_id)}]({label_id}) {(obj["raw"] & 0x7FFFFF00):8X} {obj["sdi"]}')
             # print("")
 
-            #self.loading
             file = self.screen.pack()
             # print(file)
 
@@ -251,138 +253,23 @@ class Logic:
             # print(lwc)
             self.dev.send_manual_list_fast(lwc)
             # self.dev.send_manual_list_fast(buffer)
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.60)
 
             self.screen = Screen(40)
-            #self.loading    
 
 
-            xml_string_1 = """
-            <root>
-                <title>False\u00A80\u00A8APPROACH REF</title>
-                <titlePage>1/1</titlePage>
-                <line> GROSS WT\u00A8FLAPS   VREF</line>
-                <line>[][][].[]\u00A815`      [s]KT[/s]</line>
-                <line>\u00A8</line>
-                <line>\u00A830`      [s]KT[/s]</line>
-                <line> KSAN09\u00A8</line>
-                <line>9401Ft2865M\u00A840`      [s]KT[/s]</line>
-                <line> ILS 09/CRS\u00A8FLAP/SPD</line>
-                <line>111.55ISAN/095`\u00A8--/---</line>
-                <line> G/S\u00A8WIND CORR</line>
-                <line>&lt;[2]ON[/2]/[s]OFF[/s]\u00A8[s]+05[/s][s]KT[/s]</line>
-                <line>------------\u00A8------------</line>
-                <line>&lt;INDEX\u00A8</line>
-                <scratchpad></scratchpad>
-            </root>
-            """
-
-            xml_string_2 = """<root>
-              <title>False\u00A83 0\u00A8 POS INIT</title>
-              <titlePage>1/3</titlePage>
-              <line>\u00A8 LAST POS</line>
-              <line>\u00A8 N3736.5 W12222.8</line>
-              <line> REF AIRPORT\u00A8</line>
-              <line>----\u00A8</line>
-              <line> GATE\u00A8</line>
-              <line>-----\u00A8</line>
-              <line>\u00A8 SET IRS POS</line>
-              <line>\u00A8 [][][][][][].[] [][][][][][][].[]</line>
-              <line> GMT-MON/DY\u00A8</line>
-              <line>0440.4Z 08/27\u00A8</line>
-              <line>------------\u00A8------------</line>
-              <line>&lt;INDEX\u00A8ROUTE&gt;</line>
-              <scratchpad></scratchpad>
-            </root>"""
-
-            xml_string = """<root>
-              <title>False\u00A8x\u00A8MOD PERF INIT</title>
-              <titlePage>1/2</titlePage>
-              <line> GW/CRZ CG\u00A8TRIP/CRZ ALT</line>
-              <line>144.9/26.2%\u00A8FL258/FL280</line>
-              <line> FUEL\u00A8CRZ WIND</line>
-              <line>12.4\u00A8231`/ 35</line>
-              <line> ZFW\u00A8ISA DEV</line>
-              <line>130.5\u00A8 55`[S]F[/S]  13`[S]C[/S]</line>
-              <line> RESERVES\u00A8TRANS ALT</line>
-              <line> 2.4\u00A818000</line>
-              <line> COST INDEX\u00A8PERF INIT </line>
-              <line>100\u00A8[I] REQUEST [/I] </line>
-              <line>------------\u00A8------------</line>
-              <line>&lt;ERASE\u00A8N1 LIMIT&gt;</line>
-              <scratchpad>PERF LIMIT UPLINK</scratchpad>
-            </root>"""
-
-            _xml_string = self.datarefs.prosim.cdu1.value
+            xml_string = self.datarefs.prosim.cdu1.value
             
             xml_result = self.screen.parse_xml(xml_string)
             xml_lines = xml_result["lines"]
             xml_title_page = xml_result["title_page"]
             xml_title =  self.screen.parse_display_line(xml_result["title"])
 
-            self.screen.add_text(0,  self.screen.format_row(False, "", xml_title[2], xml_title_page))
+            self.screen.add_text(0,  self.screen.format_row("", xml_title[2], xml_title_page if xml_title_page else "" ))
 
             for ln in range(12):
                 xml1 = self.screen.parse_display_line(xml_lines[ln])
                 self.screen.add_text(0, 
-                    self.screen.format_row(ln % 2 == 0, *xml1)
+                    self.screen.format_row(*xml1), ln % 2 == 0
                 )
 
-            # data = 0x20
-            # self.screen.block_add_data(data)
-
-            # self.screen.block_open(1)
-            # self.screen.block_cfg(0x00)
-
-
-
-            # for j in range(8):
-            #     self.screen.block_add_data(64)
-
-
-            # tpm = self.screen.format_row("left", "mid", "right")
-            # self.screen.add_text(0, tpm)
-
-            # display_line =  self.screen.parse_display_line("028\u00A8[m] 23NM[/m]xx")
-            # Unpack the parsed result and pass to formatRow
-            # self.screen.add_text(0, self.screen.format_row(*display_line))
-            # display_line2 = self.screen.parse_display_line("[s]W/268[/s]Z \u00A8----[s]Z[/s]")
-            # self.screen.add_text(0, self.screen.format_row(*display_line2))
-
-            # self.first += 1
-            # self.loading = datetime.today().strftime('%H:%M:%S')
-            #if self.first > 250:
-            #    self.first = 1
-
-
-
-
-
-
-            # pr = ""
-            # self.text = []
-            # self.char = 0;
-            # for i in range(12):
-            #     t = bytearray()
-
-            #     self.screen.block_open(1)
-            #     self.screen.block_cfg(0x00)
-            #     for j in range(24):
-            #         data = 0x00
-            #         if self.char > 0xFF:
-            #             pr += hex(0) + " "
-            #             data = 0x20
-
-            #         else:
-            #             pr += hex(self.char) + " "
-            #             data = self.char
-
-            #         self.screen.block_add_data(data)
-            #         self.char += 1
-
-            #     self.text.append(t)
-
-            # if self.char > 0xFF:
-            #     self.char = 0x00
-
-            #0x41 so the box char is 0x40
