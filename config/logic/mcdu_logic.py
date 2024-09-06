@@ -74,31 +74,43 @@ class Screen:
         self._labels += [null_char] * 24
         self._labels += [0x00008104, 0x80000204]
 
-    def add_text(self, offset: int, text: str, lower_case=False, control: int = 0):
+    def add_text(self, offset: int, text: str, control: int = 0):
         block = [
             self._apply_par(self._block_base | (offset << 13)),
             self._apply_par(self._block2_base),
         ]
         # for i in block:
         #     print(hex(i))
-        if len(text) > 0:
 
-             if lower_case:
-                 text = text.lower()
+         # Mapping of Cyrillic characters to corresponding numbers. Used to show small font numbers
+        cyrillic_to_number = {
+            'А': '0',
+            'Б': '1',
+            'В': '2',
+            'Г': '3',
+            'Д': '4',
+            'Е': '5',
+            'Ж': '6',
+            'З': '7',
+            'И': '8',
+            'Й': '9'
+        }
 
-             for c in text:
-                if c == "#":
-                    # Special case for `#` which is the empty box, add the corresponding int (64)
-                    block += [self._char_label(64, control)]
-                    # for lower case digits use the special character
-                elif c == "`":
-                    # for degrees symbol prosim uses `
-                    block += [self._char_label(36, control)]
-                elif c.isdigit() and lower_case:
-                    block += [self._char_label(16 + int(c), control)]
-                else:
-                    # Encode other characters in ISO-8859-5 and add them to the block
-                    block += [self._char_label(b, control) for b in c.encode("iso-8859-5")]
+        for c in text:
+            if c == "#":
+                # Special case for `#` which is the empty box, add the corresponding int (64)
+                block += [self._char_label(64, control)]
+                # for lower case digits use the special character
+            elif c == "`":
+                # for degrees symbol prosim uses `
+                block += [self._char_label(36, control)]
+            elif c in cyrillic_to_number:
+                # Map Cyrillic characters to numbers and use the same logic as for digits
+                n = cyrillic_to_number[c]
+                block += [self._char_label(16 + int(n), control)]
+            else:
+                # Encode other characters in ISO-8859-5 and add them to the block
+                block += [self._char_label(b, control) for b in c.encode("iso-8859-5")]
             
         self._labels += block
 
@@ -141,17 +153,46 @@ class Screen:
         return ''.join(row)
 
 
-    def parse_display_line(self, input_str):
+    # Function to convert numbers to Cyrillic
+    # used to convert numbers to a special character that can later
+    # be used to be shown as a small font number instead
+    def convert_numbers_to_cyrillic(self, text):
+
+        # Mapping of numbers to Cyrillic letters (ISO-8859-5)
+        number_to_cyrillic = {
+            '0': 'А',  # ISO-8859-5 0410
+            '1': 'Б',  # ISO-8859-5 0411
+            '2': 'В',  # ISO-8859-5 0412
+            '3': 'Г',  # ISO-8859-5 0413
+            '4': 'Д',  # ISO-8859-5 0414
+            '5': 'Е',  # ISO-8859-5 0415
+            '6': 'Ж',  # ISO-8859-5 0416
+            '7': 'З',  # ISO-8859-5 0417
+            '8': 'И',  # ISO-8859-5 0418
+            '9': 'Й'   # ISO-8859-5 0419
+        }
+
+        return ''.join(number_to_cyrillic.get(c, c) for c in text)
+
+
+    def parse_display_line(self, input_str, lower_case = False):
         DELIMITER = "\u00A8"
         left = ""
         center = ""
         right = ""
 
-        
-        # Find and handle text wrapped in [s][/s] for lowercase conversion
+        # Find and handle text wrapped in [s][/s] for lowercase conversion and number conversion
+        def process_s_tags(match):
+            content = match.group(1).lower()  # Convert to lowercase
+            return self.convert_numbers_to_cyrillic(content)  # Convert numbers to Cyrillic
 
-        input_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: m.group(1).lower(), input_str)
-        input_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: m.group(1).lower(), input_str)
+        if (lower_case):
+            input_str = input_str.lower()
+            input_str = self.convert_numbers_to_cyrillic(input_str)
+
+        input_str = re.sub(r'\[s\](.*?)\[/s\]', process_s_tags, input_str)
+        input_str = re.sub(r'\[S\](.*?)\[/S\]', process_s_tags, input_str)
+
         # Prosim uses [] for a box, but need to replace to a single character to keep the space count correct
         input_str = input_str.replace("[]", "#")
         delimiter_count = input_str.count(DELIMITER)
@@ -264,12 +305,20 @@ class Logic:
             xml_lines = xml_result["lines"]
             xml_title_page = xml_result["title_page"]
             xml_title =  self.screen.parse_display_line(xml_result["title"])
+            xml_title_spaces =  int(xml_title[1]) if xml_title[1] else 0
 
-            self.screen.add_text(0,  self.screen.format_row("", xml_title[2], xml_title_page if xml_title_page else "" ))
+            #Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
+            #If the title doesn't have spaces then center it.
+            self.screen.add_text(0,  
+                self.screen.format_row(
+                    ' ' * xml_title_spaces + xml_title[2] if xml_title_spaces > 0 else "",
+                    xml_title[2] if xml_title_spaces == 0 else "", 
+                self.screen.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "" ))
 
+            #Add Lines
             for ln in range(12):
-                xml1 = self.screen.parse_display_line(xml_lines[ln])
+                xml1 = self.screen.parse_display_line(xml_lines[ln], ln % 2 == 0)
                 self.screen.add_text(0, 
-                    self.screen.format_row(*xml1), ln % 2 == 0
+                    self.screen.format_row(*xml1)
                 )
 
