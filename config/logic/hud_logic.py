@@ -1,6 +1,7 @@
 """ Head Up Display control panel Logic script
 
 Author: Lucas M. Angarola (737goodness@gmail.com)
+LICENSE: GPLv2
 
 This script implements an API to interface the HUD control panel from Flight Dynamics.
 The script also binds the HUD inputs/outputs to Prosim datarefs.
@@ -26,7 +27,18 @@ ARINC_CARD_NAME: String to set the card name as per configured under device conf
 ARINC_CARD_TX_CHNL: Integer to set transmitting channel number. This is a number from 0 to 3.
                     This number is as per specified under device configuration
 ARINC_CARD_RX_CHNL: Integer to set receiving channel number. This is a number from 0 to 3.
-                    This number is as per specified under device configuration
+                    This number is as per specified under device configuration.
+
+Change Log:
+v1.0.0
+- Initial Release
+
+v1.1.0
+- Send data to panel only when panel reports alive
+- Implement panel Timeout
+
+v1.2.0
+- Send additional labels to extinguish FAULT signal.
 """
 
 import asyncio
@@ -37,7 +49,7 @@ from resources.libs.arinc_lib.arinc_lib import ArincLabel
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 2
-ARINC_CARD_RX_CHNL: int = 1
+ARINC_CARD_RX_CHNL: int = 2
 
 
 class HUD:
@@ -266,7 +278,7 @@ class HUD:
         self._timestamp_prev = 0
 
         # Brightness value should be between 60 and 127
-        self._brightness = 60
+        self._brightness = 110
 
         # Indicators flags. Off by default
         self._indicators_bitmap = 0
@@ -443,13 +455,19 @@ class HUD:
 
             # Update panel sending labels only if the panel is alive
             if self._panel_is_alive:
-                # Add brightness label to buffer
-                self._tx_buffer_append_label(self._brightness_label(self._brightness))
-
-                # Add indicators label. This will update the panel status LEDs
+                # Add indicators label. This will update the panel status LEDs. Label octal 1
                 self._tx_buffer_append_label(
                     self._indicator_label(self._indicators_bitmap)
                 )
+
+                # Send label octal 2. This label is require to extinguish FAULT light.
+                self._tx_buffer_append_label(0x64040040)
+
+                # Add brightness label to buffer. Label octal 3.
+                self._tx_buffer_append_label(self._brightness_label(self._brightness))
+
+                # Send label octal 4. This label is require to extinguish FAULT light.
+                self._tx_buffer_append_label(0x64040020)
 
                 # Send data to panel
                 self._update_panel()
@@ -457,7 +475,7 @@ class HUD:
 
 class Logic:
     def __init__(self):
-        self.version = "v1.1.0"
+        self.version = "v1.2.0"
         self.is_enable = True
         self.count = 0
         self.init = False
