@@ -181,22 +181,41 @@ class Screen:
         center = ""
         right = ""
 
-        # Find and handle text wrapped in [s][/s] for lowercase conversion and number conversion
-        def process_s_tags(match):
-            content = match.group(1).lower()  # Convert to lowercase
-            return self.convert_numbers_to_cyrillic(content)  # Convert numbers to Cyrillic
+        # Find and handle text wrapped in [s][/s] for lowercase conversion and small number conversion
+        def process_s_tags(content):
+            # Convert to lowercase
+            content = content.lower()
+            # Convert numbers to Cyrillic
+            return self.convert_numbers_to_cyrillic(content)
+
+        def replace_nested_s_tags(input_str):
+            while True:
+                # Replace the innermost [s][/s] or [S][/S] first
+                new_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), input_str)
+                new_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), new_str)
+                if new_str == input_str:
+                    break  # Stop if no more replacements were made
+                input_str = new_str
+
+                # Replace any remaining [s] from nested
+                input_str = input_str.replace("[s]", "")
+            return input_str
 
         if (lower_case):
             input_str = input_str.lower()
             input_str = self.convert_numbers_to_cyrillic(input_str)
 
-        input_str = re.sub(r'\[s\](.*?)\[/s\]', process_s_tags, input_str)
-        input_str = re.sub(r'\[S\](.*?)\[/S\]', process_s_tags, input_str)
+        # Process nested [s][/s] and [S][/S] tags
+        input_str = replace_nested_s_tags(input_str)
 
-        # Prosim uses [] for a box, but need to replace to a single character to keep the space count correct
+        # Replace Prosim's box symbols with '#'
         input_str = input_str.replace("[]", "#")
-        delimiter_count = input_str.count(DELIMITER)
+        
+        # Replace any [L] and [/L] tags with an empty string
+        input_str = input_str.replace("[L]", "").replace("[/L]", "")
 
+        delimiter_count = input_str.count(DELIMITER)
+    
         # Handle cases with two delimiters (left, center, right)
         if delimiter_count == 2:
             left, center, right = input_str.split(DELIMITER, 2)
