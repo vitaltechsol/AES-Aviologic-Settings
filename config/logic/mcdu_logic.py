@@ -181,6 +181,9 @@ class Screen:
         center = ""
         right = ""
 
+        if not input_str:
+            return ["", "", ""]
+
         # Find and handle text wrapped in [s][/s] for lowercase conversion and small number conversion
         def process_s_tags(content):
             # Convert to lowercase
@@ -189,19 +192,15 @@ class Screen:
             return self.convert_numbers_to_cyrillic(content)
 
         def replace_nested_s_tags(input_str):
-            while True:
-                # Replace the innermost [s][/s] or [S][/S] first
-                new_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), input_str)
-                new_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), new_str)
-                if new_str == input_str:
-                    break  # Stop if no more replacements were made
-                input_str = new_str
-
-                # Replace any remaining [s] from nested
-                input_str = input_str.replace("[s]", "")
+            # Replace the innermost [s][/s] or [S][/S] first
+            new_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), input_str)
+            new_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), new_str)
+            input_str = new_str
+            # Replace any remaining [s] from nested
+            input_str = input_str.replace("[s]", "").replace("[/s]", "")
             return input_str
 
-        if (lower_case):
+        if (lower_case and input_str):
             input_str = input_str.lower()
             input_str = self.convert_numbers_to_cyrillic(input_str)
 
@@ -211,8 +210,8 @@ class Screen:
         # Replace Prosim's box symbols with '#'
         input_str = input_str.replace("[]", "#")
         
-        # Replace any [L] and [/L] tags with an empty string
-        input_str = input_str.replace("[L]", "").replace("[/L]", "")
+        # Replace any [L] and [/L] tags with an empty string (Supposed to be large but not used)
+        input_str = input_str.replace("[l]", "").replace("[/l]", "")
 
         delimiter_count = input_str.count(DELIMITER)
     
@@ -323,15 +322,16 @@ class Logic:
             xml_result = self.screen.parse_xml(xml_string)
             xml_lines = xml_result["lines"]
             xml_title_page = xml_result["title_page"]
-            xml_title =  self.screen.parse_display_line(xml_result["title"])
-            xml_title_spaces =  int(xml_title[1]) if xml_title[1] else 0
+            xml_title = self.screen.parse_display_line(xml_result["title"])
+            xml_title_spaces = int(xml_title[1]) if xml_title[1] else "" 
+            xml_title_left_align = xml_title[0]  if xml_title[0] else ""
 
             #Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
             #If the title doesn't have spaces then center it.
             self.screen.add_text(0,  
                 self.screen.format_row(
-                    ' ' * xml_title_spaces + xml_title[2] if xml_title_spaces > 0 else "",
-                    xml_title[2] if xml_title_spaces == 0 else "", 
+                    ' ' * xml_title_spaces + xml_title[2] if xml_title_left_align == "True" else "",
+                    xml_title[2] if xml_title_left_align == "False" else "", 
                 self.screen.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "" ))
 
             #Add Lines
@@ -341,3 +341,4 @@ class Logic:
                     self.screen.format_row(*xml1)
                 )
 
+                                                                                                                                                                                                                           
