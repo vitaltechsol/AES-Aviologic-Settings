@@ -97,9 +97,10 @@ class MCDU:
             row = [' '] * 24
     
             # Add the left text, starting at index 0
-            for i, char in enumerate(left):
-                if i < 24:  # Ensure we do not overflow the row
-                    row[i] = char
+            if (left):
+                for i, char in enumerate(left):
+                    if i < 24:  # Ensure we do not overflow the row
+                        row[i] = char
     
             # Add the right text, aligned to the right, starting at the correct index
             right_start = 24 - len(right)
@@ -344,10 +345,10 @@ class MCDU:
 
         self._tx_buffer = [
             0x0,
-            self._apply_par(scratchpad_base | (offset << 13)),
+          #  self._apply_par(scratchpad_base | (offset << 13)),
         ]
         null_char = self._char_label(self._sal, 0x40)
-        self._tx_buffer += [null_char] * 24
+        # self._tx_buffer += [null_char] * 24
         self._tx_buffer += [
             self._apply_par(lights_base | light_status),  # << Lights bits here
             self._apply_par(scratchpad_base),
@@ -360,19 +361,17 @@ class MCDU:
         return self._tx_buffer + [self._apply_par(self._sal | 0x00001F00)]
 
     def _key_decode(self, label: int):
-        
         self._key_cb(label)
-       
 
-        try:
-            key_enum = self.KeypadEnum((label >> 12) & 0xFF)
-        except:
-            # Is not a key so pass here
-            pass
-        else:
-            if self._key_cb is not None:
-                self._key_cb(key_enum.name)
-                # print(hex(label), key_enum.name)
+        # try:
+        #     key_enum = self.KeypadEnum((label >> 12) & 0xFF)
+        # except:
+        #     # Is not a key so pass here
+        #     pass
+        # else:
+        #     if self._key_cb is not None:
+        #         self._key_cb(key_enum.name)
+        #         # print(hex(label), key_enum.name)
 
     def add_subsystem(self, name: str, id_octal: int):
         self._subsystem[name] = MCDU.Subsystem(id_octal)
@@ -471,40 +470,63 @@ class Logic:
                 )
             except:
                 pass
+
+
+            # self._key_decode(label)
         
-            if key_hex == 75:
-                self.fmc_subsys.add_text(1, 
-                        "A"
-                )
-                # self._key_decode(label)
+            if key_hex == 75:   #A
                 self.datarefs.prosim.S_CDU1_KEY_A.value = 1
-                self.datarefs.prosim.S_CDU1_KEY_A.value = 0
+                # self.datarefs.prosim.S_CDU1_KEY_A.value = 0
+                self.fmc_subsys.add_text(5, "A")
 
-            elif  key_hex == 91:
-                self.fmc_subsys.add_text(1, 
-                        "B"
-                )
-                # self._key_decode(label)
+            elif  key_hex == 91: #B
                 self.datarefs.prosim.S_CDU1_KEY_B.value = 1
-                self.datarefs.prosim.S_CDU1_KEY_B.value = 0
+                # self.datarefs.prosim.S_CDU1_KEY_B.value = 0
+                self.fmc_subsys.add_text(5, "B")
 
-            elif  key_hex == 107:
-                self.fmc_subsys.add_text(1, 
-                        "C"
-                )
+            elif  key_hex == 107: #C
+                self.fmc_subsys.add_text(5, "C")
+                self.datarefs.prosim.S_CDU1_KEY_C.value = 1
+
+            elif  key_hex == 145: #clr
+                self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 1
+                # self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 0
+                self.fmc_subsys.add_text(5, "clr")
+
+            
+            elif  key_hex == 11 : #LSK1
+                self.datarefs.prosim.S_CDU1_KEY_LSK1L.value = 1
+
+            elif  key_hex == 9 : #LSK2
+                self.datarefs.prosim.S_CDU1_KEY_LSK2L.value = 1
+
+            elif  key_hex == 27 : #LSK3
+                self.datarefs.prosim.S_CDU1_KEY_LSK3L.value = 1
+
+            elif  key_hex == 25 : #LSK3
+                self.datarefs.prosim.S_CDU1_KEY_LSK4L.value = 1
+
+            elif  key_hex == 43 : #LSK3
+                self.datarefs.prosim.S_CDU1_KEY_LSK5L.value = 1
+            
+            elif  key_hex == 41 : #LSK3
+                self.datarefs.prosim.S_CDU1_KEY_LSK6L.value = 1
+
+            elif  key_hex == 63 : #init ref
+                self.datarefs.prosim.S_CDU1_KEY_INIT_REF.value = 1
 
             print(name)
 
     async def update(self):
         self.mcdu.loop()
 
-        if (time.time() - self.tprev) > 1.0:
-            self.test_label_increment += 1
-            print("trigger", hex(self.test_label_increment))
-            self.tprev = time.time()
-            self.aux <<= 1
-            if self.aux > 0x1FF:
-                self.aux = 1
+        # if (time.time() - self.tprev) > 1.0:
+        #     self.test_label_increment += 1
+        #     print("trigger", hex(self.test_label_increment))
+        #     self.tprev = time.time()
+        #     self.aux <<= 1
+        #     if self.aux > 0x1FF:
+        #         self.aux = 1
 
         # ----- TEST ZERO - START -----
         # Title: Make sure new code works as intended.
@@ -553,8 +575,9 @@ class Logic:
                     self.fmc_subsys.format_row(*xml1)
                 )
 
+            #Scratchpad        
             self.fmc_subsys.add_text(0,  
-                self.fmc_subsys.format_row("", "", "")
+                self.fmc_subsys.format_row(xml_scratchpad, "", "")
                 )
 
         # ----- TEST ZERO - END -----
@@ -617,3 +640,19 @@ class Logic:
         # self.fmc_subsys.add_text(1, "Test Four")
 
         # ----- TEST FOUR - END -----
+
+        self.datarefs.prosim.S_CDU1_KEY_A.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_B.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_C.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK1L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK2L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK3L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK4L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK5L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_LSK6L.value = 0
+        self.datarefs.prosim.S_CDU1_KEY_INIT_REF.value = 0
+
+        
+
+        
