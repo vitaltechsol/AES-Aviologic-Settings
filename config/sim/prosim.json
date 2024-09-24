@@ -27,6 +27,383 @@
       "name": "system.gauge.G_MIP_STDBY_ATT_BANK",
       "read_interval_ms": 100,
       "reset_value": 0
+    },
+    "hgscp": {
+      "name": "aircraft.HGSCP.display.line1",
+      "read_interval_ms": 100,
+      "reset_value": "",
+      "length": 700
+    },
+    "cdu1": {
+      "name": "aircraft.cdu1.display",
+      "read_interval_ms": 10,
+      "reset_value": 0,
+      "length": 700
+    },
+    "S_CDU1_KEY_0": {
+      "name": "system.switches.S_CDU1_KEY_0",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_1": {
+      "name": "system.switches.S_CDU1_KEY_1",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_2": {
+      "name": "system.switches.S_CDU1_KEY_2",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_3": {
+      "name": "system.switches.S_CDU1_KEY_3",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_4": {
+      "name": "system.switches.S_CDU1_KEY_4",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_5": {
+      "name": "system.switches.S_CDU1_KEY_5",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_6": {
+      "name": "system.switches.S_CDU1_KEY_6",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_7": {
+      "name": "system.switches.S_CDU1_KEY_7",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_8": {
+      "name": "system.switches.S_CDU1_KEY_8",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_9": {
+      "name": "system.switches.S_CDU1_KEY_9",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_A": {
+      "name": "system.switches.S_CDU1_KEY_A",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_ATC": {
+      "name": "system.switches.S_CDU1_KEY_ATC",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_B": {
+      "name": "system.switches.S_CDU1_KEY_B",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_C": {
+      "name": "system.switches.S_CDU1_KEY_C",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_CLB": {
+      "name": "system.switches.S_CDU1_KEY_CLB",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_CLEAR": {
+      "name": "system.switches.S_CDU1_KEY_CLEAR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_CLEARLINE": {
+      "name": "system.switches.S_CDU1_KEY_CLEARLINE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_CRZ": {
+      "name": "system.switches.S_CDU1_KEY_CRZ",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_D": {
+      "name": "system.switches.S_CDU1_KEY_D",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_DEL": {
+      "name": "system.switches.S_CDU1_KEY_DEL",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_DEP_ARR": {
+      "name": "system.switches.S_CDU1_KEY_DEP_ARR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_DES": {
+      "name": "system.switches.S_CDU1_KEY_DES",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_DOT": {
+      "name": "system.switches.S_CDU1_KEY_DOT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_E": {
+      "name": "system.switches.S_CDU1_KEY_E",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_EXEC": {
+      "name": "system.switches.S_CDU1_KEY_EXEC",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_F": {
+      "name": "system.switches.S_CDU1_KEY_F",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_FIX": {
+      "name": "system.switches.S_CDU1_KEY_FIX",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_FMC_COMM": {
+      "name": "system.switches.S_CDU1_KEY_FMC_COMM",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_G": {
+      "name": "system.switches.S_CDU1_KEY_G",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_H": {
+      "name": "system.switches.S_CDU1_KEY_H",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_HOLD": {
+      "name": "system.switches.S_CDU1_KEY_HOLD",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_I": {
+      "name": "system.switches.S_CDU1_KEY_I",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_INIT_REF": {
+      "name": "system.switches.S_CDU1_KEY_INIT_REF",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_J": {
+      "name": "system.switches.S_CDU1_KEY_J",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_K": {
+      "name": "system.switches.S_CDU1_KEY_K",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_L": {
+      "name": "system.switches.S_CDU1_KEY_L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LEGS": {
+      "name": "system.switches.S_CDU1_KEY_LEGS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK1L": {
+      "name": "system.switches.S_CDU1_KEY_LSK1L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK1R": {
+      "name": "system.switches.S_CDU1_KEY_LSK1R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK2L": {
+      "name": "system.switches.S_CDU1_KEY_LSK2L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK2R": {
+      "name": "system.switches.S_CDU1_KEY_LSK2R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK3L": {
+      "name": "system.switches.S_CDU1_KEY_LSK3L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK3R": {
+      "name": "system.switches.S_CDU1_KEY_LSK3R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK4L": {
+      "name": "system.switches.S_CDU1_KEY_LSK4L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK4R": {
+      "name": "system.switches.S_CDU1_KEY_LSK4R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK5L": {
+      "name": "system.switches.S_CDU1_KEY_LSK5L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK5R": {
+      "name": "system.switches.S_CDU1_KEY_LSK5R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK6L": {
+      "name": "system.switches.S_CDU1_KEY_LSK6L",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_LSK6R": {
+      "name": "system.switches.S_CDU1_KEY_LSK6R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_M": {
+      "name": "system.switches.S_CDU1_KEY_M",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_MENU": {
+      "name": "system.switches.S_CDU1_KEY_MENU",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_MINUS": {
+      "name": "system.switches.S_CDU1_KEY_MINUS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_N": {
+      "name": "system.switches.S_CDU1_KEY_N",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_N1_LIMIT": {
+      "name": "system.switches.S_CDU1_KEY_N1_LIMIT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_NEXT_PAGE": {
+      "name": "system.switches.S_CDU1_KEY_NEXT_PAGE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_O": {
+      "name": "system.switches.S_CDU1_KEY_O",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_P": {
+      "name": "system.switches.S_CDU1_KEY_P",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_PREV_PAGE": {
+      "name": "system.switches.S_CDU1_KEY_PREV_PAGE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_PROG": {
+      "name": "system.switches.S_CDU1_KEY_PROG",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_Q": {
+      "name": "system.switches.S_CDU1_KEY_Q",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_R": {
+      "name": "system.switches.S_CDU1_KEY_R",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_RTE": {
+      "name": "system.switches.S_CDU1_KEY_RTE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_S": {
+      "name": "system.switches.S_CDU1_KEY_S",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_SLASH": {
+      "name": "system.switches.S_CDU1_KEY_SLASH",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_SPACE": {
+      "name": "system.switches.S_CDU1_KEY_SPACE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_T": {
+      "name": "system.switches.S_CDU1_KEY_T",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_U": {
+      "name": "system.switches.S_CDU1_KEY_U",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_V": {
+      "name": "system.switches.S_CDU1_KEY_V",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_VNAV": {
+      "name": "system.switches.S_CDU1_KEY_VNAV",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_W": {
+      "name": "system.switches.S_CDU1_KEY_W",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_X": {
+      "name": "system.switches.S_CDU1_KEY_X",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_Y": {
+      "name": "system.switches.S_CDU1_KEY_Y",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_CDU1_KEY_Z": {
+      "name": "system.switches.S_CDU1_KEY_Z",
+      "read_interval_ms": 10,
+      "reset_value": 0
     }
   }
 }
