@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Callable
 import re
 import xml.etree.ElementTree as ET
+import queue
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
@@ -234,12 +235,12 @@ class MCDU:
             37: "S_CDU1_KEY_8",
             53: "S_CDU1_KEY_9",
             75: "S_CDU1_KEY_A",
-            10011: "S_CDU1_KEY_ATC",
+            # 90011: "S_CDU1_KEY_ATC",
             91: "S_CDU1_KEY_B",
             107: "S_CDU1_KEY_C",
             95: "S_CDU1_KEY_CLB",
             145: "S_CDU1_KEY_CLEAR",
-            10016: "S_CDU1_KEY_CLEARLINE",
+            # 90016: "S_CDU1_KEY_CLEARLINE",
             111: "S_CDU1_KEY_CRZ",
             123: "S_CDU1_KEY_D",
             103: "S_CDU1_KEY_DEL",
@@ -248,56 +249,59 @@ class MCDU:
             23: "S_CDU1_KEY_DOT",
             139: "S_CDU1_KEY_E",
             141: "S_CDU1_KEY_EXEC",
-            10025: "S_CDU1_KEY_F",
+            73: "S_CDU1_KEY_F",
             59: "S_CDU1_KEY_FIX",
-            10027: "S_CDU1_KEY_FMC_COMM",
-            10028: "S_CDU1_KEY_G",
-            10029: "S_CDU1_KEY_H",
+            # 90027: "S_CDU1_KEY_FMC_COMM",
+            89: "S_CDU1_KEY_G",
+            105: "S_CDU1_KEY_H",
             109: "S_CDU1_KEY_HOLD",
-            10031: "S_CDU1_KEY_I",
+            121: "S_CDU1_KEY_I",
             63: "S_CDU1_KEY_INIT_REF",
-            10033: "S_CDU1_KEY_J",
-            10034: "S_CDU1_KEY_K",
-            10035: "S_CDU1_KEY_L",
+            137: "S_CDU1_KEY_J",
+            65: "S_CDU1_KEY_K",
+            81: "S_CDU1_KEY_L",
             77: "S_CDU1_KEY_LEGS",
             11: "S_CDU1_KEY_LSK1L",
-            10038: "S_CDU1_KEY_LSK1R",
+            13: "S_CDU1_KEY_LSK1R",
             9: "S_CDU1_KEY_LSK2L",
-            10040: "S_CDU1_KEY_LSK2R",
+            15: "S_CDU1_KEY_LSK2R",
             27: "S_CDU1_KEY_LSK3L",
-            10042: "S_CDU1_KEY_LSK3R",
+            29: "S_CDU1_KEY_LSK3R",
             25: "S_CDU1_KEY_LSK4L",
-            10044: "S_CDU1_KEY_LSK4R",
+            31: "S_CDU1_KEY_LSK4R",
             43: "S_CDU1_KEY_LSK5L",
-            10046: "S_CDU1_KEY_LSK5R",
+            45: "S_CDU1_KEY_LSK5R",
             41: "S_CDU1_KEY_LSK6L",
-            10048: "S_CDU1_KEY_LSK6R",
-            10049: "S_CDU1_KEY_M",
-            10050: "S_CDU1_KEY_MENU",
+            47: "S_CDU1_KEY_LSK6R",
+            97: "S_CDU1_KEY_M",
+            # 90050: "S_CDU1_KEY_MENU",
             55: "S_CDU1_KEY_MINUS",
-            10052: "S_CDU1_KEY_N",
+            113: "S_CDU1_KEY_N",
             149: "S_CDU1_KEY_N1_LIMIT",
             57: "S_CDU1_KEY_NEXT_PAGE",
-            10055: "S_CDU1_KEY_O",
-            10056: "S_CDU1_KEY_P",
+            129: "S_CDU1_KEY_O",
+            67: "S_CDU1_KEY_P",
             147: "S_CDU1_KEY_PREV_PAGE",
             125: "S_CDU1_KEY_PROG",
-            10059: "S_CDU1_KEY_Q",
-            10060: "S_CDU1_KEY_R",
+            83: "S_CDU1_KEY_Q",
+            99: "S_CDU1_KEY_R",
             79: "S_CDU1_KEY_RTE",
-            10062: "S_CDU1_KEY_S",
-            10063: "S_CDU1_KEY_SLASH",
-            10064: "S_CDU1_KEY_SPACE",
-            10065: "S_CDU1_KEY_T",
-            10066: "S_CDU1_KEY_U",
-            10067: "S_CDU1_KEY_V",
-            10068: "S_CDU1_KEY_VNAV",
-            10069: "S_CDU1_KEY_W",
-            10070: "S_CDU1_KEY_X",
-            10071: "S_CDU1_KEY_Y",
-            10072: "S_CDU1_KEY_Z"
+            115: "S_CDU1_KEY_S",
+            119: "S_CDU1_KEY_SLASH",
+            87: "S_CDU1_KEY_SPACE",
+            131: "S_CDU1_KEY_T",
+            69: "S_CDU1_KEY_U",
+            85: "S_CDU1_KEY_V",
+            # 90068: "S_CDU1_KEY_VNAV",
+            101: "S_CDU1_KEY_W",
+            117: "S_CDU1_KEY_X",
+            133: "S_CDU1_KEY_Y",
+            71: "S_CDU1_KEY_Z"
         }
-        
+
+    # Create queue for key presses
+    key_q = queue.Queue()
+    
     class LightsEnum(Enum):
         """Enumeration for front light indicators"""
 
@@ -305,79 +309,7 @@ class MCDU:
         MSG = 0x8000
         OFFSET = 0x10000
         EXEC = 0x20000
-      
-    class KeypadEnumOld(Enum):
-        """Enumeration for all panel Buttons"""
-
-        INIT = 0xC0
-        RTE = 0xB0
-        CLB = 0xA0
-        CRZ = 0x90
-        DES = 0x80
-        LEGS = 0xB2
-        DEP_ARR = 0xA2
-        HOLD = 0x92
-        PROG = 0x82
-        EXEC = 0x72
-        N1_LIMIT = 0x6A
-        FIX = 0xC4
-        A = 0xB4
-        B = 0xA4
-        C = 0x94
-        D = 0x84
-        E = 0x74
-        PREV_PAGE = 0x6C
-        NEXT_PAGE = 0xC6
-        F = 0xB6
-        G = 0xA6
-        H = 0x96
-        I = 0x86
-        J = 0x76
-        ONE = 0xEE
-        TWO = 0xDE
-        THREE = 0xCE
-        K = 0xBE
-        L = 0xAE
-        M = 0x9E
-        N = 0x8E
-        O = 0x7E
-        FOUR = 0xEC
-        FIVE = 0xDC
-        SIX = 0xCC
-        P = 0xBC
-        Q = 0xAC
-        R = 0x9C
-        S = 0x8C
-        T = 0x7C
-        SEVEN = 0xEA
-        EIGHT = 0xDA
-        NINE = 0xCA
-        U = 0xBA
-        V = 0xAA
-        W = 0x9A
-        X = 0x8A
-        Y = 0x7A
-        DOT = 0xE8
-        ZERO = 0xD8
-        PLUS_MINUS = 0xC8
-        Z = 0xB8
-        SPACE = 0xA8
-        DELETE = 0x98
-        SLASH = 0x88
-        CLEAR = 0x6E
-        LINE_LEFT_1 = 0xF4
-        LINE_LEFT_2 = 0xF6
-        LINE_LEFT_3 = 0xE4
-        LINE_LEFT_4 = 0xE6
-        LINE_LEFT_5 = 0xD4
-        LINE_LEFT_6 = 0xD6
-        LINE_RIGHT_1 = 0xF2
-        LINE_RIGHT_2 = 0xF0
-        LINE_RIGHT_3 = 0xE2
-        LINE_RIGHT_4 = 0xE0
-        LINE_RIGHT_5 = 0xD2
-        LINE_RIGHT_6 = 0xD0
-
+     
     def __init__(
         self,
         arinc_device: object,
@@ -547,21 +479,16 @@ class Logic:
         if name != 4612:
 
             key_hex = (name >> 12) & 0xFF
-            # self.fmc_subsys.add_text(0, 
-            #     str(key_hex)
-            # )
                
             if (key_hex > 0):
                 selected_key = self.mcdu.get_ps_key(key_hex)
-
+                # if hasattr(self, 'fmc_subsys') and self.fmc_subsys is not None:
+                #     self.fmc_subsys.add_text(0, 
+                #         str(key_hex) + "  "
+                #     )
                 if (selected_key != ""):
                     getattr(self.datarefs.prosim, selected_key).value = 1 
-                    try:
-                        self.fmc_subsys.add_text(0, 
-                            str(selected_key)
-                        )
-                    except:
-                        pass
+             
              
             print(name)
 
@@ -615,9 +542,9 @@ class Logic:
                 )
 
             #Scratchpad        
-            # self.fmc_subsys.add_text(0,  
-            #     self.fmc_subsys.format_row(xml_scratchpad, "", "")
-            #     )
+            self.fmc_subsys.add_text(0,  
+                self.fmc_subsys.format_row(xml_scratchpad, "", "")
+                )
 
 
         # Temp until adding a queue
