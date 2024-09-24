@@ -221,6 +221,83 @@ class MCDU:
                 "lines": lines
             }
 
+
+    key_map = {
+            39: "S_CDU1_KEY_0",
+            17: "S_CDU1_KEY_1",
+            33: "S_CDU1_KEY_2",
+            49: "S_CDU1_KEY_3",
+            19: "S_CDU1_KEY_4",
+            35: "S_CDU1_KEY_5",
+            51: "S_CDU1_KEY_6",
+            21: "S_CDU1_KEY_7",
+            37: "S_CDU1_KEY_8",
+            53: "S_CDU1_KEY_9",
+            75: "S_CDU1_KEY_A",
+            10011: "S_CDU1_KEY_ATC",
+            91: "S_CDU1_KEY_B",
+            107: "S_CDU1_KEY_C",
+            95: "S_CDU1_KEY_CLB",
+            145: "S_CDU1_KEY_CLEAR",
+            10016: "S_CDU1_KEY_CLEARLINE",
+            111: "S_CDU1_KEY_CRZ",
+            123: "S_CDU1_KEY_D",
+            103: "S_CDU1_KEY_DEL",
+            93: "S_CDU1_KEY_DEP_ARR",
+            127: "S_CDU1_KEY_DES",
+            23: "S_CDU1_KEY_DOT",
+            139: "S_CDU1_KEY_E",
+            141: "S_CDU1_KEY_EXEC",
+            10025: "S_CDU1_KEY_F",
+            59: "S_CDU1_KEY_FIX",
+            10027: "S_CDU1_KEY_FMC_COMM",
+            10028: "S_CDU1_KEY_G",
+            10029: "S_CDU1_KEY_H",
+            109: "S_CDU1_KEY_HOLD",
+            10031: "S_CDU1_KEY_I",
+            63: "S_CDU1_KEY_INIT_REF",
+            10033: "S_CDU1_KEY_J",
+            10034: "S_CDU1_KEY_K",
+            10035: "S_CDU1_KEY_L",
+            77: "S_CDU1_KEY_LEGS",
+            11: "S_CDU1_KEY_LSK1L",
+            10038: "S_CDU1_KEY_LSK1R",
+            9: "S_CDU1_KEY_LSK2L",
+            10040: "S_CDU1_KEY_LSK2R",
+            27: "S_CDU1_KEY_LSK3L",
+            10042: "S_CDU1_KEY_LSK3R",
+            25: "S_CDU1_KEY_LSK4L",
+            10044: "S_CDU1_KEY_LSK4R",
+            43: "S_CDU1_KEY_LSK5L",
+            10046: "S_CDU1_KEY_LSK5R",
+            41: "S_CDU1_KEY_LSK6L",
+            10048: "S_CDU1_KEY_LSK6R",
+            10049: "S_CDU1_KEY_M",
+            10050: "S_CDU1_KEY_MENU",
+            55: "S_CDU1_KEY_MINUS",
+            10052: "S_CDU1_KEY_N",
+            149: "S_CDU1_KEY_N1_LIMIT",
+            57: "S_CDU1_KEY_NEXT_PAGE",
+            10055: "S_CDU1_KEY_O",
+            10056: "S_CDU1_KEY_P",
+            147: "S_CDU1_KEY_PREV_PAGE",
+            125: "S_CDU1_KEY_PROG",
+            10059: "S_CDU1_KEY_Q",
+            10060: "S_CDU1_KEY_R",
+            79: "S_CDU1_KEY_RTE",
+            10062: "S_CDU1_KEY_S",
+            10063: "S_CDU1_KEY_SLASH",
+            10064: "S_CDU1_KEY_SPACE",
+            10065: "S_CDU1_KEY_T",
+            10066: "S_CDU1_KEY_U",
+            10067: "S_CDU1_KEY_V",
+            10068: "S_CDU1_KEY_VNAV",
+            10069: "S_CDU1_KEY_W",
+            10070: "S_CDU1_KEY_X",
+            10071: "S_CDU1_KEY_Y",
+            10072: "S_CDU1_KEY_Z"
+        }
+        
     class LightsEnum(Enum):
         """Enumeration for front light indicators"""
 
@@ -228,8 +305,8 @@ class MCDU:
         MSG = 0x8000
         OFFSET = 0x10000
         EXEC = 0x20000
-
-    class KeypadEnum(Enum):
+      
+    class KeypadEnumOld(Enum):
         """Enumeration for all panel Buttons"""
 
         INIT = 0xC0
@@ -394,6 +471,12 @@ class MCDU:
         self._light_bitmap &= ~light.value
         if bool(status):
             self._light_bitmap |= light.value
+    
+    def get_ps_key(self, key):
+        if key in self.key_map:
+            return self.key_map[key]
+        else:
+            return ""
 
     def loop(self):
         """HUD main update loop.
@@ -464,57 +547,22 @@ class Logic:
         if name != 4612:
 
             key_hex = (name >> 12) & 0xFF
-            try:
-                self.fmc_subsys.add_text(0, 
-                    str(key_hex)
-                )
-            except:
-                pass
+            # self.fmc_subsys.add_text(0, 
+            #     str(key_hex)
+            # )
+               
+            if (key_hex > 0):
+                selected_key = self.mcdu.get_ps_key(key_hex)
 
-
-            # self._key_decode(label)
-        
-            if key_hex == 75:   #A
-                self.datarefs.prosim.S_CDU1_KEY_A.value = 1
-                # self.datarefs.prosim.S_CDU1_KEY_A.value = 0
-                self.fmc_subsys.add_text(5, "A")
-
-            elif  key_hex == 91: #B
-                self.datarefs.prosim.S_CDU1_KEY_B.value = 1
-                # self.datarefs.prosim.S_CDU1_KEY_B.value = 0
-                self.fmc_subsys.add_text(5, "B")
-
-            elif  key_hex == 107: #C
-                self.fmc_subsys.add_text(5, "C")
-                self.datarefs.prosim.S_CDU1_KEY_C.value = 1
-
-            elif  key_hex == 145: #clr
-                self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 1
-                # self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 0
-                self.fmc_subsys.add_text(5, "clr")
-
-            
-            elif  key_hex == 11 : #LSK1
-                self.datarefs.prosim.S_CDU1_KEY_LSK1L.value = 1
-
-            elif  key_hex == 9 : #LSK2
-                self.datarefs.prosim.S_CDU1_KEY_LSK2L.value = 1
-
-            elif  key_hex == 27 : #LSK3
-                self.datarefs.prosim.S_CDU1_KEY_LSK3L.value = 1
-
-            elif  key_hex == 25 : #LSK3
-                self.datarefs.prosim.S_CDU1_KEY_LSK4L.value = 1
-
-            elif  key_hex == 43 : #LSK3
-                self.datarefs.prosim.S_CDU1_KEY_LSK5L.value = 1
-            
-            elif  key_hex == 41 : #LSK3
-                self.datarefs.prosim.S_CDU1_KEY_LSK6L.value = 1
-
-            elif  key_hex == 63 : #init ref
-                self.datarefs.prosim.S_CDU1_KEY_INIT_REF.value = 1
-
+                if (selected_key != ""):
+                    getattr(self.datarefs.prosim, selected_key).value = 1 
+                    try:
+                        self.fmc_subsys.add_text(0, 
+                            str(selected_key)
+                        )
+                    except:
+                        pass
+             
             print(name)
 
     async def update(self):
@@ -540,9 +588,6 @@ class Logic:
         # self.mcdu.set_light(MCDU.LightsEnum.FAIL, True)
 
         xml_string = self.datarefs.prosim.cdu1.value
-        
-        # self.datarefs.prosim.S_CDU1_KEY_A.value = 1
-        # self.datarefs.prosim.S_CDU1_KEY_A.value = 0
 
         if (xml_string != self.cdu1_text or xml_string == self.cdu1_text):
             self.cdu1_text = xml_string
@@ -562,12 +607,6 @@ class Logic:
                     xml_title[2] if xml_title_left_align == "False" else "", 
                 self.fmc_subsys.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "" ))
             
-            #  
-            # self.fmc_subsys.add_text(0, self.fmc_subsys.format_row("", "none", ""))
-          
-            #  self.screen.add_text(0, self.screen.format_row("", "none", ""))
-                # self.screen.set_lights_test()
-
             #Add Lines
             for ln in range(12):
                 xml1 = self.fmc_subsys.parse_display_line(xml_lines[ln], ln % 2 == 0)
@@ -576,83 +615,14 @@ class Logic:
                 )
 
             #Scratchpad        
-            self.fmc_subsys.add_text(0,  
-                self.fmc_subsys.format_row(xml_scratchpad, "", "")
-                )
+            # self.fmc_subsys.add_text(0,  
+            #     self.fmc_subsys.format_row(xml_scratchpad, "", "")
+            #     )
 
-        # ----- TEST ZERO - END -----
 
-        # ----- TEST ONE - START -----
-        # Title: Check if color shows up, attempt 1!
-        #
-        # Uncomment here:
-        # self.fmc_subsys = self.mcdu.add_subsystem("fmc", 0x04)
-        # self.fmc_subsys.add_text(1, "Test One               ")
-        # self.fmc_subsys.add_text(1, f"Setting: 0x{self.aux:03X}         ")
-        # self.fmc_subsys.add_text(1, "Color", color=self.aux)
-
-        # ----- TEST ONE - END -----
-
-        # ----- TEST TWO - START -----
-        # Title: Check if color shows up, attempt 2!
-        #
-        # Uncomment here:
-        # self.fmc_subsys = self.mcdu.add_subsystem("fmc", 0x04)
-        # self.fmc_subsys.add_text(1, "Test Two               ")
-        # self.fmc_subsys.add_text(1, f"Setting: 0x{self.aux:03X}         ")
-        # self.fmc_subsys.add_text(1, "Color", control=self.aux)
-
-        # ----- TEST TWO - END -----
-
-        # ----- TEST THREE - START -----
-        # Title: Check is another subsystem shows up, attempt 1
-        # Description:
-        # To try to see if subsystems are represented by other labels, a scan will
-        # be taking place.
-        # Procedure:
-        # 1. Reload and Stop the script
-        # 2. Wait until MCDU shows menu in display
-        # 3. Start Script and stare at the screen
-        # 4. When a subsystems shows up it will be shown as an entry for a few seconds
-        #    Note: During the process FMC subsystem will show up
-        # NOTE: The test last 4 minutes 19 seconds exactly until the full scan is done.
-        # Uncomment here:
-        # self.fmc_subsys = self.mcdu.add_subsystem("fmc", self.test_label_increment)
-        # self.fmc_subsys.add_text(1, "Test Three")
-
-        # ----- TEST THREE - END -----
-
-        # ----- TEST FOUR - START -----
-        # Title: Check is another subsystem shows up, attempt 2
-        # Description:
-        # To try to see if subsystems are represented by other labels, a scan will
-        # be taking place.
-        # Procedure:
-        # 1. Reload and Stop the script
-        # 2. Wait until MCDU shows menu in display
-        # 3. Start Script and stare at the screen
-        # 4. When a subsystems shows up it will be shown as an entry for a few seconds
-        #    Note: During the process FMC subsystem will show up
-        # NOTE: The test last 4 minutes 19 seconds exactly until the full scan is done.
-        # Uncomment here:
-        # self.mcdu._sal = self.test_label_increment
-        # self.fmc_subsys = self.mcdu.add_subsystem("fmc", self.test_label_increment)
-        # self.fmc_subsys.add_text(1, "Test Four")
-
-        # ----- TEST FOUR - END -----
-
-        self.datarefs.prosim.S_CDU1_KEY_A.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_B.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_C.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_CLEAR.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK1L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK2L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK3L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK4L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK5L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_LSK6L.value = 0
-        self.datarefs.prosim.S_CDU1_KEY_INIT_REF.value = 0
-
+        # Temp until adding a queue
+        for _key, value in self.mcdu.key_map.items():
+             getattr(self.datarefs.prosim, value).value = 0 
         
 
         
