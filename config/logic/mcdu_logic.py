@@ -459,36 +459,38 @@ class MCDU:
                     if label_id == 4:
                         self._key_decode(label)
                         self._trig_update = True
+                        print("label")
+                        print(label)
 
             # Update subsystems only if the panel has reported back
-            #if self._trig_update:
-                # self._trig_update = False
+            if self._trig_update:
+                self._trig_update = False
 
-            self._init_frame(self._light_bitmap)
+                self._init_frame(self._light_bitmap)
 
-            for _, subsystem in self._subsystem.items():
+                for _, subsystem in self._subsystem.items():
 
-                self._tx_buffer += subsystem._block
-                subsystem._block = []
+                    self._tx_buffer += subsystem._block
+                    subsystem._block = []
 
-                file = self._close_frame()
-                # print("file")
-                # print(file)
+                    file = self._close_frame()
+                    # print("file")
+                    # print(file)
 
-                lwc = []
-                for l in file:
-                    lwc.append((ARINC_CARD_TX_CHNL, l))
+                    lwc = []
+                    for l in file:
+                        lwc.append((ARINC_CARD_TX_CHNL, l))
 
-                print("lwc")
-                print(file)
+                    print("lwc")
+                    print(file)
 
-                """Update panel sending the TX buffer"""
-                try:
-                    self._device.send_manual_list_fast(lwc)
-                except Exception:
-                    pass
+                    """Update panel sending the TX buffer"""
+                    try:
+                        self._device.send_manual_list_fast(lwc)
+                    except Exception:
+                        pass
 
-            #     time.sleep(0.05)
+            # time.sleep(0.05)
 
 
 class Logic:
@@ -506,6 +508,12 @@ class Logic:
         self.test_label_increment = 0x00
         self.aux = 1
         self.cdu1_text = ""
+        self.cdu_xml = {
+            "xml_title": "",
+            "xml_title_page": "",
+            "xml_lines": ["","","","","","","","","","","",""],
+            "xml_scratchpad": ""
+        }
         self.run_again = 0
 
     def key_pressed_callback(self, name):
@@ -524,7 +532,7 @@ class Logic:
                     self.mcdu.key_queue_add(selected_key)
              
              
-            print(name)
+            # print(name)
 
     async def update(self):
         self.mcdu.loop()
@@ -540,7 +548,8 @@ class Logic:
         xml_string = self.datarefs.prosim.cdu1.value
    
 
-        if (xml_string != self.cdu1_text and self.run_again <= 1):
+      # if (xml_string != self.cdu1_text and self.run_again <= 1):
+        if (xml_string != self.cdu1_text):
             print("***** update")
             print(self.run_again)
             print(xml_string)
@@ -548,7 +557,7 @@ class Logic:
                 self.cdu1_text = xml_string
                 self.run_again = 0
 
-            
+            offset = 0;
             self.run_again = self.run_again + 1
             
             xml_result = self.fmc_subsys.parse_xml(xml_string)
@@ -569,51 +578,39 @@ class Logic:
             
             #Add Lines
             for ln in range(12):
+                # check that the line has changed
+                # if (xml_lines[ln] != self.cdu_xml["xml_lines"][ln]):
                 xml1 = self.fmc_subsys.parse_display_line(xml_lines[ln], ln % 2 == 0)
-                self.fmc_subsys.add_text(0, 
+                self.fmc_subsys.add_text(offset, 
                     self.fmc_subsys.format_row(*xml1)
                 )
+                # else:
+                #     offset = offset + 0 #100
 
             # test with updating loop numbert count
             # self.fmc_subsys.add_text(0,  
             #     self.fmc_subsys.format_row(str(self.run_again), "", "")
             # )
 
-        # # Uncomment for Scratchpad to work       
-            self.fmc_subsys.add_text(0,  
+            # check the scratch pad has changed and update
+            # if (self.cdu_xml["xml_scratchpad"] != xml_scratchpad):
+            self.fmc_subsys.add_text(offset,  
                 self.fmc_subsys.format_row(xml_scratchpad, "", "")
             )
+            print("offset")
+            print(offset)
 
+            self.cdu_xml["xml_scratchpad"] = xml_scratchpad;
+            self.cdu_xml["xml_lines"] = xml_lines;
+
+            self.mcdu._trig_update = True
+            print("mcdu._trig_update", self.mcdu._trig_update)
 
         # check queue and turn off keys
         off_key = self.mcdu.key_queue_pop()
         if (off_key):
             getattr(self.datarefs.prosim, off_key).value = 0
-
-
-        # self.fmc_subsys.add_text(0, str(self.loop_counter))
-        # print(self.loop_counter);
-
-        
-        # preview = xml_string[25:35] + " - - - - - - -"
-
-
-        # self.run_again +=1
-
-        # if (self.run_again == 10):
-        #     self.run_again = 0;
-        
-        # preview = str(self.run_again) + " - - - - - - - - - - - "
-
-        # # Loop to display many lines
-        # # for n in range(1, 10):
-        # #     self.fmc_subsys.add_text(0, preview)
-
-        # self.fmc_subsys.add_text(0, preview)
-
-        # self.mcdu._block = [];
-        
-        # # print(previ)
+   
       
         time.sleep(0.08)
         
