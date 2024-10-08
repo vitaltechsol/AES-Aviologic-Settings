@@ -40,6 +40,26 @@ class MCDU:
                 char_base | ((char & 0x7F) << 13) | ((control & 0x1FF) << 20)
             )
 
+        def add_text_base(self, offset: int, text: str, color: int = 0, control: int = 0):
+            block_base = self._sal | 0x400
+            block2_base = block_base | 0x40000
+
+            if offset < 0:
+                raise Exception("Offset should be bigger than 0")
+
+            self._block += [
+                # Text block open - Specifies the offset
+                self._apply_par(block_base | (offset << 13)),
+                # Text block configuration
+                self._apply_par(block2_base | ((color & 0x1FF) << 20)),
+            ]
+
+            if len(text) > 0:
+                self._block += [
+                    self._char_label(self._sal, c, control)
+                    for c in text.encode("iso-8859-5")
+                ]
+
         def add_text(self, offset: int, text: str, color: int = 0, control: int = 0):
             block_base = self._sal | 0x400
             block2_base = block_base | 0x40000
@@ -206,6 +226,7 @@ class MCDU:
 
         def parse_xml(self, xml_string):
             # Parse the XML string
+
             root = ET.fromstring(xml_string)
             title = root.find('title').text if root.find('title') is not None else ""
             title_page = root.find('titlePage').text if root.find('titlePage') is not None else ""
@@ -404,11 +425,18 @@ class MCDU:
         if bool(status):
             self._light_bitmap |= light.value
     
-    def get_ps_key(self, key):
+    def get_ps_key(self, key: int):
         if key in self.key_map:
             return self.key_map[key]
         else:
             return ""
+    def key_queue_add(self, item: str):
+        self.key_q.put(item)
+
+    def key_queue_pop(self):
+        if not self.key_q.empty():
+            item = self.key_q.get()  # Get and remove the first item from the queue
+            return item
 
     def loop(self):
         """HUD main update loop.
@@ -433,30 +461,34 @@ class MCDU:
                         self._trig_update = True
 
             # Update subsystems only if the panel has reported back
-            if self._trig_update:
-                self._trig_update = False
+            #if self._trig_update:
+                # self._trig_update = False
 
-                self._init_frame(self._light_bitmap)
+            self._init_frame(self._light_bitmap)
 
-                for _, subsystem in self._subsystem.items():
+            for _, subsystem in self._subsystem.items():
 
-                    self._tx_buffer += subsystem._block
-                    subsystem._block = []
+                self._tx_buffer += subsystem._block
+                subsystem._block = []
 
-                    file = self._close_frame()
-                    # print(file)
+                file = self._close_frame()
+                # print("file")
+                # print(file)
 
-                    lwc = []
-                    for l in file:
-                        lwc.append((ARINC_CARD_TX_CHNL, l))
+                lwc = []
+                for l in file:
+                    lwc.append((ARINC_CARD_TX_CHNL, l))
 
-                    # print(lwc)
+                print("lwc")
+                print(file)
 
-                    """Update panel sending the TX buffer"""
-                    try:
-                        self._device.send_manual_list_fast(lwc)
-                    except Exception:
-                        pass
+                """Update panel sending the TX buffer"""
+                try:
+                    self._device.send_manual_list_fast(lwc)
+                except Exception:
+                    pass
+
+            #     time.sleep(0.05)
 
 
 class Logic:
@@ -469,11 +501,12 @@ class Logic:
             rx_chnl_number=ARINC_CARD_RX_CHNL,
             key_callback=self.key_pressed_callback,
         )
-
+        self.fmc_subsys = self.mcdu.add_subsystem("fmc", 0x04)
         self.tprev = time.time()
         self.test_label_increment = 0x00
         self.aux = 1
         self.cdu1_text = ""
+        self.run_again = 0
 
     def key_pressed_callback(self, name):
         if name != 4612:
@@ -487,7 +520,8 @@ class Logic:
                 #         str(key_hex) + "  "
                 #     )
                 if (selected_key != ""):
-                    getattr(self.datarefs.prosim, selected_key).value = 1 
+                    getattr(self.datarefs.prosim, selected_key).value = 1
+                    self.mcdu.key_queue_add(selected_key)
              
              
             print(name)
@@ -495,29 +529,28 @@ class Logic:
     async def update(self):
         self.mcdu.loop()
 
-        # if (time.time() - self.tprev) > 1.0:
-        #     self.test_label_increment += 1
-        #     print("trigger", hex(self.test_label_increment))
-        #     self.tprev = time.time()
-        #     self.aux <<= 1
-        #     if self.aux > 0x1FF:
-        #         self.aux = 1
-
-        # ----- TEST ZERO - START -----
-        # Title: Make sure new code works as intended.
-        # Description:
-        # Simple print of information of the screen. Note that the screen has not
-        # been cleaned so random characters will appear.
-        # Uncomment here:
-        self.fmc_subsys = self.mcdu.add_subsystem("fmc", 0x04)
-        # self.fmc_subsys.add_text(1, "Test Zero              ")
-        # self.fmc_subsys.add_text(1, "Just see if works")
-        # self.mcdu.set_light(MCDU.LightsEnum.FAIL, True)
+       
+      
+        # print("xml_string")
+        # print(xml_string)
+        # print("cdu1_text")
+        # print(self.cdu1_text)
+        # print("")
 
         xml_string = self.datarefs.prosim.cdu1.value
+   
 
-        if (xml_string != self.cdu1_text or xml_string == self.cdu1_text):
-            self.cdu1_text = xml_string
+        if (xml_string != self.cdu1_text and self.run_again <= 1):
+            print("***** update")
+            print(self.run_again)
+            print(xml_string)
+            if (self.run_again == 1):
+                self.cdu1_text = xml_string
+                self.run_again = 0
+
+            
+            self.run_again = self.run_again + 1
+            
             xml_result = self.fmc_subsys.parse_xml(xml_string)
             xml_lines = xml_result["lines"]
             xml_title_page = xml_result["title_page"]
@@ -526,8 +559,8 @@ class Logic:
             xml_title_spaces = int(xml_title[1]) if xml_title[1] else "" 
             xml_title_left_align = xml_title[0]  if xml_title[0] else ""
 
-            #Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
-            #If the title doesn't have spaces then center it.
+            # Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
+            # If the title doesn't have spaces then center it.
             self.fmc_subsys.add_text(0,  
                 self.fmc_subsys.format_row(
                     ' ' * xml_title_spaces + xml_title[2] if xml_title_left_align == "True" else "",
@@ -541,15 +574,48 @@ class Logic:
                     self.fmc_subsys.format_row(*xml1)
                 )
 
-            #Scratchpad        
+            # test with updating loop numbert count
+            # self.fmc_subsys.add_text(0,  
+            #     self.fmc_subsys.format_row(str(self.run_again), "", "")
+            # )
+
+        # # Uncomment for Scratchpad to work       
             self.fmc_subsys.add_text(0,  
                 self.fmc_subsys.format_row(xml_scratchpad, "", "")
-                )
+            )
 
 
-        # Temp until adding a queue
-        for _key, value in self.mcdu.key_map.items():
-             getattr(self.datarefs.prosim, value).value = 0 
+        # check queue and turn off keys
+        off_key = self.mcdu.key_queue_pop()
+        if (off_key):
+            getattr(self.datarefs.prosim, off_key).value = 0
+
+
+        # self.fmc_subsys.add_text(0, str(self.loop_counter))
+        # print(self.loop_counter);
+
+        
+        # preview = xml_string[25:35] + " - - - - - - -"
+
+
+        # self.run_again +=1
+
+        # if (self.run_again == 10):
+        #     self.run_again = 0;
+        
+        # preview = str(self.run_again) + " - - - - - - - - - - - "
+
+        # # Loop to display many lines
+        # # for n in range(1, 10):
+        # #     self.fmc_subsys.add_text(0, preview)
+
+        # self.fmc_subsys.add_text(0, preview)
+
+        # self.mcdu._block = [];
+        
+        # # print(previ)
+      
+        time.sleep(0.08)
         
 
         
