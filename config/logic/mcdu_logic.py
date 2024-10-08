@@ -546,7 +546,16 @@ class Logic:
         # print("")
 
         xml_string = self.datarefs.prosim.cdu1.value
-   
+        light_exec = self.datarefs.prosim.I_CDU1_EXEC.value
+        light_fail = self.datarefs.prosim.I_CDU1_FAIL.value
+        light_msg = self.datarefs.prosim.I_CDU1_MSG.value
+        light_offset = self.datarefs.prosim.I_CDU1_OFFSET.value
+
+        self.mcdu.set_light(MCDU.LightsEnum.EXEC, light_exec == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.FAIL, light_fail == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.MSG, light_msg == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.OFFSET, light_offset == 2)
+
 
       # if (xml_string != self.cdu1_text and self.run_again <= 1):
         if (xml_string != self.cdu1_text):
