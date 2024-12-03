@@ -60,9 +60,10 @@ class MCDU:
                     for c in text.encode("iso-8859-5")
                 ]
 
-        def add_text(self, offset: int, text: str, color: int = 0, control: int = 0):
+        def add_text(self, offset: int, text: str, color: int = 0):
             block_base = self._sal | 0x400
             block2_base = block_base | 0x40000
+            control = 0;
 
             
              # Mapping of Cyrillic characters to corresponding numbers. Used to show small font numbers
@@ -95,44 +96,81 @@ class MCDU:
             #         for c in text.encode("iso-8859-5")
             #     ]
 
-            for c in text:
+            i = 0
+            while i < len(text):
+                c = text[i]
+
+                # Special case for `#` which is the empty box, add the corresponding int (64)
                 if c == "#":
-                    # Special case for `#` which is the empty box, add the corresponding int (64)
                     self._block += [self._char_label(0x04, 64, control)]
-                    # for lower case digits use the special character
+
+                # # Check for the sequence "[I]" (start inverted text)
+                # elif c == "[" and i + 2 < len(text) and text[i + 1:i + 3] == "I]":
+                #     # Add empty space to replace the special wrapper
+          
+                #     self._block += [self._char_label(0x04, b, 0) for b in "        ".encode("iso-8859-5")]
+                #     self._block += [self._char_label(0x04, b, 1) for b in " ".encode("iso-8859-5")]
+                #     control = 1 # Start inverted text
+                #     i += 3  # Skip past "[I]"
+                # # Check for the sequence "[/I]" (ende inverted text)
+                # elif c == "[" and i + 3 < len(text) and text[i + 1:i + 4] == "/I]":
+                #     control = 0 # End inverted tex
+                #     i += 4  # Skip past "[/I]"
+    
+                # Inverted, Color 1, 2, Color 3
+                elif c == "Ф":
+                    control = 1 # Start inverted text
+
+                elif c == "Ю":
+                    control = 0 # End inverted text
+
                 elif c == "`":
                     # for degrees symbol prosim uses `
                     self._block += [self._char_label(0x04, 36, control)]
+
                 elif c in cyrillic_to_number:
                     # Map Cyrillic characters to numbers and use the same logic as for digits
                     n = cyrillic_to_number[c]
                     self._block += [self._char_label(0x04, 16 + int(n), control)]
+
                 else:
                     # Encode other characters in ISO-8859-5 and add them to the block
                     self._block += [self._char_label(0x04, b, control) for b in c.encode("iso-8859-5")]
+
+                i += 1
 
 
 
         def format_row(self, left="", center="", right=""):
             # Start with an empty 24-character line filled with spaces
-            row = [' '] * 24
+            special_chars = ['Ф', 'Ю']
+            max_chars = 24;
+            # Check each string for occurrences of the special characters then add more spaces for when they are removed
+            for char in special_chars:
+                max_chars += (left or "").count(char)
+                max_chars += (center or "").count(char)
+                max_chars += (right or "").count(char)
+
+            row = [' '] * max_chars
+            print("max_chars")
+            print(max_chars);
     
             # Add the left text, starting at index 0
             if (left):
                 for i, char in enumerate(left):
-                    if i < 24:  # Ensure we do not overflow the row
+                    if i < max_chars:  # Ensure we do not overflow the row
                         row[i] = char
     
             # Add the right text, aligned to the right, starting at the correct index
-            right_start = 24 - len(right)
+            right_start = max_chars - len(right)
             for i, char in enumerate(right):
-                if right_start + i >= 0 and right_start + i < 24:  # Ensure we do not overflow the row
+                if right_start + i >= 0 and right_start + i < max_chars:  # Ensure we do not overflow the row
                     row[right_start + i] = char
     
             # Add the center text, centered within the row
-            center_start = (24 - len(center)) // 2
+            center_start = (max_chars - len(center)) // 2
             for i, char in enumerate(center):
-                if center_start + i >= 0 and center_start + i < 24:  # Ensure we do not overflow the row
+                if center_start + i >= 0 and center_start + i < max_chars:  # Ensure we do not overflow the row
                     row[center_start + i] = char
     
             # Join the list of characters into a single string and return it
@@ -199,6 +237,12 @@ class MCDU:
             # Replace any [L] and [/L] tags with an empty string (Supposed to be large but not used)
             input_str = input_str.replace("[l]", "").replace("[/l]", "")
 
+            # Replace any [3] and [/3] tags with special characters
+            input_str = input_str.replace("[I]", "Ф").replace("[/I]", "Ю")
+            input_str = input_str.replace("[1]", "Ф").replace("[/1]", "Ю")
+            input_str = input_str.replace("[2]", "Ф").replace("[/2]", "Ю")
+            input_str = input_str.replace("[3]", "Ф").replace("[/3]", "Ю")
+            
             delimiter_count = input_str.count(DELIMITER)
     
             # Handle cases with two delimiters (left, center, right)
@@ -439,7 +483,7 @@ class MCDU:
             return item
 
     def loop(self):
-        """HUD main update loop.
+        """ main update loop.
         This method should be called periodically as fast ast possible within the Logic loop
         """
         # The loop should run only if the arinc card is online
@@ -459,8 +503,8 @@ class MCDU:
                     if label_id == 4:
                         self._key_decode(label)
                         self._trig_update = True
-                        print("label")
-                        print(label)
+                        # print("label")
+                        # print(label)
 
             # Update subsystems only if the panel has reported back
             if self._trig_update:
@@ -481,8 +525,8 @@ class MCDU:
                     for l in file:
                         lwc.append((ARINC_CARD_TX_CHNL, l))
 
-                    print("lwc")
-                    print(file)
+                    # print("lwc")
+                    # print(file)
 
                     """Update panel sending the TX buffer"""
                     try:
@@ -556,12 +600,17 @@ class Logic:
         self.mcdu.set_light(MCDU.LightsEnum.MSG, light_msg == 2)
         self.mcdu.set_light(MCDU.LightsEnum.OFFSET, light_offset == 2)
 
+        # inverted color
 
-      # if (xml_string != self.cdu1_text and self.run_again <= 1):
-        if (xml_string != self.cdu1_text):
-            print("***** update")
-            print(self.run_again)
-            print(xml_string)
+
+        if (xml_string != self.cdu1_text and self.run_again <= 2):
+      #  if (xml_string != self.cdu1_text):
+
+            # self.fmc_subsys.add_text(1, "inversed", control=1)
+
+            # print("***** update")
+            # print(self.run_again)
+            # print(xml_string)
             if (self.run_again == 1):
                 self.cdu1_text = xml_string
                 self.run_again = 0
@@ -606,14 +655,14 @@ class Logic:
             self.fmc_subsys.add_text(offset,  
                 self.fmc_subsys.format_row(xml_scratchpad, "", "")
             )
-            print("offset")
-            print(offset)
+            # print("offset")
+            # print(offset)
 
             self.cdu_xml["xml_scratchpad"] = xml_scratchpad;
             self.cdu_xml["xml_lines"] = xml_lines;
 
             self.mcdu._trig_update = True
-            print("mcdu._trig_update", self.mcdu._trig_update)
+            # print("mcdu._trig_update", self.mcdu._trig_update)
 
         # check queue and turn off keys
         off_key = self.mcdu.key_queue_pop()
