@@ -1504,13 +1504,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.audio.Engine_left_severe_damage": {
-        "description": "Engine left severe damage",
-        "data_type": "Byte",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
     "system.numerical.N_RMP1_ACT_VALUE": {
         "description": "RMP Capt active value",
         "data_type": "Double",
@@ -4773,13 +4766,6 @@
         "read_access": true,
         "write_access": false
     },
-    "system.audio.Engine_right_severe_damage": {
-        "description": "Engine right severe damage",
-        "data_type": "Byte",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
     "system.gates.B_FMA_PITCH_VNAV_ALT": {
         "description": "FMA pitch mode VNAV ALT ",
         "data_type": "Boolean",
@@ -5454,8 +5440,8 @@
     },
     "system.config.Audio.GPWS500": {
         "description": "GPWS 500",
-        "data_type": "Boolean",
-        "data_unit": null,
+        "data_type": "String",
+        "data_unit": "OFF,ON,SMART",
         "read_access": true,
         "write_access": true
     },
@@ -5830,13 +5816,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.audio.Hydrulics_sound": {
-        "description": "Hydrulics sound",
-        "data_type": "Byte",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
     "system.gauge.G_MIP_STDBY_BARBERPOLE": {
         "description": "Standby barberpole",
         "data_type": "Double",
@@ -6116,13 +6095,6 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
-    },
-    "system.gates.B_ENGINE_SEVEREDAMAGE_RIGHT": {
-        "description": "Engine right severe damage gate",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
     },
     "system.switches.S_OH_IRS_KEY_8": {
         "description": "IRS Keypad 8 [0:Off, 1:Pushed]",
@@ -6610,7 +6582,7 @@
     "system.config.Datalink.DatalinkMetarProvider": {
         "description": "Metar provider",
         "data_type": "String",
-        "data_unit": "Online weather",
+        "data_unit": "Online weather,Simulator weather",
         "read_access": true,
         "write_access": true
     },
@@ -6746,6 +6718,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.audio.Hydraulics_sound": {
+        "description": "Hydraulics sound",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.indicators.I_ASP_SAT_2_REC": {
         "description": "ASP SATCOM 2 vol",
@@ -7367,13 +7346,6 @@
         "description": "CDU 1 KEY_LSK6L [0:Normal, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "system.config.Config.failureRate": {
-        "description": "Maintenance",
-        "data_type": "String",
-        "data_unit": "Realistic,High",
         "read_access": true,
         "write_access": true
     },
@@ -11262,6 +11234,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.config.Options.AlternatePause": {
+        "description": "Use alternate pause",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_OH_WIPER_R": {
         "description": "Wiper right [0:Park, 1:Int, 2:Low, 3:High]",
         "data_type": "Int32",
@@ -12354,13 +12333,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.config.Config.autoFailure": {
-        "description": "Auto failures",
-        "data_type": "String",
-        "data_unit": "None,Minor,All",
-        "read_access": true,
-        "write_access": true
-    },
     "system.gates.B_REVERSER_2_INTERLOCK": {
         "description": "TR 2 interlock retract signal",
         "data_type": "Boolean",
@@ -13418,13 +13390,6 @@
         "read_access": true,
         "write_access": false
     },
-    "system.gates.B_ENGINE_SEVEREDAMAGE_LEFT": {
-        "description": "Engine left severe damage gate",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
     "system.switches.S_CDU1_KEY_2": {
         "description": "CDU 1 KEY_2 [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -13994,6 +13959,13 @@
     },
     "system.timers.internal.asyncSlow": {
         "description": "Async slow",
+        "data_type": "Double",
+        "data_unit": "ms",
+        "read_access": true,
+        "write_access": false
+    },
+    "system.timers.internal.sdk": {
+        "description": "SDK",
         "data_type": "Double",
         "data_unit": "ms",
         "read_access": true,
@@ -14818,6 +14790,13 @@
         "read_access": false,
         "write_access": true
     },
+    "external.generic": {
+        "description": "Generic purpose dataref",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "companyRoutes.getAll": {
         "description": "Get all stored company routes (item1 = name, item2 = route string)",
         "data_type": "String",
@@ -14886,34 +14865,6 @@
         "data_type": "String",
         "data_unit": null,
         "read_access": false,
-        "write_access": true
-    },
-    "visual.thunderstormlocation": {
-        "description": "lat lon",
-        "data_type": "String",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "visual.thunderstormorientation": {
-        "description": "degrees",
-        "data_type": "String",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "visual.thunderstormradius": {
-        "description": "meters",
-        "data_type": "String",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "visual.thunderstormseverity": {
-        "description": "0-X",
-        "data_type": "String",
-        "data_unit": null,
-        "read_access": true,
         "write_access": true
     },
     "aircraft.electrical.generator.apu.ampere": {
@@ -15723,6 +15674,13 @@
     },
     "simulator.pause": {
         "description": "Control for pausing the simulator",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.fullFreeze": {
+        "description": "Control for pausing the simulator without pausing system simulation",
         "data_type": "Boolean",
         "data_unit": null,
         "read_access": true,

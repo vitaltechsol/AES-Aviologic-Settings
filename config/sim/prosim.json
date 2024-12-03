@@ -40,6 +40,31 @@
       "reset_value": 0,
       "length": 700
     },
+    "I_CDU1_EXEC": {
+      "name": "system.indicators.I_CDU1_EXEC",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_CDU1_FAIL": {
+      "name": "system.indicators.I_CDU1_FAIL",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_CDU1_MSG": {
+      "name": "system.indicators.I_CDU1_MSG",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_CDU1_OFFSET": {
+      "name": "system.indicators.I_CDU1_OFFSET",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_CDU1_CALL": {
+      "name": "system.indicators.I_CDU1_CALL",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
     "S_CDU1_KEY_0": {
       "name": "system.switches.S_CDU1_KEY_0",
       "read_interval_ms": 10,
