@@ -48,8 +48,8 @@ from resources.libs.arinc_lib.arinc_lib import ArincLabel
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
-ARINC_CARD_TX_CHNL: int = 2
-ARINC_CARD_RX_CHNL: int = 2
+ARINC_CARD_TX_CHNL: int = 3
+ARINC_CARD_RX_CHNL: int = 1
 
 
 class HUD:
@@ -185,8 +185,10 @@ class HUD:
 
         def write_str(self, row: int, column: int, text: str):
             col = column
-            for char in "1234".encode("iso-8859-5"):
-                self._buffer[0][0].value = int(char)
+            for char in text.encode("iso-8859-5"):
+                if col >= HUD.Display.DISP_COL:
+                    break
+                self._buffer[row][col].value = int(char)
                 col += 1
 
         def write(self, row: int, column: int, data: bytearray):
@@ -276,7 +278,7 @@ class HUD:
         self._timestamp_prev = 0
 
         # Brightness value should be between 60 and 127
-        self._brightness = 110
+        self._brightness = 60
 
         # Indicators flags. Off by default
         self._indicators_bitmap = 0
@@ -291,17 +293,15 @@ class HUD:
         # receive arinc data from panel.
         self._panel_is_alive = False
 
-    async def _handle_keypad_dimmer(self, keypad: int):
+    def _handle_keypad_dimmer(self, keypad: int):
         """Handle the DIM+ and DIM- buttons to change
         the display brightness
 
         Args:
             keypad (int): keypad bitmap
         """
-
         if keypad & self.ButtonEnum.DIM_P.value:
             self._brightness += 1
-            self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, True)
             if self._brightness > 127:
                 self._brightness = 127
         elif keypad & self.ButtonEnum.DIM_M.value:
@@ -496,33 +496,24 @@ class Logic:
         # Prosim Mapping
 
         # aircraft.HGSCP.display.line1 HGSCP display line 1 System.String
-        self.hud.set_text(0, "LINE-1")
-        self.hud._display.write_str(1,2, "test")
-        self.hud._update_panel()
+        self.hud.set_text(0, "line-1")
         # aircraft.HGSCP.display.Line2 HGSCP display line 2 System.String
-        # self.hud.set_text(1, "line-2")
-        # # aircraft.HGSCP.display.line3 HGSCP display line 3 System.String
-        # self.hud.set_text(2, "line-3")
-        # # aircraft.HGSCP.display.line4 HGSCP display line 4 System.String
-        # self.hud.set_text(3, "line-4")
+        self.hud.set_text(1, "line-2")
+        # aircraft.HGSCP.display.line3 HGSCP display line 3 System.String
+        self.hud.set_text(2, "line-3")
+        # aircraft.HGSCP.display.line4 HGSCP display line 4 System.String
+        self.hud.set_text(3, "line-4")
 
         test_is_pressed = self.hud.get_button(HUD.ButtonEnum.TEST)
-        test_is_pressed_dmp  = self.hud.get_button(HUD.ButtonEnum.DIM_P)
-
-        if (test_is_pressed == True):
-            self.hud._display.brightness = 120
 
         # system.indicators.I_HGS_CLR HGS CP CLR System.Byte
         self.hud.set_indicator(HUD.IndicatorEnum.LED_CLR, True)
         # system.indicators.I_HGS_GS HGS CP G/S System.Byte
         self.hud.set_indicator(HUD.IndicatorEnum.LED_GS, True)
         # system.indicators.I_HGS_RWY HGS CP RWY System.Byte
-        # self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, True)
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, True)
         # system.indicators.I_HGS_TEST HGS CP TEST System.Byte
         self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, test_is_pressed)
-
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, test_is_pressed_dmp)
-
 
         # system.switches.S_HGS_BRTTEST HGS CP TEST [0:Normal, 1:Pushed] System.Int32
         # self.hud.get_button(HUD.ButtonEnum.TEST)
@@ -562,4 +553,4 @@ class Logic:
         # ----- User Space END -----
 
         # Limit update loop frequency
-        await asyncio.sleep(0.08)
+        await asyncio.sleep(0.05)
