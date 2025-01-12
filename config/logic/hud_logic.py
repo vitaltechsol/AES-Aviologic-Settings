@@ -45,6 +45,7 @@ import asyncio
 from enum import Enum
 from time import time
 from resources.libs.arinc_lib.arinc_lib import ArincLabel
+import queue
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
@@ -185,9 +186,11 @@ class HUD:
 
         def write_str(self, row: int, column: int, text: str):
             col = column
+            text = text.replace('\xb0', '*') #replace degrees symbol
             for char in text.encode("iso-8859-5"):
                 if col >= HUD.Display.DISP_COL:
                     break
+         
                 self._buffer[row][col].value = int(char)
                 col += 1
 
@@ -270,6 +273,9 @@ class HUD:
         """
         self._display = self.Display()
 
+         # Create queue for key presses
+        self._key_q = queue.Queue()
+
         # Container for the holding the parsed received labels
         self._rx_label = {}
 
@@ -278,7 +284,7 @@ class HUD:
         self._timestamp_prev = 0
 
         # Brightness value should be between 60 and 127
-        self._brightness = 60
+        self._brightness = 80
 
         # Indicators flags. Off by default
         self._indicators_bitmap = 0
@@ -383,7 +389,9 @@ class HUD:
             raise self.ArgumentException(
                 f"Given text length ({len(text)}) is longer than what the display can show = {HUD.Display.DISP_COL}"
             )
+        # self._display.write(0, 0, [0x68, 0x65, 0x79  | 0x80])
         self._display.write_str(row=line_number, column=0, text=text)
+        
 
     def get_button(self, button: ButtonEnum) -> bool:
         """Get panel button status. Pressed or unpressed.
@@ -479,6 +487,7 @@ class Logic:
         self.is_enable = True
         self.count = 0
         self.init = False
+        self.key_states = {}
 
         # Create new HUD class
         self.hud = HUD(
@@ -486,6 +495,24 @@ class Logic:
             tx_chnl_number=ARINC_CARD_TX_CHNL,
             rx_chnl_number=ARINC_CARD_RX_CHNL,
         )
+    def check_key(self, button: HUD.ButtonEnum, ref: str):
+        # Ensure each key has its state initialized
+        if button not in self.key_states:
+            self.key_states[button] = False  # Initialize state as "not pressed"
+
+        if self.hud.get_button(button):  # Check if the key is pressed
+            if not self.key_states[button]:  # Key is pressed for the first time
+                self.key_states[button] = True
+                self.send_key_value(ref, 1)  # Send "on" command
+        else:
+            if self.key_states[button]:  # Key was released
+                self.key_states[button] = False
+                self.send_key_value(ref, 0)  # Send "off" command"
+
+    def send_key_value(self, ref, value):
+        # Send the command to prosim
+        getattr(self.datarefs.prosim, ref).value = value
+        print(f"Set value {ref} to: {value}")  # Debug output
 
     async def update(self):
         # Update HUD
@@ -494,15 +521,10 @@ class Logic:
         # ----- User Space START -----
 
         # Prosim Mapping
-
-        # aircraft.HGSCP.display.line1 HGSCP display line 1 System.String
-        self.hud.set_text(0, "line-1")
-        # aircraft.HGSCP.display.Line2 HGSCP display line 2 System.String
-        self.hud.set_text(1, "line-2")
-        # aircraft.HGSCP.display.line3 HGSCP display line 3 System.String
-        self.hud.set_text(2, "line-3")
-        # aircraft.HGSCP.display.line4 HGSCP display line 4 System.String
-        self.hud.set_text(3, "line-4")
+        self.hud.set_text(0, self.datarefs.prosim.hgscp_display_line1.value)
+        self.hud.set_text(1, self.datarefs.prosim.hgscp_display_line2.value)
+        self.hud.set_text(2, self.datarefs.prosim.hgscp_display_line3.value)
+        self.hud.set_text(3, self.datarefs.prosim.hgscp_display_line4.value)
 
         test_is_pressed = self.hud.get_button(HUD.ButtonEnum.TEST)
 
@@ -517,32 +539,25 @@ class Logic:
 
         # system.switches.S_HGS_BRTTEST HGS CP TEST [0:Normal, 1:Pushed] System.Int32
         # self.hud.get_button(HUD.ButtonEnum.TEST)
-        # system.switches.S_HGS_CLR HGS CP CLR [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.CLR)
-        # system.switches.S_HGS_ENTER HGS CP ENTER [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.ENTER)
         # system.switches.S_HGS_GS HGS CP G/S [0:Normal, 1:Pushed] System.Int32
         # self.hud.get_button(HUD.ButtonEnum.GS)
         # system.switches.S_HGS_KEY0 HGS CP Key 0 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_0)
-        # system.switches.S_HGS_KEY1 HGS CP Key 1 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_1)
-        # system.switches.S_HGS_KEY2 HGS CP Key 2 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_2)
-        # system.switches.S_HGS_KEY3 HGS CP Key 3 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_3)
-        # system.switches.S_HGS_KEY4 HGS CP Key 4 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_4)
-        # system.switches.S_HGS_KEY5 HGS CP Key 5 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_5)
-        # system.switches.S_HGS_KEY6 HGS CP Key 6 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_6)
-        # system.switches.S_HGS_KEY7 HGS CP Key 7 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_7)
-        # system.switches.S_HGS_KEY8 HGS CP Key 8 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_8)
-        # system.switches.S_HGS_KEY9 HGS CP Key 9 [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.NR_9)
+
+        self.check_key(HUD.ButtonEnum.NR_0, "S_HGS_KEY0")
+        self.check_key(HUD.ButtonEnum.NR_1, "S_HGS_KEY1")
+        self.check_key(HUD.ButtonEnum.NR_2, "S_HGS_KEY2")
+        self.check_key(HUD.ButtonEnum.NR_3, "S_HGS_KEY3")
+        self.check_key(HUD.ButtonEnum.NR_4, "S_HGS_KEY4")
+        self.check_key(HUD.ButtonEnum.NR_5, "S_HGS_KEY5")
+        self.check_key(HUD.ButtonEnum.NR_6, "S_HGS_KEY6")
+        self.check_key(HUD.ButtonEnum.NR_7, "S_HGS_KEY7")
+        self.check_key(HUD.ButtonEnum.NR_8, "S_HGS_KEY8")
+        self.check_key(HUD.ButtonEnum.NR_9, "S_HGS_KEY9")
+        self.check_key(HUD.ButtonEnum.RWY, "S_HGS_RWY")
+        self.check_key(HUD.ButtonEnum.CLR, "S_HGS_CLR")
+        self.check_key(HUD.ButtonEnum.ENTER, "S_HGS_ENTER")
+             
+
         # system.switches.S_HGS_MODE HGS CP MODE [0:Normal, 1:Pushed] System.Int32
         # self.hud.get_button(HUD.ButtonEnum.MODE)
         # system.switches.S_HGS_RWY HGS CP RWY [0:Normal, 1:Pushed] System.Int32
@@ -553,4 +568,5 @@ class Logic:
         # ----- User Space END -----
 
         # Limit update loop frequency
-        await asyncio.sleep(0.05)
+
+        await asyncio.sleep(0.08)
