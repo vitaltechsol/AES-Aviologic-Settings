@@ -28,11 +28,134 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "hgscp": {
+    "hgscp_display_line1": {
       "name": "aircraft.HGSCP.display.line1",
       "read_interval_ms": 100,
-      "reset_value": "",
-      "length": 700
+      "reset_value": 0,
+      "length": 8
+    },
+    "hgscp_display_line2": {
+      "name": "aircraft.HGSCP.display.Line2",
+      "read_interval_ms": 100,
+      "reset_value": 0,
+      "length": 8
+    },
+    "hgscp_display_line3": {
+      "name": "aircraft.HGSCP.display.line3",
+      "read_interval_ms": 100,
+      "reset_value": 0,
+      "length": 8
+    },
+    "hgscp_display_line4": {
+      "name": "aircraft.HGSCP.display.line4",
+      "read_interval_ms": 100,
+      "reset_value": 0,
+      "length": 8
+    },
+    "S_HGS_KEY0": {
+      "name": "system.switches.S_HGS_KEY0",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY1": {
+      "name": "system.switches.S_HGS_KEY1",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY2": {
+      "name": "system.switches.S_HGS_KEY2",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY3": {
+      "name": "system.switches.S_HGS_KEY3",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY4": {
+      "name": "system.switches.S_HGS_KEY4",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY5": {
+      "name": "system.switches.S_HGS_KEY5",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY6": {
+      "name": "system.switches.S_HGS_KEY6",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY7": {
+      "name": "system.switches.S_HGS_KEY7",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY8": {
+      "name": "system.switches.S_HGS_KEY8",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_KEY9": {
+      "name": "system.switches.S_HGS_KEY9",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_MODE": {
+      "name": "system.switches.S_HGS_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_RWY": {
+      "name": "system.switches.S_HGS_RWY",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_STBY": {
+      "name": "system.switches.S_HGS_STBY",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_GS": {
+      "name": "system.switches.S_HGS_GS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_CLR": {
+      "name": "system.switches.S_HGS_CLR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_ENTER": {
+      "name": "system.switches.S_HGS_ENTER",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_HGS_BRTTEST": {
+      "name": "system.switches.S_HGS_BRTTEST",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_CLR": {
+      "name": "system.indicators.I_HGS_CLR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_GS": {
+      "name": "system.indicators.I_HGS_GS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_RWY": {
+      "name": "system.indicators.I_HGS_RWY",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_TEST": {
+      "name": "system.indicators.I_HGS_TEST",
+      "read_interval_ms": 10,
+      "reset_value": 0
     },
     "cdu1": {
       "name": "aircraft.cdu1.display",

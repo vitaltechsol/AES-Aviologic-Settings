@@ -39,6 +39,12 @@ v1.1.0
 
 v1.2.0
 - Send additional labels to extinguish FAULT signal.
+
+v2.0.0
+- Add logic to work with prosim
+- Add logic for blinking character with prosim
+- Add logic for degrees symbol from prosim
+- Fix hardcoded channel for display text
 """
 
 import asyncio
@@ -49,7 +55,7 @@ import queue
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
-ARINC_CARD_TX_CHNL: int = 3
+ARINC_CARD_TX_CHNL: int = 1
 ARINC_CARD_RX_CHNL: int = 1
 
 
@@ -181,24 +187,27 @@ class HUD:
                 for j in range(4):
                     l = self._labels[i][j]
                     if l.changed or always:
-                        labels.append((3, self._labels[i][j].label))
+                        labels.append((ARINC_CARD_TX_CHNL, self._labels[i][j].label))
             return labels
 
         def write_str(self, row: int, column: int, text: str):
             col = column
-            text = text.replace('\xb0', '*') #replace degrees symbol
+
+            # Replace the degrees symbol with *
+            text = text.replace('\xb0', '*')
+
+            # Encode the text in ISO-8859-5
             for char in text.encode("iso-8859-5"):
                 if col >= HUD.Display.DISP_COL:
                     break
-         
-                self._buffer[row][col].value = int(char)
-                col += 1
 
-        def write(self, row: int, column: int, data: bytearray):
-            col = column
-            for char in data:
-                if col >= HUD.Display.DISP_COL:
-                    break
+                if char == 95:    # ISO-8859-5 encoding for "_"
+                    char |= 0x80  # Add the blink operarion
+
+                if char == 42:  # ISO-8859-5 encoding for "*"
+                   char = 8     # Replace with degree symbol
+
+                # Write the modified character to the buffer
                 self._buffer[row][col].value = int(char)
                 col += 1
 
@@ -483,7 +492,7 @@ class HUD:
 
 class Logic:
     def __init__(self):
-        self.version = "v1.2.0"
+        self.version = "v2.0.0"
         self.is_enable = True
         self.count = 0
         self.init = False
@@ -521,28 +530,28 @@ class Logic:
         # ----- User Space START -----
 
         # Prosim Mapping
+
+        #Text
         self.hud.set_text(0, self.datarefs.prosim.hgscp_display_line1.value)
         self.hud.set_text(1, self.datarefs.prosim.hgscp_display_line2.value)
         self.hud.set_text(2, self.datarefs.prosim.hgscp_display_line3.value)
         self.hud.set_text(3, self.datarefs.prosim.hgscp_display_line4.value)
-
-        test_is_pressed = self.hud.get_button(HUD.ButtonEnum.TEST)
-
-        # system.indicators.I_HGS_CLR HGS CP CLR System.Byte
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_CLR, True)
-        # system.indicators.I_HGS_GS HGS CP G/S System.Byte
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_GS, True)
-        # system.indicators.I_HGS_RWY HGS CP RWY System.Byte
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, True)
-        # system.indicators.I_HGS_TEST HGS CP TEST System.Byte
-        self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, test_is_pressed)
-
-        # system.switches.S_HGS_BRTTEST HGS CP TEST [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.TEST)
-        # system.switches.S_HGS_GS HGS CP G/S [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.GS)
-        # system.switches.S_HGS_KEY0 HGS CP Key 0 [0:Normal, 1:Pushed] System.Int32
-
+        
+        # test_is_pressed = self.hud.get_button(HUD.ButtonEnum.TEST)
+        # self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, test_is_pressed)
+ 
+        # Lights
+        light_clr = self.datarefs.prosim.I_HGS_CLR.value
+        light_gs = self.datarefs.prosim.I_HGS_GS.value
+        light_rwy= self.datarefs.prosim.I_HGS_RWY.value
+        light_test = self.datarefs.prosim.I_HGS_TEST.value
+       
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_CLR, light_clr == 2)
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_GS, light_gs == 2)
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_RWY, light_rwy == 2)
+        self.hud.set_indicator(HUD.IndicatorEnum.LED_TEST, light_test == 2)
+       
+        #Keys
         self.check_key(HUD.ButtonEnum.NR_0, "S_HGS_KEY0")
         self.check_key(HUD.ButtonEnum.NR_1, "S_HGS_KEY1")
         self.check_key(HUD.ButtonEnum.NR_2, "S_HGS_KEY2")
@@ -553,20 +562,16 @@ class Logic:
         self.check_key(HUD.ButtonEnum.NR_7, "S_HGS_KEY7")
         self.check_key(HUD.ButtonEnum.NR_8, "S_HGS_KEY8")
         self.check_key(HUD.ButtonEnum.NR_9, "S_HGS_KEY9")
+        self.check_key(HUD.ButtonEnum.MODE, "S_HGS_MODE")
+        self.check_key(HUD.ButtonEnum.STBY, "S_HGS_STBY")
         self.check_key(HUD.ButtonEnum.RWY, "S_HGS_RWY")
+        self.check_key(HUD.ButtonEnum.GS, "S_HGS_GS")
         self.check_key(HUD.ButtonEnum.CLR, "S_HGS_CLR")
         self.check_key(HUD.ButtonEnum.ENTER, "S_HGS_ENTER")
+        self.check_key(HUD.ButtonEnum.TEST, "S_HGS_BRTTEST")
              
-
-        # system.switches.S_HGS_MODE HGS CP MODE [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.MODE)
-        # system.switches.S_HGS_RWY HGS CP RWY [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.RWY)
-        # system.switches.S_HGS_STBY HGS CP STBY [0:Normal, 1:Pushed] System.Int32
-        # self.hud.get_button(HUD.ButtonEnum.STBY)
-
         # ----- User Space END -----
 
         # Limit update loop frequency
 
-        await asyncio.sleep(0.08)
+        await asyncio.sleep(0.05)

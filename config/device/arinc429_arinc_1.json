@@ -15,26 +15,26 @@
                 "link_equipment": {}
             },
             "1": {
-                "enable": false,
+                "enable": true,
                 "speed": "S12_KHZ",
                 "mode": "TX_MANUAL",
                 "description": "hud_tx",
                 "name": "hud_tx"
             },
             "2": {
-                "enable": true,
+                "enable": false,
                 "speed": "S12_KHZ",
                 "mode": "TX_MANUAL",
                 "description": "hud_tx",
                 "name": "hud_tx"
             },
-            "3": {
-                "enable": true,
-                "speed": "S100_KHZ",
-                "mode": "TX_MANUAL",
-                "description": "<describe what this channel is used for>",
-                "name": "mcdu_tx"
-            }
+          "3": {
+            "enable": true,
+            "speed": "S100_KHZ",
+            "mode": "TX_MANUAL",
+            "description": "<describe what this channel is used for>",
+            "name": "mcdu_tx"
+          }
         },
         "RX_channels": {
             "0": {
@@ -45,14 +45,14 @@
                 "link_equipment": {}
             },
             "1": {
-                "enable": false,
+                "enable": true,
                 "speed": "S100_KHZ",
                 "mode": "RX_NORMAL",
                 "description": "hud_rx",
                 "link_equipment": {}
             },
             "2": {
-                "enable": true,
+                "enable": false,
                 "speed": "S100_KHZ",
                 "mode": "RX_NORMAL",
                 "description": "hud_rx",
