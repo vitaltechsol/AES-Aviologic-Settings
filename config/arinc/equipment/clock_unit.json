@@ -1,0 +1,146 @@
+{
+    "brand": "Honeywell",
+    "name": "l_gps",
+    "note": "LEFT",
+    "labels": {
+        "umt": {
+            "label": "74",
+            "sdi_is_data": true,
+            "sdi": 0,
+            "description": "UTC Measure Time",
+            "data_bits": 20,
+            "data_type": "BNR",
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 9.5367431640625e-06,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 10.0
+            }
+        },
+        "utc_bcd": {
+            "label": "125",
+            "sdi": 0,
+            "description": "UTC",
+            "data_type": "BCD",
+            "bcd_digits": 4.75,
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "ssm_function": "SYSTEM_STATUS",
+            "value_resolution": 1.0,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 24000.0
+            }
+        },
+        "utcf": {
+            "label": "140",
+            "sdi_is_data": true,
+            "sdi": 0,
+            "description": "UTC Fine",
+            "data_bits": 20,
+            "data_type": "BNR",
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 9.5367431640625e-07,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 1.0
+            }
+        },
+        "utcff": {
+            "label": "141",
+            "sdi": 0,
+            "description": "UTC Fine Fraction",
+            "data_bits": 10,
+            "data_type": "BNR",
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 0.00093132255859375,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 0.9536743
+            }
+        },
+        "utc_bnr": {
+            "label": "150",
+            "sdi": 0,
+            "description": "UTC",
+            "data_bits": 17,
+            "data_type": "BNR",
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 0.00018002243041992188,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 23.5959
+            }
+        },
+        "date": {
+            "label": "260",
+            "sdi": 0,
+            "description": "Date",
+            "data_type": "BCD",
+            "bcd_digits": 4.75,
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "ssm_function": "SYSTEM_STATUS",
+            "value_resolution": 1.0,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 100.0,
+                "max": 200.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": 0.0,
+                "max": 99999999.0
+            }
+        }
+    },
+    "description": "Global Positioning System"
+}
