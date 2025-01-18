@@ -1,146 +1,449 @@
 {
-    "brand": "Honeywell",
-    "name": "l_gps",
-    "note": "LEFT",
-    "labels": {
-        "umt": {
-            "label": "74",
-            "sdi_is_data": true,
-            "sdi": 0,
-            "description": "UTC Measure Time",
-            "data_bits": 20,
-            "data_type": "BNR",
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "data_is_signed": true,
-            "value_resolution": 9.5367431640625e-06,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 10.0
-            }
+  "brand": "Honeywell",
+  "name": "l_gps",
+  "note": "LEFT",
+  "labels": {
+    "mest3k": {
+      "label": "60",
+      "sdi": 0,
+      "description": "Measurement Status",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {
+        "clock_update": {
+          "bits": "19",
+          "description": ""
         },
-        "utc_bcd": {
-            "label": "125",
-            "sdi": 0,
-            "description": "UTC",
-            "data_type": "BCD",
-            "bcd_digits": 4.75,
-            "sdi_is_data": false,
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "ssm_function": "SYSTEM_STATUS",
-            "value_resolution": 1.0,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 24000.0
-            }
+        "range_data_valid": {
+          "bits": "22",
+          "description": ""
         },
-        "utcf": {
-            "label": "140",
-            "sdi_is_data": true,
-            "sdi": 0,
-            "description": "UTC Fine",
-            "data_bits": 20,
-            "data_type": "BNR",
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "data_is_signed": true,
-            "value_resolution": 9.5367431640625e-07,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 1.0
-            }
-        },
-        "utcff": {
-            "label": "141",
-            "sdi": 0,
-            "description": "UTC Fine Fraction",
-            "data_bits": 10,
-            "data_type": "BNR",
-            "sdi_is_data": false,
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "data_is_signed": true,
-            "value_resolution": 0.00093132255859375,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 0.9536743
-            }
-        },
-        "utc_bnr": {
-            "label": "150",
-            "sdi": 0,
-            "description": "UTC",
-            "data_bits": 17,
-            "data_type": "BNR",
-            "sdi_is_data": false,
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "data_is_signed": true,
-            "value_resolution": 0.00018002243041992188,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 23.5959
-            }
-        },
-        "date": {
-            "label": "260",
-            "sdi": 0,
-            "description": "Date",
-            "data_type": "BCD",
-            "bcd_digits": 4.75,
-            "sdi_is_data": false,
-            "channel_direction": "TX",
-            "pad_bits": {},
-            "ssm_function": "SYSTEM_STATUS",
-            "value_resolution": 1.0,
-            "ssm": "NORMAL_OPERATION",
-            "data_init": "0",
-            "timing_ms": {
-                "min": 100.0,
-                "max": 200.0
-            },
-            "value_clamping": {
-                "enable": true,
-                "min": 0.0,
-                "max": 99999999.0
-            }
+        "svid_valid": {
+          "bits": "23",
+          "description": ""
         }
+      },
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
     },
-    "description": "Global Positioning System"
+    "umt3": {
+      "label": "74",
+      "sdi_is_data": true,
+      "sdi": 0,
+      "description": "UTC Measure Time",
+      "data_bits": 20,
+      "data_type": "BNR",
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "data_is_signed": true,
+      "value_resolution": 9.5367431640625e-06,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 10.0
+      }
+    },
+    "hdop3": {
+      "label": "101",
+      "sdi": 0,
+      "description": "HDOP",
+      "data_bits": 15,
+      "data_type": "BNR",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "data_is_signed": true,
+      "value_resolution": 0.03125,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 1024.0
+      }
+    },
+    "vdop3": {
+      "label": "102",
+      "sdi": 0,
+      "description": "VDOP",
+      "data_bits": 15,
+      "data_type": "BNR",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "data_is_signed": true,
+      "value_resolution": 0.03125,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 1024.0
+      }
+    },
+    "utc3x": {
+      "label": "125",
+      "sdi": 0,
+      "description": "UTC",
+      "data_type": "BCD",
+      "bcd_digits": 4.75,
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm_function": "SYSTEM_STATUS",
+      "value_resolution": 1.0,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 24000.0
+      }
+    },
+    "utcf3x": {
+      "label": "140",
+      "sdi_is_data": true,
+      "sdi": 0,
+      "description": "UTC Fine",
+      "data_bits": 20,
+      "data_type": "BNR",
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "data_is_signed": true,
+      "value_resolution": 9.5367431640625e-07,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "utff3x": {
+      "label": "141",
+      "sdi": 0,
+      "description": "UTC Fine Fraction",
+      "data_bits": 10,
+      "data_type": "BNR",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "data_is_signed": true,
+      "value_resolution": 0.00093132255859375,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.9536743
+      }
+    },
+    "utc3": {
+      "label": "150",
+      "sdi": 0,
+      "description": "UTC",
+      "data_bits": 17,
+      "data_type": "BNR",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {
+        "valid": {
+          "bits": "11",
+          "description": ""
+        }
+      },
+      "data_is_signed": true,
+      "value_resolution": 0.00018002243041992188,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 23.5959
+      }
+    },
+    "dllab": {
+      "label": "226",
+      "sdi": 0,
+      "description": "Data Loader Response",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "date3x": {
+      "label": "260",
+      "sdi": 0,
+      "description": "Date",
+      "data_type": "BCD",
+      "bcd_digits": 4.75,
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm_function": "SYSTEM_STATUS",
+      "value_resolution": 1.0,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 99999999.0
+      }
+    },
+    "gss3d": {
+      "label": "273",
+      "sdi": 0,
+      "description": "GPS Sensor Status",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {
+        "msb_sat_visible": {
+          "bits": "11",
+          "description": ""
+        },
+        "sat_visible": {
+          "bits": "19:16",
+          "description": ""
+        },
+        "sat_tracked": {
+          "bits": "23:20",
+          "description": ""
+        },
+        "gnss_sens_op_mode": {
+          "bits": "28:24",
+          "description": ""
+        },
+        "msb_sat_tracked": {
+          "bits": "29",
+          "description": ""
+        }
+      },
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "maint3": {
+      "label": "352",
+      "sdi": 0,
+      "description": "Maintenance Word 3",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "maint4": {
+      "label": "354",
+      "sdi": 0,
+      "description": "Maintenance Word 4",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {
+      },
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "cmdwordback": {
+      "label": "355",
+      "pad_bits": {
+        "cdc_ack": {
+          "bits": "29",
+          "description": "CFDS/CMC Command Wd Ack."
+        },
+        "test_inh": {
+          "bits": "28",
+          "description": "Bite Test Inhibit"
+        },
+        "rcvr_fail": {
+          "bits": "27",
+          "description": "GNSS Sensor Unit"
+        },
+        "rf_fail": {
+          "bits": "26",
+          "description": "GNSS RF Interface Status"
+        },
+        "sys_fail": {
+          "bits": "25",
+          "description": "GNSS System"
+        },
+        "irs_onside": {
+          "bits": "24",
+          "description": "IRS Bus/FMS #1 Status"
+        },
+        "irs_offside": {
+          "bits": "23",
+          "description": "IRS/FMS Bus #2 Status"
+        },
+        "adc_onside": {
+          "bits": "22",
+          "description": "DADS/FMS Bus #1 Status"
+        },
+        "adc_offside": {
+          "bits": "21",
+          "description": "DADS/FMS Bus #2 Status"
+        },
+        "datal_onside": {
+          "bits": "29",
+          "description": "AUX Data Broadcast #1 Bus Status"
+        },
+        "datal_offside": {
+          "bits": "19",
+          "description": "AUX Data Broadcast #2 Bus Status"
+        },
+        "irs_3": {
+          "bits": "18",
+          "description": "IRS Bus #3 Status"
+        }
+      },
+      "sdi": 0,
+      "description": "GPS Fault Summary",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "eqippn": {
+      "label": "356",
+      "sdi": 0,
+      "description": "Equip Part Number",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "e13": {
+      "label": "377",
+      "sdi": 0,
+      "description": "Equipment ID",
+      "data_bits": 19,
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "TX",
+      "pad_bits": {},
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 100.0,
+        "max": 200.0
+      },
+      "value_clamping": {
+        "enable": true,
+        "min": 0.0,
+        "max": 0.0
+      }
+    }
+  },
+  "description": "Global Positioning System"
 }

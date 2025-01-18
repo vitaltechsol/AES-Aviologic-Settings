@@ -8,15 +8,17 @@
         "enable": true,
         "TX_channels": {
             "0": {
-                "enable": false,
-                "speed": "S12_KHZ",
+                "enable": true,
+                "speed": "S100_KHZ",
                 "mode": "TX_TIMETABLE",
-                "description": "<describe what this channel is used for>",
-                "link_equipment": {}
+                "description": "clock",
+                "link_equipment": {
+                    "clock": "clock_unit"
+                }
             },
             "1": {
                 "enable": true,
-                "speed": "S12_KHZ",
+                "speed": "S100_KHZ",
                 "mode": "TX_MANUAL",
                 "description": "hud_tx",
                 "name": "hud_tx"
@@ -28,13 +30,13 @@
                 "description": "hud_tx",
                 "name": "hud_tx"
             },
-          "3": {
-            "enable": true,
-            "speed": "S100_KHZ",
-            "mode": "TX_MANUAL",
-            "description": "<describe what this channel is used for>",
-            "name": "mcdu_tx"
-          }
+            "3": {
+                "enable": true,
+                "speed": "S100_KHZ",
+                "mode": "TX_MANUAL",
+                "description": "<describe what this channel is used for>",
+                "name": "mcdu_tx"
+            }
         },
         "RX_channels": {
             "0": {
