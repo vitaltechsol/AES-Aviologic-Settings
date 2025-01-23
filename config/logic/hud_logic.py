@@ -51,7 +51,6 @@ import asyncio
 from enum import Enum
 from time import time
 from resources.libs.arinc_lib.arinc_lib import ArincLabel
-import queue
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
