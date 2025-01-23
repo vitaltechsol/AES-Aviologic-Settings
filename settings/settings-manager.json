@@ -10,5 +10,17 @@
     },
     "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic (2).py": {
         "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\clock_logic.py": {
+        "is_enable": true
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\hud_logic (2).py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\hud_logic_test.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_test.py": {
+        "is_enable": false
     }
 }

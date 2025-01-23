@@ -28,6 +28,11 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
+    "I_OH_GPS": {
+      "name": "system.indicators.I_OH_GPS",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
     "hgscp_display_line1": {
       "name": "aircraft.HGSCP.display.line1",
       "read_interval_ms": 100,

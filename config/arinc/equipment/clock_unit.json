@@ -185,7 +185,7 @@
       "channel_direction": "TX",
       "pad_bits": {
         "valid": {
-          "bits": "11",
+          "bits": "17",
           "description": ""
         }
       },

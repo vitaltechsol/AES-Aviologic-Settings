@@ -603,7 +603,10 @@ class Logic:
         # inverted color
 
 
-        if (xml_string != self.cdu1_text and self.run_again <= 2):
+        if ( xml_string.startswith("<") and xml_string != self.cdu1_text and self.run_again <= 2):
+            print("xml_string")
+            print(xml_string)
+            print(len(xml_string))
       #  if (xml_string != self.cdu1_text):
 
             # self.fmc_subsys.add_text(1, "inversed", control=1)
