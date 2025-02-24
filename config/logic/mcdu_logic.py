@@ -1,294 +1,257 @@
 ﻿import asyncio
-from resources.libs.arinc_lib.arinc_lib import ArincLabel
 import time
+import xml.etree.ElementTree as ET
+import re
+import queue
 from enum import Enum
 from typing import Callable
-import re
-import xml.etree.ElementTree as ET
-import queue
+from resources.libs.arinc_lib.arinc_lib import ArincLabel
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 
-
 class MCDU:
+    COLUMNS: int = 24
+    ROWS: int = 14
+
     class ArgumentException(Exception):
         pass
 
-    class Subsystem:
-        COL: int = 24
-        ROW: int = 14
+    class LightsEnum(Enum):
+        FAIL   = 0x2000
+        MSG    = 0x8000
+        OFFSET = 0x10000
+        EXEC   = 0x20000
 
-        def __init__(self, sal_octal: int):
-            # self._sal = _label_base_reverse_mask(
-            #     _label_base_octal_to_decimal(sal_octal)
-            # )
+    class KeypadEnum(Enum):
+        INIT       = 0xC0
+        RTE        = 0xB0
+        CLB        = 0xA0
+        CRZ        = 0x90
+        DES        = 0x80
+        LEGS       = 0xB2
+        DEP_ARR    = 0xA2
+        HOLD       = 0x92
+        PROG       = 0x82
+        EXEC       = 0x72
+        N1_LIMIT   = 0x6A
+        FIX        = 0xC4
+        A          = 0xB4
+        B          = 0xA4
+        C          = 0x94
+        D          = 0x84
+        E          = 0x74
+        PREV_PAGE  = 0x6C
+        NEXT_PAGE  = 0xC6
+        F          = 0xB6
+        G          = 0xA6
+        H          = 0x96
+        I          = 0x86
+        J          = 0x76
+        ONE        = 0xEE
+        TWO        = 0xDE
+        THREE      = 0xCE
+        K          = 0xBE
+        L          = 0xAE
+        M          = 0x9E
+        N          = 0x8E
+        O          = 0x7E
+        FOUR       = 0xEC
+        FIVE       = 0xDC
+        SIX        = 0xCC
+        P          = 0xBC
+        Q          = 0xAC
+        R          = 0x9C
+        S          = 0x8C
+        T          = 0x7C
+        SEVEN      = 0xEA
+        EIGHT      = 0xDA
+        NINE       = 0xCA
+        U          = 0xBA
+        V          = 0xAA
+        W          = 0x9A
+        X          = 0x8A
+        Y          = 0x7A
+        DOT        = 0xE8
+        ZERO       = 0xD8
+        PLUS_MINUS = 0xC8
+        Z          = 0xB8
+        SPACE      = 0xA8
+        DELETE     = 0x98
+        SLASH      = 0x88
+        CLEAR      = 0x6E
+        LINE_LEFT_1  = 0xF4
+        LINE_LEFT_2  = 0xF6
+        LINE_LEFT_3  = 0xE4
+        LINE_LEFT_4  = 0xE6
+        LINE_LEFT_5  = 0xD4
+        LINE_LEFT_6  = 0xD6
+        LINE_RIGHT_1 = 0xF2
+        LINE_RIGHT_2 = 0xF0
+        LINE_RIGHT_3 = 0xE2
+        LINE_RIGHT_4 = 0xE0
+        LINE_RIGHT_5 = 0xD2
+        LINE_RIGHT_6 = 0xD0
 
-            self._sal = sal_octal
-            self._block = []
+    class StringSplitter:
+        GROUP_N: int = 2
 
-        def _apply_par(self, label: int) -> int:
-            label = label & 0x7FFFFFFF
-            label |= ArincLabel.Base._parity(label) << 31
-            return label
+        @staticmethod
+        def _append(lst: list, text: str, rep_char: bool, position: int):
+            lst.append({"text": text, "rep_char": rep_char, "position": position})
 
-        def _char_label(self, sal: int, char: int, control: int = 0x0) -> int:
-            char_base = sal | 0x300
-            return self._apply_par(
-                char_base | ((char & 0x7F) << 13) | ((control & 0x1FF) << 20)
-            )
-
-        def add_text_base(self, offset: int, text: str, color: int = 0, control: int = 0):
-            block_base = self._sal | 0x400
-            block2_base = block_base | 0x40000
-
-            if offset < 0:
-                raise Exception("Offset should be bigger than 0")
-
-            self._block += [
-                # Text block open - Specifies the offset
-                self._apply_par(block_base | (offset << 13)),
-                # Text block configuration
-                self._apply_par(block2_base | ((color & 0x1FF) << 20)),
-            ]
-
-            if len(text) > 0:
-                self._block += [
-                    self._char_label(self._sal, c, control)
-                    for c in text.encode("iso-8859-5")
-                ]
-
-        def add_text(self, offset: int, text: str, color: int = 0):
-            block_base = self._sal | 0x400
-            block2_base = block_base | 0x40000
-            control = 0;
-
-            
-             # Mapping of Cyrillic characters to corresponding numbers. Used to show small font numbers
-            cyrillic_to_number = {
-                'А': '0',
-                'Б': '1',
-                'В': '2',
-                'Г': '3',
-                'Д': '4',
-                'Е': '5',
-                'Ж': '6',
-                'З': '7',
-                'И': '8',
-                'Й': '9'
-            }
-
-            if offset < 0:
-                raise Exception("Offset should be bigger than 0")
-
-            self._block += [
-                # Text block open - Specifies the offset
-                self._apply_par(block_base | (offset << 13)),
-                # Text block configuration
-                self._apply_par(block2_base | ((color & 0x1FF) << 20)),
-            ]
-
-            # if len(text) > 0:
-            #     self._block += [
-            #         self._char_label(self._sal, c, control)
-            #         for c in text.encode("iso-8859-5")
-            #     ]
-
-            i = 0
-            while i < len(text):
-                c = text[i]
-
-                # Special case for `#` which is the empty box, add the corresponding int (64)
-                if c == "#":
-                    self._block += [self._char_label(0x04, 64, control)]
-
-                # # Check for the sequence "[I]" (start inverted text)
-                # elif c == "[" and i + 2 < len(text) and text[i + 1:i + 3] == "I]":
-                #     # Add empty space to replace the special wrapper
-          
-                #     self._block += [self._char_label(0x04, b, 0) for b in "        ".encode("iso-8859-5")]
-                #     self._block += [self._char_label(0x04, b, 1) for b in " ".encode("iso-8859-5")]
-                #     control = 1 # Start inverted text
-                #     i += 3  # Skip past "[I]"
-                # # Check for the sequence "[/I]" (ende inverted text)
-                # elif c == "[" and i + 3 < len(text) and text[i + 1:i + 4] == "/I]":
-                #     control = 0 # End inverted tex
-                #     i += 4  # Skip past "[/I]"
-    
-                # Inverted, Color 1, 2, Color 3
-                elif c == "Ф":
-                    control = 1 # Start inverted text
-
-                elif c == "Ю":
-                    control = 0 # End inverted text
-
-                elif c == "`":
-                    # for degrees symbol prosim uses `
-                    self._block += [self._char_label(0x04, 36, control)]
-
-                elif c in cyrillic_to_number:
-                    # Map Cyrillic characters to numbers and use the same logic as for digits
-                    n = cyrillic_to_number[c]
-                    self._block += [self._char_label(0x04, 16 + int(n), control)]
-
+        @staticmethod
+        def split(text: str) -> list:
+            output = []
+            text_serializer = ""
+            rep_text_serializer = ""
+            char_position = -1
+            for i in range(1, len(text)):
+                if text[i] != text[i-1]:
+                    if len(rep_text_serializer) < MCDU.StringSplitter.GROUP_N:
+                        text_serializer += rep_text_serializer + text[i-1]
+                        if char_position < 0:
+                            char_position = i-1
+                    else:
+                        if rep_text_serializer[-1] == text[i-1]:
+                            rep_text_serializer += text[i-1]
+                        MCDU.StringSplitter._append(output, rep_text_serializer, True, char_position)
+                        char_position = -1
+                    rep_text_serializer = ""
                 else:
-                    # Encode other characters in ISO-8859-5 and add them to the block
-                    self._block += [self._char_label(0x04, b, control) for b in c.encode("iso-8859-5")]
+                    rep_text_serializer += text[i-1]
+                    if char_position < 0:
+                        char_position = i-1
+                    if len(text_serializer) > MCDU.StringSplitter.GROUP_N:
+                        MCDU.StringSplitter._append(output, text_serializer, False, char_position)
+                        text_serializer = ""
+                        char_position = -1
+            if len(text_serializer) > 0:
+                MCDU.StringSplitter._append(output, text_serializer + text[-1], False, char_position)
+            elif len(rep_text_serializer) > 0:
+                MCDU.StringSplitter._append(output, rep_text_serializer + text[-1], True, char_position)
+            return output
 
-                i += 1
+    def __init__(self, arinc_device: object, tx_chnl_number: int, rx_chnl_number: int, key_callback: Callable = None):
+        self._device = arinc_device
+        self._tx_chnl = tx_chnl_number
+        self._rx_chnl = rx_chnl_number
+        self._key_cb = key_callback
 
+        self._sal = 0x04
+        self._block = []      # Buffer for text blocks
+        self._tx_buffer = []  # Buffer for labels to send
+        self._rx_queue = self._device._rx_chnl[self._rx_chnl]._label_queue
+        self._trig_update = False
+        self._light_bitmap = 0
+        self._scratchpad_text = ""
+        self._key_queue = queue.Queue()  # For key press handling
 
+    def _apply_par(self, label: int) -> int:
+        label = label & 0x7FFFFFFF
+        label |= ArincLabel.Base._parity(label) << 31
+        return label
 
-        def format_row(self, left="", center="", right=""):
-            # Start with an empty 24-character line filled with spaces
-            special_chars = ['Ф', 'Ю']
-            max_chars = 24;
-            # Check each string for occurrences of the special characters then add more spaces for when they are removed
-            for char in special_chars:
-                max_chars += (left or "").count(char)
-                max_chars += (center or "").count(char)
-                max_chars += (right or "").count(char)
+    def _char_label(self, sal: int, char: int, control: int = 0x0) -> int:
+        char_base = sal | 0x300
+        return self._apply_par(char_base | ((char & 0x7F) << 13) | ((control & 0x1FF) << 20))
 
-            row = [' '] * max_chars
-            print("max_chars")
-            print(max_chars);
-    
-            # Add the left text, starting at index 0
-            if (left):
-                for i, char in enumerate(left):
-                    if i < max_chars:  # Ensure we do not overflow the row
-                        row[i] = char
-    
-            # Add the right text, aligned to the right, starting at the correct index
-            right_start = max_chars - len(right)
-            for i, char in enumerate(right):
-                if right_start + i >= 0 and right_start + i < max_chars:  # Ensure we do not overflow the row
-                    row[right_start + i] = char
-    
-            # Add the center text, centered within the row
-            center_start = (max_chars - len(center)) // 2
-            for i, char in enumerate(center):
-                if center_start + i >= 0 and center_start + i < max_chars:  # Ensure we do not overflow the row
-                    row[center_start + i] = char
-    
-            # Join the list of characters into a single string and return it
-            return ''.join(row)
+    def _init_frame(self, light_status: int):
+        scratchpad_base = self._sal | 0x200
+        lights_base = self._sal | 0x100
+        offset = 312
+        self._tx_buffer = [
+            0x0,
+            self._apply_par(scratchpad_base | (offset << 13)),
+        ]
+        self._tx_buffer += [
+            self._char_label(self._sal, c, 0x40)
+            for c in self._scratchpad_text.ljust(self.COLUMNS).encode('iso-8859-5')
+        ]
+        self._tx_buffer += [
+            self._apply_par(lights_base | self._light_bitmap),
+            self._apply_par(scratchpad_base),
+        ]
 
+    def _close_frame(self) -> list:
+        self._tx_buffer[0] = self._apply_par(self._sal | (len(self._tx_buffer) << 13))
+        self._tx_buffer += [self._apply_par(self._sal | 0x00001F00)]
+        return self._tx_buffer
 
-        # Function to convert numbers to Cyrillic
-        # used to convert numbers to a special character that can later
-        # be used to be shown as a small font number instead
-        def convert_numbers_to_cyrillic(self, text):
+    def _key_decode(self, label: int):
+        self._key_cb(label)
+        # try:
+        #     key_enum = self.KeypadEnum((label >> 12) & 0xFF)
+        # except Exception:
+        #     pass
+        # else:
+        #     if self._key_cb is not None:
+        #         self._key_cb(label)
+        #     self._key_queue.put(key_enum.name)
 
-            # Mapping of numbers to Cyrillic letters (ISO-8859-5)
-            number_to_cyrillic = {
-                '0': 'А',  # ISO-8859-5 0410
-                '1': 'Б',  # ISO-8859-5 0411
-                '2': 'В',  # ISO-8859-5 0412
-                '3': 'Г',  # ISO-8859-5 0413
-                '4': 'Д',  # ISO-8859-5 0414
-                '5': 'Е',  # ISO-8859-5 0415
-                '6': 'Ж',  # ISO-8859-5 0416
-                '7': 'З',  # ISO-8859-5 0417
-                '8': 'И',  # ISO-8859-5 0418
-                '9': 'Й'   # ISO-8859-5 0419
-            }
+    def key_queue_pop(self):
+        if not self._key_queue.empty():
+            return self._key_queue.get()
+        return None
 
-            return ''.join(number_to_cyrillic.get(c, c) for c in text)
+    def set_screen(self, text: str):
+        # This method takes the full screen text (max 312 chars) and builds text blocks.
+        sections = self.StringSplitter.split(text[:312])
+        rep_char_prev = False
+        text_block = []
+        for i in range(len(sections)):
+            section = sections[i]
+            if (section["rep_char"] == False) and (rep_char_prev == False):
+                if len(text_block) == 0:
+                    offset = 0
+                    text_block.append({"text": section["text"][1:], "pos": offset, "fill": section["text"][0]})
+                else:
+                    text_block[-1]["text"] += section["text"]
+            elif (section["rep_char"] == True) and (rep_char_prev == False):
+                offset = len(section["text"])
+                text_block.append({"text": "", "pos": offset, "fill": section["text"][0]})
+            elif (section["rep_char"] == False) and (rep_char_prev == True):
+                text_block[-1]["text"] += section["text"]
+                text_block[-1]["pos"] = (section["position"] - sections[i-1]["position"]) + 1
+            elif (section["rep_char"] == True) and (rep_char_prev == True):
+                offset = len(section["text"])
+                text_block.append({"text": "", "pos": offset, "fill": section["text"][0]})
+            rep_char_prev = section["rep_char"]
+        for block in text_block:
+            self._add_text_block(block["pos"], block["text"], block["fill"])
 
+    def _add_text_block(self, offset: int, text: str, fill_char: str = " "):
+        if offset <= 0:
+            raise Exception("Offset has to be bigger than zero")
+        self._block += [
+            self._apply_par(self._sal | 0x400 | (offset << 13)),
+            self._apply_par(self._sal | 0x400 | ((fill_char.encode('iso-8859-5')[0] & 0x7F) << 13)),
+        ]
+        self._block += [
+            self._char_label(self._sal, c, 0)
+            for c in text.encode("iso-8859-5")
+        ]
 
-        def parse_display_line(self, input_str, lower_case = False):
-            DELIMITER = "\u00A8"
-            left = ""
-            center = ""
-            right = ""
+    @property
+    def scratchpad(self) -> str:
+        return self._scratchpad_text
 
-            if not input_str:
-                return ["", "", ""]
+    @scratchpad.setter
+    def scratchpad(self, text: str):
+        self._scratchpad_text = (text or "")[:self.COLUMNS]
 
-            # Find and handle text wrapped in [s][/s] for lowercase conversion and small number conversion
-            def process_s_tags(content):
-                # Convert to lowercase
-                content = content.lower()
-                # Convert numbers to Cyrillic
-                return self.convert_numbers_to_cyrillic(content)
+    def set_light(self, light: LightsEnum, status: int | bool):
+        if not isinstance(status, (int, bool)):
+            raise self.ArgumentException("The indicator status value type should be an int or boolean")
+        self._light_bitmap &= ~light.value
+        if bool(status):
+            self._light_bitmap |= light.value
 
-            def replace_nested_s_tags(input_str):
-                # Replace the innermost [s][/s] or [S][/S] first
-                new_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), input_str)
-                new_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), new_str)
-                input_str = new_str
-                # Replace any remaining [s] from nested
-                input_str = input_str.replace("[s]", "").replace("[/s]", "")
-                return input_str
-
-            if (lower_case and input_str):
-                input_str = input_str.lower()
-                input_str = self.convert_numbers_to_cyrillic(input_str)
-
-            # Process nested [s][/s] and [S][/S] tags
-            input_str = replace_nested_s_tags(input_str)
-
-            # Replace Prosim's box symbols with '#'
-            input_str = input_str.replace("[]", "#")
-        
-            # Replace any [L] and [/L] tags with an empty string (Supposed to be large but not used)
-            input_str = input_str.replace("[l]", "").replace("[/l]", "")
-
-            # Replace any [3] and [/3] tags with special characters
-            input_str = input_str.replace("[I]", "Ф").replace("[/I]", "Ю")
-            input_str = input_str.replace("[1]", "Ф").replace("[/1]", "Ю")
-            input_str = input_str.replace("[2]", "Ф").replace("[/2]", "Ю")
-            input_str = input_str.replace("[3]", "Ф").replace("[/3]", "Ю")
-            
-            delimiter_count = input_str.count(DELIMITER)
-    
-            # Handle cases with two delimiters (left, center, right)
-            if delimiter_count == 2:
-                left, center, right = input_str.split(DELIMITER, 2)
-            # Handle cases with one delimiter (left, right)
-            elif delimiter_count == 1:
-                left, right = input_str.split(DELIMITER, 1)
-                center = ""
-            # Handle cases with no delimiters
-            else:
-                left, center, right = input_str, "", ""
-
-
-            # Find the text wrapped in [m][/m] tags for the center part
-            center_match = re.search(r'\[m\](.*?)\[/m\]', input_str)
-            if center_match:
-                center = center_match.group(1)
-                # Remove the center text and tags from left and right parts
-                left = left.replace(center_match.group(0), '')
-                right = right.replace(center_match.group(0), '')
-
-            # Return the left, center, and right as an array
-            return [left, center, right]
-
-        def parse_xml(self, xml_string):
-            # Parse the XML string
-
-            root = ET.fromstring(xml_string)
-            title = root.find('title').text if root.find('title') is not None else ""
-            title_page = root.find('titlePage').text if root.find('titlePage') is not None else ""
-            scratchpad = root.find('scratchpad').text if root.find('scratchpad') is not None else ""
-            lines = [line.text for line in root.findall('line')]
-    
-            # Ensure we have exactly 12 lines, fill with empty strings if less
-            lines = (lines + [""] * 12)[:12]
-    
-            return {
-                "title": title,
-                "title_page": title_page,
-                "scratchpad": scratchpad,
-                "lines": lines
-            }
-
-
-    key_map = {
+    # New method: map a key hex code to the corresponding dataref name.
+    def get_ps_key(self, key: int) -> str:
+        key_map = {
             39: "S_CDU1_KEY_0",
             17: "S_CDU1_KEY_1",
             33: "S_CDU1_KEY_2",
@@ -300,12 +263,10 @@ class MCDU:
             37: "S_CDU1_KEY_8",
             53: "S_CDU1_KEY_9",
             75: "S_CDU1_KEY_A",
-            # 90011: "S_CDU1_KEY_ATC",
             91: "S_CDU1_KEY_B",
             107: "S_CDU1_KEY_C",
             95: "S_CDU1_KEY_CLB",
             145: "S_CDU1_KEY_CLEAR",
-            # 90016: "S_CDU1_KEY_CLEARLINE",
             111: "S_CDU1_KEY_CRZ",
             123: "S_CDU1_KEY_D",
             103: "S_CDU1_KEY_DEL",
@@ -316,7 +277,6 @@ class MCDU:
             141: "S_CDU1_KEY_EXEC",
             73: "S_CDU1_KEY_F",
             59: "S_CDU1_KEY_FIX",
-            # 90027: "S_CDU1_KEY_FMC_COMM",
             89: "S_CDU1_KEY_G",
             105: "S_CDU1_KEY_H",
             109: "S_CDU1_KEY_HOLD",
@@ -328,7 +288,7 @@ class MCDU:
             77: "S_CDU1_KEY_LEGS",
             11: "S_CDU1_KEY_LSK1L",
             13: "S_CDU1_KEY_LSK1R",
-            9: "S_CDU1_KEY_LSK2L",
+            9:  "S_CDU1_KEY_LSK2L",
             15: "S_CDU1_KEY_LSK2R",
             27: "S_CDU1_KEY_LSK3L",
             29: "S_CDU1_KEY_LSK3R",
@@ -339,7 +299,6 @@ class MCDU:
             41: "S_CDU1_KEY_LSK6L",
             47: "S_CDU1_KEY_LSK6R",
             97: "S_CDU1_KEY_M",
-            # 90050: "S_CDU1_KEY_MENU",
             55: "S_CDU1_KEY_MINUS",
             113: "S_CDU1_KEY_N",
             149: "S_CDU1_KEY_N1_LIMIT",
@@ -357,323 +316,193 @@ class MCDU:
             131: "S_CDU1_KEY_T",
             69: "S_CDU1_KEY_U",
             85: "S_CDU1_KEY_V",
-            # 90068: "S_CDU1_KEY_VNAV",
             101: "S_CDU1_KEY_W",
             117: "S_CDU1_KEY_X",
             133: "S_CDU1_KEY_Y",
             71: "S_CDU1_KEY_Z"
         }
-
-    # Create queue for key presses
-    key_q = queue.Queue()
-    
-    class LightsEnum(Enum):
-        """Enumeration for front light indicators"""
-
-        FAIL = 0x2000
-        MSG = 0x8000
-        OFFSET = 0x10000
-        EXEC = 0x20000
-     
-    def __init__(
-        self,
-        arinc_device: object,
-        tx_chnl_number: int,
-        rx_chnl_number: int,
-        key_callback: Callable = None,
-    ):
-        self._device = arinc_device
-        self._tx_chnl = tx_chnl_number
-        self._rx_chnl = rx_chnl_number
-        self._key_cb = key_callback
-        self._subsystem = {}
-
-        # Labels buffer to send to the panel
-        self._tx_buffer = []
-
-        # Get reference to receiving queue. This is to make things faster
-        self._rx_queue = self._device._rx_chnl[self._rx_chnl]._label_queue
-
-        # Ready to update subsystems flag
-        self._trig_update = False
-
-        self._light_bitmap = 0
-
-        self._sal = 0x04
-
-    def _apply_par(self, label: int) -> int:
-        label = label & 0x7FFFFFFF
-        label |= ArincLabel.Base._parity(label) << 31
-        return label
-
-    def _char_label(self, sal: int, char: int, control: int = 0x0) -> int:
-        char_base = sal | 0x300
-        return self._apply_par(
-            char_base | ((char & 0x7F) << 13) | ((control & 0x1FF) << 20)
-        )
-
-    def _init_frame(self, light_status: int):
-        scratchpad_base = self._sal | 0x200
-        lights_base = self._sal | 0x100
-        offset = 312
-
-        self._tx_buffer = [
-            0x0,
-          #  self._apply_par(scratchpad_base | (offset << 13)),
-        ]
-        null_char = self._char_label(self._sal, 0x40)
-        # self._tx_buffer += [null_char] * 24
-        self._tx_buffer += [
-            self._apply_par(lights_base | light_status),  # << Lights bits here
-            self._apply_par(scratchpad_base),
-        ]
-
-    def _close_frame(self) -> list:
-        # Apply head of the entire frame. Specifies the size of the entire frame
-        self._tx_buffer[0] = self._apply_par(self._sal | (len(self._tx_buffer) << 13))
-        # Add end of frame label and return the list of labels to send to teh unit
-        return self._tx_buffer + [self._apply_par(self._sal | 0x00001F00)]
-
-    def _key_decode(self, label: int):
-        self._key_cb(label)
-
-        # try:
-        #     key_enum = self.KeypadEnum((label >> 12) & 0xFF)
-        # except:
-        #     # Is not a key so pass here
-        #     pass
-        # else:
-        #     if self._key_cb is not None:
-        #         self._key_cb(key_enum.name)
-        #         # print(hex(label), key_enum.name)
-
-    def add_subsystem(self, name: str, id_octal: int):
-        self._subsystem[name] = MCDU.Subsystem(id_octal)
-        return self._subsystem[name]
-
-    def set_light(self, light: LightsEnum, status: int | bool):
-        """Set given indicator status. The status is ON or OFF.
-
-        Args:
-            indicator (LightsEnum): indicator Enum
-            status (int | bool): Status of the indicator. On or OFF. The value
-                                can be an integer 1/0 or a boolean True/False
-        """
-
-        if isinstance(status, (int, bool)) == False:
-            raise self.ArgumentException(
-                "The indicator status value type should be an int or boolean"
-            )
-
-        self._light_bitmap &= ~light.value
-        if bool(status):
-            self._light_bitmap |= light.value
-    
-    def get_ps_key(self, key: int):
-        if key in self.key_map:
-            return self.key_map[key]
-        else:
-            return ""
-    def key_queue_add(self, item: str):
-        self.key_q.put(item)
-
-    def key_queue_pop(self):
-        if not self.key_q.empty():
-            item = self.key_q.get()  # Get and remove the first item from the queue
-            return item
+        return key_map.get(key, "")
 
     def loop(self):
-        """ main update loop.
-        This method should be called periodically as fast ast possible within the Logic loop
-        """
-        # The loop should run only if the arinc card is online
         if self._device.is_ready:
-            # Consume all received labels from HUD channel
             while True:
                 try:
                     label, _ = self._rx_queue.popleft()
-                except Exception as e:
-                    # No element in the queue... then skip
+                except Exception:
                     break
                 else:
                     p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
-                    # print(
-                    #     f"[{oct(label_id)}]({label_id}) {(label & 0x7FFFFF00):8X} {sdi}"
-                    # )
                     if label_id == 4:
                         self._key_decode(label)
                         self._trig_update = True
-                        # print("label")
-                        # print(label)
-
-            # Update subsystems only if the panel has reported back
             if self._trig_update:
                 self._trig_update = False
-
                 self._init_frame(self._light_bitmap)
+                self._tx_buffer += self._block
+                self._block = []
+                file = self._close_frame()
+                lwc = [(ARINC_CARD_TX_CHNL, l) for l in file]
+                try:
+                    self._device.send_manual_list_fast(lwc)
+                except Exception:
+                    pass
 
-                for _, subsystem in self._subsystem.items():
+    # === XML Parsing and Display Formatting Methods ===
 
-                    self._tx_buffer += subsystem._block
-                    subsystem._block = []
+    def parse_xml(self, xml_string: str) -> dict:
+        root = ET.fromstring(xml_string)
+        title = root.find('title').text if root.find('title') is not None else ""
+        title_page = root.find('titlePage').text if root.find('titlePage') is not None else ""
+        scratchpad = root.find('scratchpad').text if root.find('scratchpad') is not None else ""
+        lines = [line.text for line in root.findall('line')]
+        lines = (lines + [""] * 12)[:12]
+        return {"title": title, "title_page": title_page, "scratchpad": scratchpad, "lines": lines}
 
-                    file = self._close_frame()
-                    # print("file")
-                    # print(file)
+    def convert_numbers_to_cyrillic(self, text: str) -> str:
+        mapping = {'0': 'А', '1': 'Б', '2': 'В', '3': 'Г', '4': 'Д',
+                   '5': 'Е', '6': 'Ж', '7': 'З', '8': 'И', '9': 'Й'}
+        return ''.join(mapping.get(ch, ch) for ch in text)
 
-                    lwc = []
-                    for l in file:
-                        lwc.append((ARINC_CARD_TX_CHNL, l))
+    def parse_display_line(self, input_str: str, lower_case: bool = False) -> list:
+        DELIMITER = "\u00A8"
+        left, center, right = "", "", ""
+        if not input_str:
+            return ["", "", ""]
+        def process_s_tags(content):
+            content = content.lower()
+            return self.convert_numbers_to_cyrillic(content)
+        def replace_nested_s_tags(s):
+            s = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), s)
+            s = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), s)
+            return s.replace("[s]", "").replace("[/s]", "")
+        if lower_case and input_str:
+            input_str = input_str.lower()
+            input_str = self.convert_numbers_to_cyrillic(input_str)
+        input_str = replace_nested_s_tags(input_str)
+        input_str = input_str.replace("[]", "#")
+        input_str = input_str.replace("[l]", "").replace("[/l]", "")
+        input_str = input_str.replace("[I]", "Ф").replace("[/I]", "Ю")
+        input_str = input_str.replace("[1]", "Ф").replace("[/1]", "Ю")
+        input_str = input_str.replace("[2]", "Ф").replace("[/2]", "Ю")
+        input_str = input_str.replace("[3]", "Ф").replace("[/3]", "Ю")
+        delimiter_count = input_str.count(DELIMITER)
+        if delimiter_count == 2:
+            left, center, right = input_str.split(DELIMITER, 2)
+        elif delimiter_count == 1:
+            left, right = input_str.split(DELIMITER, 1)
+            center = ""
+        else:
+            left, center, right = input_str, "", ""
+        center_match = re.search(r'\[m\](.*?)\[/m\]', input_str)
+        if center_match:
+            center = center_match.group(1)
+            left = left.replace(center_match.group(0), '')
+            right = right.replace(center_match.group(0), '')
+        return [left, center, right]
 
-                    # print("lwc")
-                    # print(file)
-
-                    """Update panel sending the TX buffer"""
-                    try:
-                        self._device.send_manual_list_fast(lwc)
-                    except Exception:
-                        pass
-
-            # time.sleep(0.05)
-
+    def format_row(self, left="", center="", right=""):
+        special_chars = ['Ф', 'Ю']
+        max_chars = self.COLUMNS
+        for char in special_chars:
+            max_chars += (left or "").count(char)
+            max_chars += (center or "").count(char)
+            max_chars += (right or "").count(char)
+        row = [' '] * max_chars
+        for i, char in enumerate(left):
+            if i < max_chars:
+                row[i] = char
+        right_start = max_chars - len(right)
+        for i, char in enumerate(right):
+            if 0 <= right_start + i < max_chars:
+                row[right_start + i] = char
+        center_start = (max_chars - len(center)) // 2
+        for i, char in enumerate(center):
+            if 0 <= center_start + i < max_chars:
+                row[center_start + i] = char
+        return ''.join(row)
 
 class Logic:
     def __init__(self):
-        self.version = "v3.1.0"
-
+        self.version = "v3.2.0"
         self.mcdu = MCDU(
             arinc_device=self.devices[ARINC_CARD_NAME],
             tx_chnl_number=ARINC_CARD_TX_CHNL,
             rx_chnl_number=ARINC_CARD_RX_CHNL,
             key_callback=self.key_pressed_callback,
         )
-        self.fmc_subsys = self.mcdu.add_subsystem("fmc", 0x04)
         self.tprev = time.time()
-        self.test_label_increment = 0x00
-        self.aux = 1
         self.cdu1_text = ""
         self.cdu_xml = {
             "xml_title": "",
             "xml_title_page": "",
-            "xml_lines": ["","","","","","","","","","","",""],
+            "xml_lines": [""] * 12,
             "xml_scratchpad": ""
         }
         self.run_again = 0
 
-    def key_pressed_callback(self, name):
-        if name != 4612:
+    def key_pressed_callback(self, label):
 
-            key_hex = (name >> 12) & 0xFF
-               
-            if (key_hex > 0):
+        # label is an integer value coming from the panel
+        if label != 4612:
+            print("label")
+            print(label)
+            key_hex = (label >> 12) & 0xFF
+            if key_hex > 0:
                 selected_key = self.mcdu.get_ps_key(key_hex)
-                # if hasattr(self, 'fmc_subsys') and self.fmc_subsys is not None:
-                #     self.fmc_subsys.add_text(0, 
-                #         str(key_hex) + "  "
-                #     )
-                if (selected_key != ""):
+                if selected_key != "":
                     getattr(self.datarefs.prosim, selected_key).value = 1
-                    self.mcdu.key_queue_add(selected_key)
-             
-             
-            # print(name)
+                    self.mcdu._key_queue.put(selected_key)
 
     async def update(self):
         self.mcdu.loop()
 
-       
-      
-        # print("xml_string")
-        # print(xml_string)
-        # print("cdu1_text")
-        # print(self.cdu1_text)
-        # print("")
-
-        xml_string = self.datarefs.prosim.cdu1.value
-        light_exec = self.datarefs.prosim.I_CDU1_EXEC.value
-        light_fail = self.datarefs.prosim.I_CDU1_FAIL.value
-        light_msg = self.datarefs.prosim.I_CDU1_MSG.value
+        xml_string   = self.datarefs.prosim.cdu1.value
+        light_exec   = self.datarefs.prosim.I_CDU1_EXEC.value
+        light_fail   = self.datarefs.prosim.I_CDU1_FAIL.value
+        light_msg    = self.datarefs.prosim.I_CDU1_MSG.value
         light_offset = self.datarefs.prosim.I_CDU1_OFFSET.value
 
-        self.mcdu.set_light(MCDU.LightsEnum.EXEC, light_exec == 2)
-        self.mcdu.set_light(MCDU.LightsEnum.FAIL, light_fail == 2)
-        self.mcdu.set_light(MCDU.LightsEnum.MSG, light_msg == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.EXEC,   light_exec == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.FAIL,   light_fail == 2)
+        self.mcdu.set_light(MCDU.LightsEnum.MSG,    light_msg == 2)
         self.mcdu.set_light(MCDU.LightsEnum.OFFSET, light_offset == 2)
 
-        # inverted color
-
-
-        if ( xml_string.startswith("<") and xml_string != self.cdu1_text and self.run_again <= 2):
+        if xml_string.startswith("<") and xml_string != self.cdu1_text and self.run_again <= 2:
             print("xml_string")
             print(xml_string)
             print(len(xml_string))
-      #  if (xml_string != self.cdu1_text):
-
-            # self.fmc_subsys.add_text(1, "inversed", control=1)
-
-            # print("***** update")
-            # print(self.run_again)
-            # print(xml_string)
-            if (self.run_again == 1):
+            if self.run_again == 1:
                 self.cdu1_text = xml_string
                 self.run_again = 0
+            self.run_again += 1
 
-            offset = 0;
-            self.run_again = self.run_again + 1
-            
-            xml_result = self.fmc_subsys.parse_xml(xml_string)
-            xml_lines = xml_result["lines"]
-            xml_title_page = xml_result["title_page"]
-            xml_scratchpad = xml_result["scratchpad"]
-            xml_title = self.fmc_subsys.parse_display_line(xml_result["title"])
-            xml_title_spaces = int(xml_title[1]) if xml_title[1] else "" 
-            xml_title_left_align = xml_title[0]  if xml_title[0] else ""
+            xml_result      = self.mcdu.parse_xml(xml_string)
+            xml_lines       = xml_result["lines"]
+            xml_title_page  = xml_result["title_page"]
+            xml_scratchpad  = xml_result["scratchpad"]
+            xml_title       = self.mcdu.parse_display_line(xml_result["title"])
+            xml_title_spaces     = int(xml_title[1]) if xml_title[1] else 0
+            xml_title_left_align = xml_title[0] if xml_title[0] else ""
 
-            # Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
-            # If the title doesn't have spaces then center it.
-            self.fmc_subsys.add_text(0,  
-                self.fmc_subsys.format_row(
-                    ' ' * xml_title_spaces + xml_title[2] if xml_title_left_align == "True" else "",
-                    xml_title[2] if xml_title_left_align == "False" else "", 
-                self.fmc_subsys.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "" ))
-            
-            #Add Lines
-            for ln in range(12):
-                # check that the line has changed
-                # if (xml_lines[ln] != self.cdu_xml["xml_lines"][ln]):
-                xml1 = self.fmc_subsys.parse_display_line(xml_lines[ln], ln % 2 == 0)
-                self.fmc_subsys.add_text(offset, 
-                    self.fmc_subsys.format_row(*xml1)
-                )
-                # else:
-                #     offset = offset + 0 #100
-
-            # test with updating loop numbert count
-            # self.fmc_subsys.add_text(0,  
-            #     self.fmc_subsys.format_row(str(self.run_again), "", "")
-            # )
-
-            # check the scratch pad has changed and update
-            # if (self.cdu_xml["xml_scratchpad"] != xml_scratchpad):
-            self.fmc_subsys.add_text(offset,  
-                self.fmc_subsys.format_row(xml_scratchpad, "", "")
+            title_line = self.mcdu.format_row(
+                (' ' * xml_title_spaces + xml_title[2]) if xml_title_left_align == "True" else "",
+                xml_title[2] if xml_title_left_align == "False" else "",
+                self.mcdu.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else ""
             )
-            # print("offset")
-            # print(offset)
 
-            self.cdu_xml["xml_scratchpad"] = xml_scratchpad;
-            self.cdu_xml["xml_lines"] = xml_lines;
+            # Build the complete screen text by concatenating the title and each of the 12 lines.
+            rows = [title_line]
+            for ln in range(12):
+                xml1 = self.mcdu.parse_display_line(xml_lines[ln], ln % 2 == 0)
+                rows.append(self.mcdu.format_row(*xml1))
+            screen_text = "".join(rows)
+            self.mcdu.set_screen(screen_text)
+            self.mcdu.scratchpad = xml_scratchpad
 
             self.mcdu._trig_update = True
-            # print("mcdu._trig_update", self.mcdu._trig_update)
 
-        # check queue and turn off keys
         off_key = self.mcdu.key_queue_pop()
-        if (off_key):
+        if off_key:
             getattr(self.datarefs.prosim, off_key).value = 0
-   
-      
-        time.sleep(0.08)
-        
 
-        
+        await asyncio.sleep(0.08)
