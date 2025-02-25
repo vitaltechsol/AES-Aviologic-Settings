@@ -25,76 +25,6 @@ class MCDU:
         OFFSET = 0x10000
         EXEC   = 0x20000
 
-    class KeypadEnum(Enum):
-        INIT       = 0xC0
-        RTE        = 0xB0
-        CLB        = 0xA0
-        CRZ        = 0x90
-        DES        = 0x80
-        LEGS       = 0xB2
-        DEP_ARR    = 0xA2
-        HOLD       = 0x92
-        PROG       = 0x82
-        EXEC       = 0x72
-        N1_LIMIT   = 0x6A
-        FIX        = 0xC4
-        A          = 0xB4
-        B          = 0xA4
-        C          = 0x94
-        D          = 0x84
-        E          = 0x74
-        PREV_PAGE  = 0x6C
-        NEXT_PAGE  = 0xC6
-        F          = 0xB6
-        G          = 0xA6
-        H          = 0x96
-        I          = 0x86
-        J          = 0x76
-        ONE        = 0xEE
-        TWO        = 0xDE
-        THREE      = 0xCE
-        K          = 0xBE
-        L          = 0xAE
-        M          = 0x9E
-        N          = 0x8E
-        O          = 0x7E
-        FOUR       = 0xEC
-        FIVE       = 0xDC
-        SIX        = 0xCC
-        P          = 0xBC
-        Q          = 0xAC
-        R          = 0x9C
-        S          = 0x8C
-        T          = 0x7C
-        SEVEN      = 0xEA
-        EIGHT      = 0xDA
-        NINE       = 0xCA
-        U          = 0xBA
-        V          = 0xAA
-        W          = 0x9A
-        X          = 0x8A
-        Y          = 0x7A
-        DOT        = 0xE8
-        ZERO       = 0xD8
-        PLUS_MINUS = 0xC8
-        Z          = 0xB8
-        SPACE      = 0xA8
-        DELETE     = 0x98
-        SLASH      = 0x88
-        CLEAR      = 0x6E
-        LINE_LEFT_1  = 0xF4
-        LINE_LEFT_2  = 0xF6
-        LINE_LEFT_3  = 0xE4
-        LINE_LEFT_4  = 0xE6
-        LINE_LEFT_5  = 0xD4
-        LINE_LEFT_6  = 0xD6
-        LINE_RIGHT_1 = 0xF2
-        LINE_RIGHT_2 = 0xF0
-        LINE_RIGHT_3 = 0xE2
-        LINE_RIGHT_4 = 0xE0
-        LINE_RIGHT_5 = 0xD2
-        LINE_RIGHT_6 = 0xD0
-
     class StringSplitter:
         GROUP_N: int = 2
 
@@ -134,7 +64,13 @@ class MCDU:
                 MCDU.StringSplitter._append(output, rep_text_serializer + text[-1], True, char_position)
             return output
 
-    def __init__(self, arinc_device: object, tx_chnl_number: int, rx_chnl_number: int, key_callback: Callable = None):
+    def __init__(
+        self, arinc_device: object, 
+                 tx_chnl_number: int, 
+                 rx_chnl_number: int, 
+                 key_callback: 
+                 Callable = None
+    ):
         self._device = arinc_device
         self._tx_chnl = tx_chnl_number
         self._rx_chnl = rx_chnl_number
@@ -176,7 +112,9 @@ class MCDU:
         ]
 
     def _close_frame(self) -> list:
+        # Apply head of the entire frame. Specifies the size of the entire frame
         self._tx_buffer[0] = self._apply_par(self._sal | (len(self._tx_buffer) << 13))
+        # Add end of frame label and return the list of labels to send to teh unit
         self._tx_buffer += [self._apply_par(self._sal | 0x00001F00)]
         return self._tx_buffer
 
@@ -197,42 +135,99 @@ class MCDU:
         return None
 
     def set_screen(self, text: str):
-        # This method takes the full screen text (max 312 chars) and builds text blocks.
+        # Truncate text to 312 characters and split into sections
         sections = self.StringSplitter.split(text[:312])
-        rep_char_prev = False
-        text_block = []
-        for i in range(len(sections)):
-            section = sections[i]
-            if (section["rep_char"] == False) and (rep_char_prev == False):
-                if len(text_block) == 0:
-                    offset = 0
-                    text_block.append({"text": section["text"][1:], "pos": offset, "fill": section["text"][0]})
+        blocks = []
+        current_block = None
+
+        for section in sections:
+            # If there's no current block, start one from this section.
+            if current_block is None:
+                current_block = {
+                    "text": section["text"][1:] if len(section["text"]) > 1 else "",
+                    "pos": 1,
+                    "fill": section["text"][0],
+                    "rep_char": section["rep_char"],
+                    "position": section.get("position", 0)
+                }
+            else:
+                # If this section is the same type as the current block, simply append.
+                if section["rep_char"] == current_block["rep_char"]:
+                    current_block["text"] += section["text"]
                 else:
-                    text_block[-1]["text"] += section["text"]
-            elif (section["rep_char"] == True) and (rep_char_prev == False):
-                offset = len(section["text"])
-                text_block.append({"text": "", "pos": offset, "fill": section["text"][0]})
-            elif (section["rep_char"] == False) and (rep_char_prev == True):
-                text_block[-1]["text"] += section["text"]
-                text_block[-1]["pos"] = (section["position"] - sections[i-1]["position"]) + 1
-            elif (section["rep_char"] == True) and (rep_char_prev == True):
-                offset = len(section["text"])
-                text_block.append({"text": "", "pos": offset, "fill": section["text"][0]})
-            rep_char_prev = section["rep_char"]
-        for block in text_block:
+                    # Different type: finish the current block and start a new one.
+                    blocks.append(current_block)
+                    if section["rep_char"]:
+                        new_block = {
+                            "text": "",
+                            "pos": len(section["text"]),
+                            "fill": section["text"][0],
+                            "rep_char": True,
+                            "position": section.get("position", 0)
+                        }
+                    else:
+                        new_block = {
+                            "text": section["text"][1:] if len(section["text"]) > 1 else "",
+                            "pos": 1,
+                            "fill": section["text"][0],
+                            "rep_char": False,
+                            "position": section.get("position", 0)
+                        }
+                    current_block = new_block
+
+        if current_block:
+            blocks.append(current_block)
+
+        # Build the ARINC text blocks from each simplified block.
+        for block in blocks:
             self._add_text_block(block["pos"], block["text"], block["fill"])
 
     def _add_text_block(self, offset: int, text: str, fill_char: str = " "):
         if offset <= 0:
             raise Exception("Offset has to be bigger than zero")
+        # Create the header labels (offset and fill character)
         self._block += [
             self._apply_par(self._sal | 0x400 | (offset << 13)),
             self._apply_par(self._sal | 0x400 | ((fill_char.encode('iso-8859-5')[0] & 0x7F) << 13)),
         ]
-        self._block += [
-            self._char_label(self._sal, c, 0)
-            for c in text.encode("iso-8859-5")
-        ]
+        # Mapping for Cyrillic characters to corresponding numbers.
+        cyrillic_to_number = {
+            'А': '0',
+            'Б': '1',
+            'В': '2',
+            'Г': '3',
+            'Д': '4',
+            'Е': '5',
+            'Ж': '6',
+            'З': '7',
+            'И': '8',
+            'Й': '9'
+        }
+        control = 0  # Normal text control value
+        i = 0
+        while i < len(text):
+            c = text[i]
+            # Special case for '#' (empty box) - use the value 64.
+            if c == "#":
+                self._block += [self._char_label(self._sal, 64, control)]
+            # Inverted color: using "Ф" to start and "Ю" to end inverted text.
+            elif c == "Ф":
+                control = 1
+            elif c == "Ю":
+                control = 0
+            # For the backtick character, map to 36 (e.g. for a degrees symbol)
+            elif c == "`":
+                self._block += [self._char_label(self._sal, 36, control)]
+            # Map Cyrillic characters to small font numbers.
+            elif c in cyrillic_to_number:
+                n = cyrillic_to_number[c]
+                self._block += [self._char_label(self._sal, 16 + int(n), control)]
+            else:
+                # For all other characters, encode them in ISO-8859-5.
+                for b in c.encode("iso-8859-5"):
+                    self._block += [self._char_label(self._sal, b, control)]
+            i += 1
+
 
     @property
     def scratchpad(self) -> str:
@@ -324,7 +319,12 @@ class MCDU:
         return key_map.get(key, "")
 
     def loop(self):
+        """main main update loop.
+        This method should be called periodically as fast ast possible within the Logic loop
+        """
+        # The loop should run only if the arinc card is online
         if self._device.is_ready:
+           # Consume all received labels from the MCDU channel
             while True:
                 try:
                     label, _ = self._rx_queue.popleft()
@@ -335,6 +335,7 @@ class MCDU:
                     if label_id == 4:
                         self._key_decode(label)
                         self._trig_update = True
+            # Update subsystems only if the panel has reported back
             if self._trig_update:
                 self._trig_update = False
                 self._init_frame(self._light_bitmap)
@@ -347,7 +348,7 @@ class MCDU:
                 except Exception:
                     pass
 
-    # === XML Parsing and Display Formatting Methods ===
+    # XML Parsing and Display Formatting Methods
 
     def parse_xml(self, xml_string: str) -> dict:
         root = ET.fromstring(xml_string)
@@ -423,7 +424,7 @@ class MCDU:
 
 class Logic:
     def __init__(self):
-        self.version = "v3.2.0"
+        self.version = "v3.1.0"
         self.mcdu = MCDU(
             arinc_device=self.devices[ARINC_CARD_NAME],
             tx_chnl_number=ARINC_CARD_TX_CHNL,
@@ -441,8 +442,6 @@ class Logic:
         self.run_again = 0
 
     def key_pressed_callback(self, label):
-
-        # label is an integer value coming from the panel
         if label != 4612:
             print("label")
             print(label)
@@ -451,6 +450,7 @@ class Logic:
                 selected_key = self.mcdu.get_ps_key(key_hex)
                 if selected_key != "":
                     getattr(self.datarefs.prosim, selected_key).value = 1
+                    print(selected_key)
                     self.mcdu._key_queue.put(selected_key)
 
     async def update(self):
@@ -468,9 +468,9 @@ class Logic:
         self.mcdu.set_light(MCDU.LightsEnum.OFFSET, light_offset == 2)
 
         if xml_string.startswith("<") and xml_string != self.cdu1_text and self.run_again <= 2:
-            print("xml_string")
-            print(xml_string)
-            print(len(xml_string))
+            # print("xml_string")
+            # print(xml_string)
+            # print(len(xml_string))
             if self.run_again == 1:
                 self.cdu1_text = xml_string
                 self.run_again = 0
@@ -505,4 +505,4 @@ class Logic:
         if off_key:
             getattr(self.datarefs.prosim, off_key).value = 0
 
-        await asyncio.sleep(0.08)
+        await asyncio.sleep(0.04)
