@@ -557,6 +557,11 @@
       "name": "system.switches.S_CDU1_KEY_Z",
       "read_interval_ms": 10,
       "reset_value": 0
+    },
+    "S_MCP_EFIS1_MODE": {
+      "name": "system.switches.S_MCP_EFIS1_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
     }
   }
 }

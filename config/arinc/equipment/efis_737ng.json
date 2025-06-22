@@ -1,0 +1,39 @@
+{
+    "brand": "<write the brand of this equipment>",
+    "description": "<describe what this equipment is for>",
+    "name": "EFIS737",
+    "labels": {
+        "ND_MODE": {
+            "label": "275",
+            "data_type": "DISCRETE",
+            "sdi_is_data": false,
+            "channel_direction": "RX",
+            "description": "EFIS ND Mode Display Selector",
+            "sdi": 0,
+            "timing_ms": {
+                "max": 200.0,
+                "min": 100.0
+            },
+            "data_init": "0",
+            "pad_bits": {
+                "APP": {
+                    "bits": "23",
+                    "description": "<describe what bit or range of bits does/do>"
+                },
+                "VOR": {
+                    "bits": "24",
+                    "description": "<describe what bit or range of bits does/do>"
+                },
+                "MAP": {
+                    "bits": "25",
+                    "description": "<describe what bit or range of bits does/do>"
+                },
+                "PLN": {
+                    "bits": "26",
+                    "description": "<describe what bit or range of bits does/do>"
+                }
+            },
+            "ssm": "NORMAL_OPERATION"
+        }
+    }
+}

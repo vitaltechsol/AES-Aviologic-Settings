@@ -40,11 +40,13 @@
         },
         "RX_channels": {
             "0": {
-                "enable": false,
-                "speed": "S100_KHZ",
+                "enable": true,
+                "speed": "S12_KHZ",
                 "mode": "RX_NORMAL",
-                "description": "<describe what this channel is used for>",
-                "link_equipment": {}
+                "description": "CP_EFIS",
+                "link_equipment": {
+                    "EFIS": "efis_737ng"
+                }
             },
             "1": {
                 "enable": true,
