@@ -281,9 +281,6 @@ class HUD:
         """
         self._display = self.Display()
 
-         # Create queue for key presses
-        self._key_q = queue.Queue()
-
         # Container for the holding the parsed received labels
         self._rx_label = {}
 
@@ -492,7 +489,7 @@ class HUD:
 class Logic:
     def __init__(self):
         self.version = "v2.0.0"
-        self.is_enable = True
+        self.is_enable = False
         self.count = 0
         self.init = False
         self.key_states = {}
