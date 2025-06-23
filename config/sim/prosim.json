@@ -558,8 +558,108 @@
       "read_interval_ms": 10,
       "reset_value": 0
     },
+    "S_MCP_EFIS1_ARPT": {
+      "name": "system.switches.S_MCP_EFIS1_ARPT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_BARO": {
+      "name": "system.switches.S_MCP_EFIS1_BARO",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_BARO_MODE": {
+      "name": "system.switches.S_MCP_EFIS1_BARO_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_BARO_STD": {
+      "name": "system.switches.S_MCP_EFIS1_BARO_STD",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_CTR": {
+      "name": "system.switches.S_MCP_EFIS1_CTR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_DATA": {
+      "name": "system.switches.S_MCP_EFIS1_DATA",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_FPV": {
+      "name": "system.switches.S_MCP_EFIS1_FPV",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_MINIMUMS": {
+      "name": "system.switches.S_MCP_EFIS1_MINIMUMS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_MINIMUMS_MODE": {
+      "name": "system.switches.S_MCP_EFIS1_MINIMUMS_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_MINIMUMS_RESET": {
+      "name": "system.switches.S_MCP_EFIS1_MINIMUMS_RESET",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
     "S_MCP_EFIS1_MODE": {
       "name": "system.switches.S_MCP_EFIS1_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_MTRS": {
+      "name": "system.switches.S_MCP_EFIS1_MTRS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_POS": {
+      "name": "system.switches.S_MCP_EFIS1_POS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_RANGE": {
+      "name": "system.switches.S_MCP_EFIS1_RANGE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_SEL1": {
+      "name": "system.switches.S_MCP_EFIS1_SEL1",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_SEL2": {
+      "name": "system.switches.S_MCP_EFIS1_SEL2",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_STA": {
+      "name": "system.switches.S_MCP_EFIS1_STA",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_TERR": {
+      "name": "system.switches.S_MCP_EFIS1_TERR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_TFC": {
+      "name": "system.switches.S_MCP_EFIS1_TFC",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_WPT": {
+      "name": "system.switches.S_MCP_EFIS1_WPT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS1_WXR": {
+      "name": "system.switches.S_MCP_EFIS1_WXR",
       "read_interval_ms": 10,
       "reset_value": 0
     }

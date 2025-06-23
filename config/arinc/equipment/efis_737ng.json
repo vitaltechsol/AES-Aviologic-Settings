@@ -2,38 +2,127 @@
     "brand": "<write the brand of this equipment>",
     "description": "<describe what this equipment is for>",
     "name": "EFIS737",
-    "labels": {
-        "ND_MODE": {
-            "label": "275",
-            "data_type": "DISCRETE",
-            "sdi_is_data": false,
-            "channel_direction": "RX",
-            "description": "EFIS ND Mode Display Selector",
-            "sdi": 0,
-            "timing_ms": {
-                "max": 200.0,
-                "min": 100.0
-            },
-            "data_init": "0",
-            "pad_bits": {
-                "APP": {
-                    "bits": "23",
-                    "description": "<describe what bit or range of bits does/do>"
-                },
-                "VOR": {
-                    "bits": "24",
-                    "description": "<describe what bit or range of bits does/do>"
-                },
-                "MAP": {
-                    "bits": "25",
-                    "description": "<describe what bit or range of bits does/do>"
-                },
-                "PLN": {
-                    "bits": "26",
-                    "description": "<describe what bit or range of bits does/do>"
-                }
-            },
-            "ssm": "NORMAL_OPERATION"
+  "labels": {
+    "ND_MODE": {
+      "label": "275",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS ND Mode Display Selector",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "APP": {
+          "bits": "23",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR": {
+          "bits": "24",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "MAP": {
+          "bits": "25",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "PLN": {
+          "bits": "26",
+          "description": "<describe what bit or range of bits does/do>"
         }
+      },
+      "ssm": "NORMAL_OPERATION"
+    },
+    "BUTTON": {
+      "label": "275",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Bottom Buttons",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "WRX": {
+          "bits": "14",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "STA": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "WPT": {
+          "bits": "16",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "ARPT": {
+          "bits": "17",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DATA": {
+          "bits": "18",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "POS": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+
+      },
+      "ssm": "NORMAL_OPERATION"
+    },
+    "RANGE": {
+      "label": "272",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Range Selector",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "640": {
+          "bits": "20",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "320": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "160": {
+          "bits": "18",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "80": {
+          "bits": "17",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "40": {
+          "bits": "16",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "20": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "10": {
+          "bits": "14",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "5": {
+          "bits": "13",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+      },
+      "ssm": "NORMAL_OPERATION"
     }
+  }
 }
