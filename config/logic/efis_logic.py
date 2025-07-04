@@ -24,6 +24,8 @@ class Logic:
                                
     async def update(self):
              
+       
+
         match self.vars.EFIS.BUTTONS_275.value:
             case 8192:
               self.send_key_value("S_MCP_EFIS1_MODE", 0)  
@@ -34,33 +36,36 @@ class Logic:
             case 65536:
               self.send_key_value("S_MCP_EFIS1_MODE", 3)  
 
-        print("EFIS RANGE BARO")
-        print(self.vars.EFIS.BUTTONS_274.value)
+        print("EFIS S_MCP_EFIS1_MINIMUMS")
+        print(self.vars.EFIS.BUTTONS_273.value)
 
         #EFIS 1 baro momentary [0:Center, 1:Up, 2:Down, 3:Up fast, 4:Down fast]
-        match self.vars.EFIS.BUTTONS_274.value:
-            case 528:
-                self.send_key_value("S_MCP_EFIS1_BARO", 0)  
-            case 514:
-                self.send_key_value("S_MCP_EFIS1_BARO", 1)  
-            case 520:
-                self.send_key_value("S_MCP_EFIS1_BARO", 2)  
-            case 513:
-                self.send_key_value("S_MCP_EFIS1_BARO", 3) 
-            case 516:
-                self.send_key_value("S_MCP_EFIS1_BARO", 4)
-
+        if self.vars.EFIS.BUTTONS_274.OFF:
+            self.send_key_value("S_MCP_EFIS1_BARO", 0)
+            print("EFIS BUTTONS_274a off")
+        if self.vars.EFIS.BUTTONS_274.UP_SLOW:
+            self.send_key_value("S_MCP_EFIS1_BARO", 1)
+            print("EFIS BUTTONS_274a UP_SLOW")
+        if self.vars.EFIS.BUTTONS_274.DOWN_SLOW:
+            self.send_key_value("S_MCP_EFIS1_BARO", 2)
+            print("EFIS BUTTONS_274a DOWN_SLOW")
+        if self.vars.EFIS.BUTTONS_274.UP_FAST:
+            self.send_key_value("S_MCP_EFIS1_BARO", 3)
+        if self.vars.EFIS.BUTTONS_274.DOWN_FAST:
+            self.send_key_value("S_MCP_EFIS1_BARO", 4)
+            print("EFIS BUTTONS_274a DOWN_SLOW")
 
         #EFIS 1 minimums momentary [0:Center, 1:Up, 2:Down, 3:Up fast, 4:Down fast]
-        match self.vars.EFIS.BUTTONS_273.value:
-            case 8192:
-                self.send_key_value("S_MCP_EFIS1_MINIMUMS", 0)  
-            case 16384:
-                self.send_key_value("S_MCP_EFIS1_MINIMUMS", 1)  
-            case 32768:
-                self.send_key_value("S_MCP_EFIS1_MINIMUMS", 2)  
-            case 65536:
-                self.send_key_value("S_MCP_EFIS1_MINIMUMS", 3) 
+        if self.vars.EFIS.BUTTONS_273.OFF:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS", 0)
+        if self.vars.EFIS.BUTTONS_273.UP_SLOW:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS", 1)
+        if self.vars.EFIS.BUTTONS_273.DOWN_SLOW:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS", 2)
+        if self.vars.EFIS.BUTTONS_273.UP_FAST:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS", 3)
+        if self.vars.EFIS.BUTTONS_273.DOWN_FAST:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS", 4)
 
         self.send_key_value("S_MCP_EFIS1_WXR", self.vars.EFIS.BUTTONS_275.WRX)
         self.send_key_value("S_MCP_EFIS1_STA", self.vars.EFIS.BUTTONS_275.STA) 
@@ -71,7 +76,6 @@ class Logic:
         self.send_key_value("S_MCP_EFIS1_TERR", self.vars.EFIS.BUTTONS_273.TERR)
         self.send_key_value("S_MCP_EFIS1_MINIMUMS_RESET", self.vars.EFIS.BUTTONS_273.RST)
         self.send_key_value("S_MCP_EFIS1_BARO_STD", self.vars.EFIS.BUTTONS_274.STD) 
-        self.send_key_value("S_MCP_EFIS1_CTR", self.vars.EFIS.BUTTONS_275.CTR)
         self.send_key_value("S_MCP_EFIS1_TFC", self.vars.EFIS.BUTTONS_275.TFC)
         self.send_key_value("S_MCP_EFIS1_FPV", self.vars.EFIS.BUTTONS_275.FPV)
         self.send_key_value("S_MCP_EFIS1_MTRS", self.vars.EFIS.BUTTONS_275.MTRS)
@@ -96,6 +100,12 @@ class Logic:
             case 1024:    
               self.send_key_value("S_MCP_EFIS1_RANGE", 7)
 
+        if self.vars.EFIS.BUTTONS_273.MIN_RADIO:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", 0)
+
+        if self.vars.EFIS.BUTTONS_273.MIN_BARO:
+            self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", 1)
+        
         if self.vars.EFIS.BUTTONS_273.VOR1_VOR:
             self.send_key_value("S_MCP_EFIS1_SEL1", 1)
 
@@ -114,4 +124,4 @@ class Logic:
         if not self.vars.EFIS.BUTTONS_274.VOR2_VOR and not self.vars.EFIS.BUTTONS_274.VOR2_ADF:
             self.send_key_value("S_MCP_EFIS1_SEL2", 0)
 
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.01)
