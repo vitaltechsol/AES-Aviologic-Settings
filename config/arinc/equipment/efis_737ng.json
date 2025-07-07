@@ -17,7 +17,7 @@
       "data_init": "0",
       "pad_bits": {
         "TERR": {
-          "bits": "17",
+          "bits": "18",
           "description": "<describe what bit or range of bits does/do>"
         },
         "MIN_RADIO": {
@@ -77,11 +77,11 @@
       "data_init": "0",
       "pad_bits": {
         "BARO_IN": {
-          "bits": "18",
+          "bits": "19",
           "description": "<describe what bit or range of bits does/do>"
         },
         "BARO_HPA": {
-          "bits": "19",
+          "bits": "20",
           "description": "<describe what bit or range of bits does/do>"
         },
         "STD": {

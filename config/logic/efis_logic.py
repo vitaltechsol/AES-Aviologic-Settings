@@ -36,24 +36,17 @@ class Logic:
             case 65536:
               self.send_key_value("S_MCP_EFIS1_MODE", 3)  
 
-        print("EFIS S_MCP_EFIS1_MINIMUMS")
-        print(self.vars.EFIS.BUTTONS_273.value)
-
         #EFIS 1 baro momentary [0:Center, 1:Up, 2:Down, 3:Up fast, 4:Down fast]
         if self.vars.EFIS.BUTTONS_274.OFF:
             self.send_key_value("S_MCP_EFIS1_BARO", 0)
-            print("EFIS BUTTONS_274a off")
         if self.vars.EFIS.BUTTONS_274.UP_SLOW:
             self.send_key_value("S_MCP_EFIS1_BARO", 1)
-            print("EFIS BUTTONS_274a UP_SLOW")
         if self.vars.EFIS.BUTTONS_274.DOWN_SLOW:
             self.send_key_value("S_MCP_EFIS1_BARO", 2)
-            print("EFIS BUTTONS_274a DOWN_SLOW")
         if self.vars.EFIS.BUTTONS_274.UP_FAST:
             self.send_key_value("S_MCP_EFIS1_BARO", 3)
         if self.vars.EFIS.BUTTONS_274.DOWN_FAST:
             self.send_key_value("S_MCP_EFIS1_BARO", 4)
-            print("EFIS BUTTONS_274a DOWN_SLOW")
 
         #EFIS 1 minimums momentary [0:Center, 1:Up, 2:Down, 3:Up fast, 4:Down fast]
         if self.vars.EFIS.BUTTONS_273.OFF:
@@ -89,11 +82,11 @@ class Logic:
               self.send_key_value("S_MCP_EFIS1_RANGE", 1) 
             case 0:
               self.send_key_value("S_MCP_EFIS1_RANGE", 2)               
-            case 32:
+            case 128:
               self.send_key_value("S_MCP_EFIS1_RANGE", 3)  
-            case 64:
+            case 32:
               self.send_key_value("S_MCP_EFIS1_RANGE", 4)  
-            case 128:    
+            case 64:    
               self.send_key_value("S_MCP_EFIS1_RANGE", 5)  
             case 512:    
               self.send_key_value("S_MCP_EFIS1_RANGE", 6)
@@ -105,6 +98,13 @@ class Logic:
 
         if self.vars.EFIS.BUTTONS_273.MIN_BARO:
             self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", 1)
+
+        if self.vars.EFIS.BUTTONS_274.BARO_IN:
+            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 1)
+
+        if self.vars.EFIS.BUTTONS_274.BARO_HPA:
+            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 0)
+
         
         if self.vars.EFIS.BUTTONS_273.VOR1_VOR:
             self.send_key_value("S_MCP_EFIS1_SEL1", 1)
