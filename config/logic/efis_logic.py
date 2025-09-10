@@ -66,6 +66,7 @@ class Logic:
         self.send_key_value("S_MCP_EFIS1_ARPT", self.vars.EFIS.BUTTONS_275.ARPT) 
         self.send_key_value("S_MCP_EFIS1_DATA", self.vars.EFIS.BUTTONS_275.DATA) 
         self.send_key_value("S_MCP_EFIS1_POS", self.vars.EFIS.BUTTONS_275.POS) 
+        self.send_key_value("S_MCP_EFIS1_CTR", self.vars.EFIS.BUTTONS_275.CTR) 
         self.send_key_value("S_MCP_EFIS1_TERR", self.vars.EFIS.BUTTONS_273.TERR)
         self.send_key_value("S_MCP_EFIS1_MINIMUMS_RESET", self.vars.EFIS.BUTTONS_273.RST)
         self.send_key_value("S_MCP_EFIS1_BARO_STD", self.vars.EFIS.BUTTONS_274.STD) 
@@ -75,24 +76,42 @@ class Logic:
         self.send_key_value("S_MCP_EFIS1_BARO_MODE", self.vars.EFIS.BUTTONS_274.BARO_IN)
         self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", self.vars.EFIS.BUTTONS_273.MIN_BARO)
             
-        match self.vars.EFIS.RANGE.value:
-            case 8:
-              self.send_key_value("S_MCP_EFIS1_RANGE", 0)  
-            case 16:
-              self.send_key_value("S_MCP_EFIS1_RANGE", 1) 
-            case 0:
-              self.send_key_value("S_MCP_EFIS1_RANGE", 2)               
-            case 128:
-              self.send_key_value("S_MCP_EFIS1_RANGE", 3)  
-            case 32:
-              self.send_key_value("S_MCP_EFIS1_RANGE", 4)  
-            case 64:    
-              self.send_key_value("S_MCP_EFIS1_RANGE", 5)  
-            case 512:    
-              self.send_key_value("S_MCP_EFIS1_RANGE", 6)
-            case 1024:    
-              self.send_key_value("S_MCP_EFIS1_RANGE", 7)
+        # match self.vars.EFIS.RANGE.value:
+        #     case 8:
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 0)  
+        #     case 16:
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 1) 
+        #     case 0:
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 2)               
+        #     case 128:
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 3)  
+        #     case 32:
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 4)  
+        #     case 64:    
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 5)  
+        #     case 512:    
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 6)
+        #     case 1024:    
+        #       self.send_key_value("S_MCP_EFIS1_RANGE", 7)
 
+        if self.vars.EFIS.RANGE.five:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 0)
+        if self.vars.EFIS.RANGE.ten:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 1)
+        if self.vars.EFIS.RANGE.twenty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 2)
+        if self.vars.EFIS.RANGE.forty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 3)
+        if self.vars.EFIS.RANGE.eighty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 4)
+        if self.vars.EFIS.RANGE.onesixty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 5)
+        if self.vars.EFIS.RANGE.threetwenty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 6)
+        if self.vars.EFIS.RANGE.sixfourty:
+            self.send_key_value("S_MCP_EFIS1_RANGE", 7)
+
+        
         if self.vars.EFIS.BUTTONS_273.MIN_RADIO:
             self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", 0)
 
@@ -100,10 +119,10 @@ class Logic:
             self.send_key_value("S_MCP_EFIS1_MINIMUMS_MODE", 1)
 
         if self.vars.EFIS.BUTTONS_274.BARO_IN:
-            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 1)
+            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 0)
 
         if self.vars.EFIS.BUTTONS_274.BARO_HPA:
-            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 0)
+            self.send_key_value("S_MCP_EFIS1_BARO_MODE", 1)
 
         
         if self.vars.EFIS.BUTTONS_273.VOR1_VOR:
