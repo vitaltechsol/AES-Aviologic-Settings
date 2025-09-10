@@ -205,36 +205,36 @@
       },
       "data_init": "0",
       "pad_bits": {
-        "640": {
+        "sixfourty": {
+          "bits": "21",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "threetwenty": {
           "bits": "20",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "320": {
+        "onesixty": {
           "bits": "19",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "160": {
+        "eighty": {
           "bits": "18",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "80": {
+        "forty": {
           "bits": "17",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "40": {
+        "twenty": {
           "bits": "16",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "20": {
+        "ten": {
           "bits": "15",
           "description": "<describe what bit or range of bits does/do>"
         },
-        "10": {
+        "five": {
           "bits": "14",
-          "description": "<describe what bit or range of bits does/do>"
-        },
-        "5": {
-          "bits": "13",
           "description": "<describe what bit or range of bits does/do>"
         }
       },

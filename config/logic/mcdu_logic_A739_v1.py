@@ -178,7 +178,7 @@ class TEST_LRU(LRU):
 		LRU.__init__(self, "HELLO", LRU_SAL, ARINC_CARD_TX_CHNL)
 		self.new_scratchpad_available: bool = False
 		self.scratchpad: List[chr] = [' '] * 16
-		self.current_page: List[TextData] =  [TextData("FUCKING ALEEE!! ", 0x5, 1), TextData("LINE 2 ", 0x4, 2), TextData("LINE 3 ", 0x4, 3)]
+		self.current_page: List[TextData] =  [TextData("Hello world!! ", 0x5, 1), TextData("LINE 2 ", 0x4, 2), TextData("LINE 3 ", 0x4, 3)]
 		self.clear_set = False
 		self.scratchpad_index = 0
   
