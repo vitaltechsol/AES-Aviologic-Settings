@@ -1,5 +1,5 @@
 ﻿# mcdu_a739_prosim_bridge.py
-# v1.4 — Cap RTS record count (fix NAK after first CTS window), CTS-aware first paint, incremental diffs
+# v1.6 — Paint ALL 14 lines: continue capped DATA batches (e.g., 4 at a time) back-to-back after each ACK until queue is empty, then switch to 1-line diffs
 
 from enum import IntEnum
 from typing import List, Optional, Tuple, Deque
@@ -16,16 +16,14 @@ from resources.driver.arinc.arinc_async import ArincAsync
 # =========================
 # Config / Wiring
 # =========================
-# Pick the SAL your MCDU expects (use the one that worked in your lab)
-LRU_SAL = 0o004       # or 0o300
+LRU_SAL = 0o004
 
 ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 HEARTBEAT_SEC = 0.5
 
-# IMPORTANT: Promise no more than this many records in a single RTS.
-# Many GE units have CTS windows of 4; promising 14 and sending only 4 then EOT triggers NAK.
+# Promise no more than this many records in a single RTS.
 DEFAULT_RTS_RECORD_CAP = 4
 
 ENABLE_SPACE_PADDING_FOR_COLUMN = True
@@ -363,29 +361,31 @@ class ProSimLRU(LRU):
     def update_from_xml(self, xml_str: str):
         f = self.norm.parse_xml_to_frame(xml_str)
         self.diffq.ingest(f)
+        if self.diffq.pending_count() == 0:
+            self._first_paint_done = True
+
+    def has_more_to_paint(self) -> bool:
+        return self.diffq.pending_count() > 0
 
     def get_planned_records(self) -> int:
-        """Plan desired records BEFORE RTS (full page on first paint, then 1)."""
         pending = self.diffq.pending_count()
         if pending == 0:
             self._last_planned = 0
+            self._first_paint_done = True
             return 0
         if not self._first_paint_done:
-            self._last_planned = min(pending, LINE_COUNT)
+            self._last_planned = max(1, min(pending, DEFAULT_RTS_RECORD_CAP))
         else:
             self._last_planned = 1
         return self._last_planned
 
     def prepare_batch(self, count: int) -> None:
-        """Prepare EXACTLY 'count' records AFTER CTS (cap to CTS max)."""
         self._pending_list.clear()
         for _ in range(count):
             idx = self.diffq.pop_next()
             if idx is None:
                 break
             self._pending_list.append((idx, self.diffq.prev.lines[idx-1]))
-        if not self._first_paint_done and self._pending_list:
-            self._first_paint_done = True
 
     def get_page_text(self) -> List[TextData]:
         if not self._pending_list:
@@ -393,7 +393,7 @@ class ProSimLRU(LRU):
         out: List[TextData] = []
         for idx, lr in self._pending_list:
             out.append(TextData(
-                text=lr.text,              # keep full 24 chars (do not rstrip)
+                text=lr.text,
                 color=lr.color,
                 lineIdx=idx,
                 initial_col=lr.col,
@@ -403,7 +403,7 @@ class ProSimLRU(LRU):
         return out
 
 # =========================
-# LRU state machine (CTS-aware + capped RTS)
+# LRU state machine (CTS-aware + capped RTS + continuous batches)
 # =========================
 class LRUData:
     def __init__(self, lru: LRU):
@@ -468,29 +468,26 @@ class LRUData:
             self.repeat = True
 
     def _rts(self, logic, rx):
-        # Wait for CTS to learn the max_recs (after we've sent RTS)
         for label, ts in rx:
             if A739.is_cts(label):
                 self.cts_max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
                 log(f"[CTS] max_recs={self.cts_max_recs}")
                 if self.current_request_type != RequestType.MENU.value:
-                    desired = self.record_count         # promised in RTS
+                    desired = self.record_count
                     allowed = max(1, min(desired, self.cts_max_recs))
-                    self.lru.prepare_batch(allowed)     # stage exactly what we will send now
+                    self.lru.prepare_batch(allowed)
                     self.record_count = allowed
                 self.queue(TransmissionState.SEND_DATA)
                 return
 
-        # No CTS yet → send RTS once per transaction
         if not self.repeat:
             if self.current_request_type == RequestType.MENU.value:
-                self.record_count = 1  # MENU must be 1
+                self.record_count = 1
             else:
                 planned = self.lru.get_planned_records()
                 if planned == 0:
                     self.repeat = True
                     return
-                # >>> CRITICAL FIX: cap the PROMISE in RTS to a conservative window (e.g., 4)
                 self.record_count = max(1, min(planned, DEFAULT_RTS_RECORD_CAP))
 
             log(f"[RTS] sending RTS: req={self.current_request_type} recs={self.record_count} to MAL={oct(self.mal_target)}")
@@ -508,11 +505,17 @@ class LRUData:
                     return
                 if A739.is_ack(label):
                     log("[SEND] got ACK")
+                    # >>> KEY CHANGE: if still more to paint, immediately request another DATA batch
+                    if self.current_request_type == RequestType.DATA.value:
+                        # If more lines remain, keep MAL lock and loop back to RTS
+                        if isinstance(self.lru, ProSimLRU) and self.lru.has_more_to_paint():
+                            self.repeat = False
+                            self.queue(TransmissionState.RTS)
+                            return
                     self.queue(TransmissionState.IDLE)
                     return
                 if A739.is_nack(label):
-                    log("[SEND] got NAK → retry (will flip CNTRL encoder)")
-                    # Hint the sender to try the other encoder next cycle
+                    log("[SEND] got NAK → retry (flip CNTRL encoder)")
                     if self.sender and self.sender.ctrl.get_preferred() == 'A':
                         self.sender.ctrl.set_preferred('B')
                     elif self.sender and self.sender.ctrl.get_preferred() == 'B':
@@ -565,7 +568,7 @@ class LRUData:
 # =========================
 class Logic:
     def __init__(self):
-        self.version = "mcdu_a739_prosim_bridge_v1.4"
+        self.version = "mcdu_a739_prosim_bridge_v1.6"
         self.lru = ProSimLRU(LRU_SAL, ARINC_CARD_TX_CHNL)
         self.lrus = [LRUData(self.lru)]
         self.mcdu_rx_channel = ARINC_CARD_RX_CHNL
@@ -593,7 +596,7 @@ class Logic:
                 p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
                 decoded_label = ArincLabel.Base._reverse_label_number(label_id)
                 sal_field = (data >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK
-                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN):
+                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN, A739.NACK):
                     print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
             except Exception:
                 break
