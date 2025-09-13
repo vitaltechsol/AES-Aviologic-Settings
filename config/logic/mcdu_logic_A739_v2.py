@@ -1,5 +1,5 @@
 ﻿# mcdu_a739_prosim_bridge.py
-# v1.6 — Paint ALL 14 lines: continue capped DATA batches (e.g., 4 at a time) back-to-back after each ACK until queue is empty, then switch to 1-line diffs
+# v2.0.1 — Fix RTS pack() call (pass payload). Stable paint: only lines 3–14 via DATA; avoid header NAKs.
 
 from enum import IntEnum
 from typing import List, Optional, Tuple, Deque
@@ -23,9 +23,7 @@ ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 HEARTBEAT_SEC = 0.5
 
-# Promise no more than this many records in a single RTS.
-DEFAULT_RTS_RECORD_CAP = 4
-
+DEFAULT_RTS_RECORD_CAP = 4              # never promise more than this per RTS
 ENABLE_SPACE_PADDING_FOR_COLUMN = True
 ARINC_WORD_GAP_SEC = 0.0
 
@@ -148,6 +146,11 @@ class ControlEncoder:
             self._preferred = tag
     def get_preferred(self) -> Optional[str]:
         return self._preferred
+    def toggle(self):
+        if self._preferred is None:
+            self._preferred = 'B'
+        else:
+            self._preferred = 'A' if self._preferred == 'B' else 'B'
 
 # =========================
 # Sender
@@ -177,6 +180,10 @@ class RobustSender:
         return words
 
     def _try_send_once(self, mal_target: int, text: str, *, line: int, col: int, color: int, disp_attr: int, last: bool, rec_idx: int, encoder_tag: str) -> str:
+        # Avoid sending 24 spaces (some units NAK). If blank, send a single space.
+        if not text.strip():
+            text = " "
+
         if ENABLE_SPACE_PADDING_FOR_COLUMN and col > 1:
             text_to_send = (" " * (col - 1)) + text
             effective_col = 1
@@ -256,6 +263,9 @@ COLOR_CYAN = 1
 COLOR_AMBER = 6
 COLOR_WHITE = 7
 
+# Lines 1–2 (indices 1,2) are header/title: skip during DATA.
+DATA_MIN_LINE = 3    # first line number we will ever send in DATA transactions
+
 @dataclass
 class LineRender:
     text: str = ""
@@ -322,6 +332,7 @@ class ProSimNormalizer:
         f.lines[13] = LineRender(text=sp, color=COLOR_WHITE, col=1, attr=0)
         return f
 
+# ===== Diff queue — SKIP lines 1–2 in DATA =====
 class LineDiffQueue:
     def __init__(self):
         self.prev: Optional[Frame] = None
@@ -329,11 +340,15 @@ class LineDiffQueue:
 
     def ingest(self, newf: Frame):
         if self.prev is None:
-            for i in range(LINE_COUNT):
+            # enqueue only 3..14 for first paint (leave 1–2 to MENU/title handling)
+            for i in range(DATA_MIN_LINE-1, LINE_COUNT):   # 2..13 indices → lines 3..14
                 self.q.append(i+1)
             self.prev = newf
             return
         for i in range(LINE_COUNT):
+            # Skip lines 1–2 from diffing during DATA
+            if (i+1) < DATA_MIN_LINE:
+                continue
             if newf.lines[i].text != self.prev.lines[i].text or \
                newf.lines[i].color != self.prev.lines[i].color or \
                newf.lines[i].attr  != self.prev.lines[i].attr:
@@ -346,8 +361,25 @@ class LineDiffQueue:
     def pop_next(self) -> Optional[int]:
         return self.q.popleft() if self.q else None
 
+    def push_front_many(self, indices: List[int]):
+        for idx in reversed(indices):
+            self.q.appendleft(idx)
+
+    def push_back(self, idx: int):
+        self.q.append(idx)
+
+    def peek_next_n(self, n: int) -> List[int]:
+        out = []
+        for i, idx in enumerate(self.q):
+            if i >= n: break
+            out.append(idx)
+        return out
+
+    def has_any(self) -> bool:
+        return bool(self.q)
+
 # =========================
-# ProSim-backed LRU (CTS-aware batching)
+# ProSim-backed LRU (only 3–14 via DATA)
 # =========================
 class ProSimLRU(LRU):
     def __init__(self, sal_octal: int, channel: int):
@@ -357,6 +389,7 @@ class ProSimLRU(LRU):
         self._pending_list: List[Tuple[int, LineRender]] = []
         self._first_paint_done: bool = False
         self._last_planned: int = 0
+        self._last_batch_indices: List[int] = []
 
     def update_from_xml(self, xml_str: str):
         f = self.norm.parse_xml_to_frame(xml_str)
@@ -373,27 +406,34 @@ class ProSimLRU(LRU):
             self._last_planned = 0
             self._first_paint_done = True
             return 0
+
         if not self._first_paint_done:
-            self._last_planned = max(1, min(pending, DEFAULT_RTS_RECORD_CAP))
+            self._last_planned = min(pending, DEFAULT_RTS_RECORD_CAP)
         else:
             self._last_planned = 1
         return self._last_planned
 
     def prepare_batch(self, count: int) -> None:
         self._pending_list.clear()
+        self._last_batch_indices = []
         for _ in range(count):
             idx = self.diffq.pop_next()
             if idx is None:
                 break
+            # Safety: enforce DATA_MIN_LINE
+            if idx < DATA_MIN_LINE:
+                continue
             self._pending_list.append((idx, self.diffq.prev.lines[idx-1]))
+            self._last_batch_indices.append(idx)
 
     def get_page_text(self) -> List[TextData]:
         if not self._pending_list:
             return []
         out: List[TextData] = []
         for idx, lr in self._pending_list:
+            text = lr.text if lr.text.strip() else " "
             out.append(TextData(
-                text=lr.text,
+                text=text,
                 color=lr.color,
                 lineIdx=idx,
                 initial_col=lr.col,
@@ -402,8 +442,14 @@ class ProSimLRU(LRU):
         self._pending_list.clear()
         return out
 
+    def requeue_last_batch_front(self):
+        if self._last_batch_indices:
+            log(f"[requeue] returning lines {self._last_batch_indices} to send-queue")
+            self.diffq.push_front_many(self._last_batch_indices)
+            self._last_batch_indices = []
+
 # =========================
-# LRU state machine (CTS-aware + capped RTS + continuous batches)
+# LRU state machine
 # =========================
 class LRUData:
     def __init__(self, lru: LRU):
@@ -492,7 +538,7 @@ class LRUData:
 
             log(f"[RTS] sending RTS: req={self.current_request_type} recs={self.record_count} to MAL={oct(self.mal_target)}")
             rts_payload = (A739.DC2 << 16) | ((self.current_request_type & 0xF) << 8) | (self.record_count & 0xFF)
-            rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)
+            rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)  # <<< FIXED
             logic.dev.send_manual_single_fast(self.lru.channel, rts)
             self.repeat = True
 
@@ -505,9 +551,7 @@ class LRUData:
                     return
                 if A739.is_ack(label):
                     log("[SEND] got ACK")
-                    # >>> KEY CHANGE: if still more to paint, immediately request another DATA batch
                     if self.current_request_type == RequestType.DATA.value:
-                        # If more lines remain, keep MAL lock and loop back to RTS
                         if isinstance(self.lru, ProSimLRU) and self.lru.has_more_to_paint():
                             self.repeat = False
                             self.queue(TransmissionState.RTS)
@@ -515,11 +559,15 @@ class LRUData:
                     self.queue(TransmissionState.IDLE)
                     return
                 if A739.is_nack(label):
-                    log("[SEND] got NAK → retry (flip CNTRL encoder)")
-                    if self.sender and self.sender.ctrl.get_preferred() == 'A':
-                        self.sender.ctrl.set_preferred('B')
-                    elif self.sender and self.sender.ctrl.get_preferred() == 'B':
-                        self.sender.ctrl.set_preferred('A')
+                    log("[SEND] got NAK → requeue & continue")
+                    if isinstance(self.lru, ProSimLRU):
+                        failed = getattr(self.lru, "_last_batch_indices", [])
+                        for idx in failed:
+                            if idx >= DATA_MIN_LINE:
+                                self.lru.diffq.push_back(idx)
+                        self.lru._last_batch_indices = []
+                    if self.sender:
+                        self.sender.ctrl.toggle()
                     self._retry_or_idle()
                     return
 
@@ -568,7 +616,7 @@ class LRUData:
 # =========================
 class Logic:
     def __init__(self):
-        self.version = "mcdu_a739_prosim_bridge_v1.6"
+        self.version = "mcdu_a739_prosim_bridge_v2.0.1"
         self.lru = ProSimLRU(LRU_SAL, ARINC_CARD_TX_CHNL)
         self.lrus = [LRUData(self.lru)]
         self.mcdu_rx_channel = ARINC_CARD_RX_CHNL
