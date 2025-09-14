@@ -1,8 +1,11 @@
 ﻿# mcdu_a739_prosim_bridge.py
-# v2.0.1 — Fix RTS pack() call (pass payload). Stable paint: only lines 3–14 via DATA; avoid header NAKs.
+# v2.5 — Keypress bridge fixed:
+#   * Legacy scan decode now tries 7-bit AND 8-bit paths before giving up.
+#   * Extra logs show both raw codes and which one mapped.
+#   * Small de-bounce/dedupe so repeated scans don’t spam ProSim.
 
 from enum import IntEnum
-from typing import List, Optional, Tuple, Deque
+from typing import List, Optional, Tuple, Deque, Dict
 from dataclasses import dataclass, field
 from collections import deque
 import time
@@ -23,9 +26,14 @@ ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 HEARTBEAT_SEC = 0.5
 
-DEFAULT_RTS_RECORD_CAP = 4              # never promise more than this per RTS
+DEFAULT_RTS_RECORD_CAP = 4
 ENABLE_SPACE_PADDING_FOR_COLUMN = True
 ARINC_WORD_GAP_SEC = 0.0
+
+# Debounce for ProSim key release (seconds)
+KEY_RELEASE_AFTER = 0.12
+# Ignore re-presses of same logical key within this many seconds
+KEY_DEDUPE_WINDOW = 0.06
 
 # =========================
 # Enums / Codes
@@ -46,7 +54,7 @@ class Color(IntEnum):
 # Helpers / DTOs
 # =========================
 def log(msg: str):
-    print(msg)
+    print(f"[mcdu_logic_A739_v2] {msg}")
 
 class TextData:
     def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0):
@@ -58,7 +66,7 @@ class TextData:
 
 class A739:
     ENQ  = 0b0000101
-    DC1  = 0b0010001
+    DC1  = 0b0010001  # keyboard
     DC2  = 0b0010010  # RTS
     DC3  = 0b0010011  # CTS
     SYN  = 0b0010110
@@ -96,11 +104,20 @@ class A739:
     def is_nack(dw: int) -> bool:
         return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.NACK
     @staticmethod
+    def is_keyboard(dw: int) -> bool:
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC1
+    @staticmethod
     def get_request_type(dw: int) -> int:
         return (dw >> A739.REQUEST_TYPE_SHIFT) & A739.REQUEST_TYPE_MASK
     @staticmethod
     def get_mal(dw: int) -> int:
         return ArincLabel.Base._reverse_label_number((dw >> A739.MAL_SHIFT) & A739.MAL_MASK)
+    @staticmethod
+    def get_key_data(dw: int) -> Tuple[int, int, int]:
+        key = (dw >> 16) & 0x7F
+        sequence = (dw >> 8) & 0x7F
+        repeat = (dw >> 23) & 0x1
+        return key, sequence, repeat
 
 # =========================
 # Control encoder
@@ -180,7 +197,6 @@ class RobustSender:
         return words
 
     def _try_send_once(self, mal_target: int, text: str, *, line: int, col: int, color: int, disp_attr: int, last: bool, rec_idx: int, encoder_tag: str) -> str:
-        # Avoid sending 24 spaces (some units NAK). If blank, send a single space.
         if not text.strip():
             text = " "
 
@@ -263,8 +279,7 @@ COLOR_CYAN = 1
 COLOR_AMBER = 6
 COLOR_WHITE = 7
 
-# Lines 1–2 (indices 1,2) are header/title: skip during DATA.
-DATA_MIN_LINE = 3    # first line number we will ever send in DATA transactions
+DATA_MIN_LINE = 3    # only send lines 3–14 in DATA
 
 @dataclass
 class LineRender:
@@ -332,7 +347,6 @@ class ProSimNormalizer:
         f.lines[13] = LineRender(text=sp, color=COLOR_WHITE, col=1, attr=0)
         return f
 
-# ===== Diff queue — SKIP lines 1–2 in DATA =====
 class LineDiffQueue:
     def __init__(self):
         self.prev: Optional[Frame] = None
@@ -340,13 +354,11 @@ class LineDiffQueue:
 
     def ingest(self, newf: Frame):
         if self.prev is None:
-            # enqueue only 3..14 for first paint (leave 1–2 to MENU/title handling)
-            for i in range(DATA_MIN_LINE-1, LINE_COUNT):   # 2..13 indices → lines 3..14
+            for i in range(DATA_MIN_LINE-1, LINE_COUNT):   # enqueue 3..14
                 self.q.append(i+1)
             self.prev = newf
             return
         for i in range(LINE_COUNT):
-            # Skip lines 1–2 from diffing during DATA
             if (i+1) < DATA_MIN_LINE:
                 continue
             if newf.lines[i].text != self.prev.lines[i].text or \
@@ -367,13 +379,6 @@ class LineDiffQueue:
 
     def push_back(self, idx: int):
         self.q.append(idx)
-
-    def peek_next_n(self, n: int) -> List[int]:
-        out = []
-        for i, idx in enumerate(self.q):
-            if i >= n: break
-            out.append(idx)
-        return out
 
     def has_any(self) -> bool:
         return bool(self.q)
@@ -420,7 +425,6 @@ class ProSimLRU(LRU):
             idx = self.diffq.pop_next()
             if idx is None:
                 break
-            # Safety: enforce DATA_MIN_LINE
             if idx < DATA_MIN_LINE:
                 continue
             self._pending_list.append((idx, self.diffq.prev.lines[idx-1]))
@@ -447,6 +451,45 @@ class ProSimLRU(LRU):
             log(f"[requeue] returning lines {self._last_batch_indices} to send-queue")
             self.diffq.push_front_many(self._last_batch_indices)
             self._last_batch_indices = []
+
+# =========================
+# ProSim key mapping (from your earlier working build)
+# =========================
+KEY_MAP: Dict[int, str] = {
+    39: "S_CDU1_KEY_0", 17: "S_CDU1_KEY_1", 33: "S_CDU1_KEY_2", 49: "S_CDU1_KEY_3",
+    19: "S_CDU1_KEY_4", 35: "S_CDU1_KEY_5", 51: "S_CDU1_KEY_6", 21: "S_CDU1_KEY_7",
+    37: "S_CDU1_KEY_8", 53: "S_CDU1_KEY_9",
+    75: "S_CDU1_KEY_A", 91: "S_CDU1_KEY_B", 107: "S_CDU1_KEY_C", 123: "S_CDU1_KEY_D",
+    139: "S_CDU1_KEY_E", 73: "S_CDU1_KEY_F", 89: "S_CDU1_KEY_G", 105: "S_CDU1_KEY_H",
+    121: "S_CDU1_KEY_I", 137: "S_CDU1_KEY_J", 65: "S_CDU1_KEY_K", 81: "S_CDU1_KEY_L",
+    97: "S_CDU1_KEY_M", 113: "S_CDU1_KEY_N", 129: "S_CDU1_KEY_O", 67: "S_CDU1_KEY_P",
+    83: "S_CDU1_KEY_Q", 99: "S_CDU1_KEY_R", 115: "S_CDU1_KEY_S", 131: "S_CDU1_KEY_T",
+    69: "S_CDU1_KEY_U", 85: "S_CDU1_KEY_V", 101: "S_CDU1_KEY_W", 117: "S_CDU1_KEY_X",
+    133: "S_CDU1_KEY_Y", 71: "S_CDU1_KEY_Z",
+
+    145: "S_CDU1_KEY_CLEAR", 103: "S_CDU1_KEY_DEL",
+    23: "S_CDU1_KEY_DOT", 55: "S_CDU1_KEY_MINUS", 119: "S_CDU1_KEY_SLASH", 87: "S_CDU1_KEY_SPACE",
+
+    11: "S_CDU1_KEY_LSK1L", 13: "S_CDU1_KEY_LSK1R",
+    9:  "S_CDU1_KEY_LSK2L", 15: "S_CDU1_KEY_LSK2R",
+    27: "S_CDU1_KEY_LSK3L", 29: "S_CDU1_KEY_LSK3R",
+    25: "S_CDU1_KEY_LSK4L", 31: "S_CDU1_KEY_LSK4R",
+    43: "S_CDU1_KEY_LSK5L", 45: "S_CDU1_KEY_LSK5R",
+    41: "S_CDU1_KEY_LSK6L", 47: "S_CDU1_KEY_LSK6R",
+
+    141: "S_CDU1_KEY_EXEC",
+    63:  "S_CDU1_KEY_INIT_REF",
+    125: "S_CDU1_KEY_PROG",
+    79:  "S_CDU1_KEY_RTE",
+    93:  "S_CDU1_KEY_DEP_ARR",
+    59:  "S_CDU1_KEY_FIX",
+    95:  "S_CDU1_KEY_CLB",
+    111: "S_CDU1_KEY_CRZ",
+    127: "S_CDU1_KEY_DES",
+    57:  "S_CDU1_KEY_NEXT_PAGE",
+    147: "S_CDU1_KEY_PREV_PAGE",
+    149: "S_CDU1_KEY_N1_LIMIT",
+}
 
 # =========================
 # LRU state machine
@@ -538,7 +581,7 @@ class LRUData:
 
             log(f"[RTS] sending RTS: req={self.current_request_type} recs={self.record_count} to MAL={oct(self.mal_target)}")
             rts_payload = (A739.DC2 << 16) | ((self.current_request_type & 0xF) << 8) | (self.record_count & 0xFF)
-            rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)  # <<< FIXED
+            rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)
             logic.dev.send_manual_single_fast(self.lru.channel, rts)
             self.repeat = True
 
@@ -612,17 +655,69 @@ class LRUData:
             self.queue(TransmissionState.IDLE)
 
 # =========================
-# Main Logic wrapper
+# Main Logic wrapper (+ keyboard bridge)
 # =========================
 class Logic:
     def __init__(self):
-        self.version = "mcdu_a739_prosim_bridge_v2.0.1"
+        self.version = "mcdu_a739_prosim_bridge_v2.5"
         self.lru = ProSimLRU(LRU_SAL, ARINC_CARD_TX_CHNL)
         self.lrus = [LRUData(self.lru)]
         self.mcdu_rx_channel = ARINC_CARD_RX_CHNL
         self.dev: Optional[ArincAsync] = None
         self.data_recv = False
         self._last_xml = ""
+
+        # Track pressed keys for auto-release + dedupe
+        self._keys_down: Dict[str, float] = {}
+        self._last_logical_key: Tuple[str, float] = ("", 0.0)
+
+    # ---- Keyboard handling (to ProSim datarefs) ----
+    def _set_prosim_key(self, name: str, val: int):
+        try:
+            if not hasattr(self, "datarefs") or not hasattr(self.datarefs, "prosim"):
+                log("[key] datarefs.prosim NOT available")
+                return False
+            if not hasattr(self.datarefs.prosim, name):
+                log(f"[key] datarefs.prosim.{name} attr missing")
+                return False
+            getattr(self.datarefs.prosim, name).value = val
+            return True
+        except Exception as e:
+            log(f"[key] ERROR setting {name} -> {val}: {e}")
+            return False
+
+    def handle_key_press(self, logical_code: int, source: str, raw7: int = 0, raw8: int = 0):
+        name = KEY_MAP.get(logical_code, "")
+        log(f"[key] source={source} code={logical_code} mapped_to='{name}' (raw7={raw7}, raw8={raw8})")
+        if not name:
+            return
+
+        # Dedupe very fast repeats of same logical key
+        now = time.time()
+        last_name, last_t = self._last_logical_key
+        if last_name == name and (now - last_t) < KEY_DEDUPE_WINDOW:
+            log(f"[key] dedupe {name} (Δt={(now-last_t):.3f}s)")
+            return
+        self._last_logical_key = (name, now)
+
+        if name in self._keys_down:
+            # already pressed; just refresh timestamp for release
+            self._keys_down[name] = now
+            return
+
+        if self._set_prosim_key(name, 1):
+            self._keys_down[name] = now
+            log(f"[key] {name} -> 1 (pressed)")
+
+    def _release_old_keys(self):
+        if not self._keys_down:
+            return
+        now = time.time()
+        to_release = [k for k,t0 in self._keys_down.items() if (now - t0) >= KEY_RELEASE_AFTER]
+        for k in to_release:
+            if self._set_prosim_key(k, 0):
+                log(f"[key] {k} -> 0 (released)")
+            self._keys_down.pop(k, None)
 
     async def update(self):
         if not hasattr(self, "devices") or self.devices is None or len(self.devices) == 0:
@@ -635,7 +730,7 @@ class Logic:
             log("[wait] ARINC device exists but isn’t ready yet.")
             return
 
-        # Drain RX
+        # Drain RX — detect keyboard immediately (works in any state)
         received_labels: List[Tuple[int, float]] = []
         while True:
             try:
@@ -644,8 +739,37 @@ class Logic:
                 p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
                 decoded_label = ArincLabel.Base._reverse_label_number(label_id)
                 sal_field = (data >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK
-                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN, A739.NACK):
-                    print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
+
+                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN, A739.NACK, A739.DC1):
+                    log(f"[rx] label={oct(decoded_label)} ctl={sal_field:02x} data=0x{data:06X}")
+
+                # ---- Path 1: ARINC-739 DC1 keyboard (preferred) ----
+                if A739.is_keyboard(data):
+                    key, seq, rep = A739.get_key_data(data)
+                    log(f"[rx-key/739] key={key} seq={seq} rep={rep} (label={oct(decoded_label)})")
+                    # Try 739 key directly
+                    self.handle_key_press(key, source="A739-DC1", raw7=key, raw8=0)
+
+                # ---- Path 2: Legacy raw scan on label 0o004 (your unit path)
+                # CHAR was packed at bits [19:13] in your original code.
+                if decoded_label == self.lru.sal and not A739.is_keyboard(data):
+                    raw7 = (data >> 13) & 0x7F
+                    raw8 = (data >> 12) & 0xFF
+                    mapped7 = KEY_MAP.get(raw7, "")
+                    mapped8 = KEY_MAP.get(raw8, "")
+
+                    if mapped7 or mapped8:
+                        # Pick whichever actually maps; prefer 7-bit if valid
+                        if mapped7:
+                            log(f"[rx-key/LEGACY] good_bits key_raw_7bit={raw7} → {mapped7}")
+                            self.handle_key_press(raw7, source="LEGACY-7BIT", raw7=raw7, raw8=raw8)
+                        else:
+                            log(f"[rx-key/LEGACY] fallback key_raw_8bit={raw8} → {mapped8}")
+                            self.handle_key_press(raw8, source="LEGACY-8BIT", raw7=raw7, raw8=raw8)
+                    else:
+                        # Log both so we can expand the table if needed
+                        log(f"[rx-key/LEGACY] unknown raw7={raw7} raw8={raw8} (no map)")
+
             except Exception:
                 break
 
@@ -662,7 +786,10 @@ class Logic:
             self.lru.update_from_xml(xml_string)
             self._last_xml = xml_string
 
-        # Heartbeat
+        # Release keys after debounce
+        self._release_old_keys()
+
+        # Heartbeat + state update
         now = time.time()
         for lru_data in self.lrus:
             if (now - lru_data.heartbeat_elapsed_time) >= HEARTBEAT_SEC:
