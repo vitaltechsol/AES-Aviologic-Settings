@@ -1,6 +1,6 @@
 {
     "system.analog.A_MIP_BRIGHTNESS_DU_U": {
-        "description": "Upper DU Brightness",
+        "description": "Upper DU Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -21,7 +21,7 @@
         "write_access": true
     },
     "system.analog.A_SPEEDBRAKE": {
-        "description": "Speedbrake input",
+        "description": "Speedbrake input [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -119,7 +119,14 @@
         "write_access": true
     },
     "system.analog.R_COM3_ACTIVE": {
-        "description": "Radio freq input COM3",
+        "description": "Radio freq input COM3 [0 - 999999]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.switches.S_EAU_STOW_1": {
+        "description": "EAU Engine 1 Stow Faults Switch [0:Normal, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -210,7 +217,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_SAT_1_VOLUME": {
-        "description": "ASP FO SATCOM 1 vol volume",
+        "description": "ASP FO SATCOM 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -224,7 +231,7 @@
         "write_access": false
     },
     "system.analog.A_FC_TRIM_RUDDER": {
-        "description": "Rudder Trim analog input",
+        "description": "Rudder Trim analog input [0 - 200]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -271,13 +278,6 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
-    },
-    "system.config.UNITS.Barodefault": {
-        "description": "31: Default baro",
-        "data_type": "String",
-        "data_unit": "HectoPascal,Inches",
-        "read_access": true,
-        "write_access": true
     },
     "system.gates.B_SPEED_BRAKE": {
         "description": "Speedbrake extended",
@@ -329,7 +329,7 @@
         "write_access": false
     },
     "system.analog.A_FC_TOEBRAKE_RIGHT_FO": {
-        "description": "Toebrake right F/O input",
+        "description": "Toebrake right F/O input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -475,6 +475,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_FC_ELEVATOR_CL": {
+        "description": "Elevator control loaded input [-3000 - 3000]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.numerical.N_FREQ_XPDR2": {
         "description": "Radio freq XPDR2",
         "data_type": "Double",
@@ -490,7 +497,7 @@
         "write_access": true
     },
     "system.analog.R_COM1_ACTIVE": {
-        "description": "Radio freq input COM1",
+        "description": "Radio freq input COM1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -539,7 +546,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_SPKR_VOLUME": {
-        "description": "ASP OBS Spkr vol volume",
+        "description": "ASP OBS Spkr vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -553,14 +560,14 @@
         "write_access": true
     },
     "system.analog.R_COM2_ACTIVE": {
-        "description": "Radio freq input COM2",
+        "description": "Radio freq input COM2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.A_ASP2_MARKER_VOLUME": {
-        "description": "ASP FO Marker vol volume",
+        "description": "ASP FO Marker vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -592,6 +599,13 @@
         "data_type": "Int32",
         "data_unit": null,
         "read_access": false,
+        "write_access": true
+    },
+    "system.analog.A_DOUBLE_FC_TRIM_RUDDER": {
+        "description": "Rudder Trim analog input [0 - 200]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
         "write_access": true
     },
     "system.gates.B_FIRE_HANDLE_RIGHT_LOCK": {
@@ -636,6 +650,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.numerical.N_CHRONO_CAP_U_MODE": {
+        "description": "Chrono capt upper display mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_WR_WX_LEFT": {
         "description": "Weather Radar WX Left [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -658,7 +679,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_NAV_1_VOLUME": {
-        "description": "ASP NAV 1 vol volume",
+        "description": "ASP NAV 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -783,6 +804,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.config.Units.Barodefault": {
+        "description": "31: Default baro",
+        "data_type": "String",
+        "data_unit": "HectoPascal,Inches",
+        "read_access": true,
+        "write_access": true
+    },
     "system.config.AFDS FMS.referenceN1WithAssumedTemp": {
         "description": "31: Reference N1(AUTO) with assumed temp",
         "data_type": "Boolean",
@@ -811,13 +839,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.config.UNITS.Time": {
-        "description": "31: Time",
-        "data_type": "String",
-        "data_unit": "Local time,UTC,FS time",
-        "read_access": true,
-        "write_access": true
-    },
     "system.indicators.I_OH_RAMDOOR_L": {
         "description": "Ram door full open L",
         "data_type": "Byte",
@@ -831,6 +852,20 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_EAU_ISO_VALVE_1": {
+        "description": "EAU Engine 1 Hyd Iso Valve Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_ISO_VALVE_2": {
+        "description": "EAU Engine 2 Hyd Iso Valve Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.gates.B_ENGINE_VIBRATION_RIGHT": {
         "description": "Vibrations Engine 2",
@@ -1042,6 +1077,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.switches.S_AIRSTAIRS_INTERNAL_STANDBY": {
+        "description": "Airstair internal Standby [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.encoders.E_MCP_EFIS1_BARO": {
         "description": "EFIS 1 baro",
         "data_type": "Int32",
@@ -1057,7 +1099,7 @@
         "write_access": false
     },
     "system.analog.R_HF2_ACTIVE": {
-        "description": "Radio freq input HF2",
+        "description": "Radio freq input HF2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1078,7 +1120,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_NAV_2_VOLUME": {
-        "description": "ASP NAV 2 vol volume",
+        "description": "ASP NAV 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1169,7 +1211,7 @@
         "write_access": false
     },
     "system.analog.A_OH_CB_LIGHT_PANEL": {
-        "description": "Overhead CB light",
+        "description": "Overhead CB light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1251,6 +1293,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.numerical.N_CHRONO_FO_U_MODE": {
+        "description": "Chrono f/o upper display mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.indicators.I_OH_DOOR_AFT_ENTRY": {
         "description": "Door Aft Entry",
@@ -1364,13 +1413,6 @@
         "read_access": true,
         "write_access": false
     },
-    "system.timers.drivers.CPFlightV2": {
-        "description": "CPFlightV2",
-        "data_type": "Double",
-        "data_unit": "ms",
-        "read_access": true,
-        "write_access": false
-    },
     "system.config.DISPLAY.singleCue": {
         "description": "31: Single cue F/D",
         "data_type": "Boolean",
@@ -1386,7 +1428,7 @@
         "write_access": true
     },
     "system.analog.A_FC_TOEBRAKE_RIGHT_CAPT": {
-        "description": "Toebrake right captain input",
+        "description": "Toebrake right captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1463,7 +1505,7 @@
         "write_access": false
     },
     "system.analog.A_FC_RUDDER_CAPT": {
-        "description": "Rudder captain input",
+        "description": "Rudder captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1624,7 +1666,7 @@
         "write_access": false
     },
     "system.analog.A_PED_LIGHT_PANEL": {
-        "description": "Pedestal panel light",
+        "description": "Pedestal panel light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1673,7 +1715,7 @@
         "write_access": false
     },
     "system.analog.A_MIP_FLOOD_LIGHT": {
-        "description": "MIP flood light",
+        "description": "MIP flood light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1735,6 +1777,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.gates.B_LIGHT_WHEEL_WELL": {
+        "description": "Lights Wheel well",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.gauge.G_OH_PRESS_DIFF": {
         "description": "Pressure differential",
         "data_type": "Double",
@@ -1764,7 +1813,7 @@
         "write_access": true
     },
     "system.analog.A_FC_TILLER_CAPT": {
-        "description": "Tiller captain input",
+        "description": "Tiller captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1841,7 +1890,7 @@
         "write_access": false
     },
     "system.analog.V_OH_FWDCAB": {
-        "description": "FWD CAB selector",
+        "description": "FWD CAB selector [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -1853,13 +1902,6 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
-    },
-    "system.audio.Audio_addon_V1": {
-        "description": "Audio addon V1",
-        "data_type": "Byte",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
     },
     "system.switches.S_OH_FUEL_PUMP_LF": {
         "description": "Fuel Left Fwd [0:Off, 1:On]",
@@ -2099,13 +2141,6 @@
         "read_access": true,
         "write_access": false
     },
-    "system.config.CONFIG.AutoFailures": {
-        "description": "115: Autofailures",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
     "system.config.CONFIG.legacyRadios": {
         "description": "23: Use legacy radios (5 digits)",
         "data_type": "Boolean",
@@ -2177,7 +2212,7 @@
         "write_access": true
     },
     "system.analog.A_OH_LIGHT_PANEL": {
-        "description": "Overhead panel light",
+        "description": "Overhead panel light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2204,6 +2239,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_L_SLEEVE_STOW_1": {
+        "description": "EAU Engine 1 L Sleeve Stow Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_MCP_HDG_SEL": {
         "description": "MCP Heading sel [0:Off, 1:Pushed]",
         "data_type": "Int32",
@@ -2212,11 +2254,18 @@
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_RO": {
-        "description": "Right Outboard Brightness",
+        "description": "Right Outboard Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_EAU_L_SLEEVE_STOW_2": {
+        "description": "EAU Engine 2 L Sleeve Stow Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.indicators.I_CDU2_OFFSET": {
         "description": "CDU2 OFFSET",
@@ -2240,7 +2289,7 @@
         "write_access": false
     },
     "system.analog.A_MIP_BRIGHTNESS_RI": {
-        "description": "Right Inboard Brightness",
+        "description": "Right Inboard Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2261,7 +2310,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_VHF_3_VOLUME": {
-        "description": "ASP FO VHF 3 vol volume",
+        "description": "ASP FO VHF 3 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2310,7 +2359,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_NAV_1_VOLUME": {
-        "description": "ASP FO NAV 1 vol volume",
+        "description": "ASP FO NAV 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2450,14 +2499,14 @@
         "write_access": true
     },
     "system.analog.A_FC_ELEVATOR_CAPT": {
-        "description": "Elevator captain input",
+        "description": "Elevator captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.A_ASP_FLT_VOLUME": {
-        "description": "ASP FLT vol volume",
+        "description": "ASP FLT vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2472,6 +2521,13 @@
     },
     "system.switches.S_MCP_EFIS1_MINIMUMS_RESET": {
         "description": "EFIS 1 MINS Reset [0:Off, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.switches.S_AIRSTAIRS_EXTERNAL_CONTROL": {
+        "description": "Airstair external control [0:Normal, 1:Retract, 2:Extend]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2562,7 +2618,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_HF_2_VOLUME": {
-        "description": "ASP FO HF 2 volume",
+        "description": "ASP FO HF 2 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2574,6 +2630,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.switches.S_EAU_STOW_2": {
+        "description": "EAU Engine 2 Stow Faults Switch [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.gates.B_GEAR_HANDLE_RELEASE": {
         "description": "Gear handle release solenoid",
@@ -2609,6 +2672,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.gates.B_LIGHT_ANTI_COLLISION": {
+        "description": "Lights Anti collision",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_ASP_VHF_3_SEND": {
         "description": "ASP VHF 3 vol send [0:Normal, 1:Pushed]",
@@ -2834,6 +2904,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_THROTTLE_LEFT": {
+        "description": "Throttle input left [0 - 255]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_OH_FUEL_PUMP_CR": {
         "description": "Fuel Center Right [0:Off, 1:On]",
         "data_type": "Int32",
@@ -2842,7 +2919,7 @@
         "write_access": true
     },
     "system.analog.A_COMBINED_THROTTLE_LEFT": {
-        "description": "Combined Throttle/Reverser input left",
+        "description": "Combined Throttle/Reverser input left [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -2932,6 +3009,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.analog.A_DOUBLE_FC_RUDDER_FO": {
+        "description": "Rudder F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.gauge.G_MIP_FLAP_RIGHT": {
         "description": "Flap right",
         "data_type": "Double",
@@ -2967,6 +3051,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_AIRSTAIRS_INTERNAL_STANDBY": {
+        "description": "Airstair internal Standby indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.numerical.N_ELEC_PANEL_UPPER_CENTER": {
         "description": "Electric Panel Upper center",
         "data_type": "Double",
@@ -2990,6 +3081,13 @@
     },
     "system.gates.B_V1": {
         "description": "V1",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.gates.B_LIGHT_STROBE": {
+        "description": "Lights Strobe",
         "data_type": "Boolean",
         "data_unit": null,
         "read_access": true,
@@ -3057,6 +3155,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_AIRSTAIRS_INTERNAL_OPERATING": {
+        "description": "Airstair internal operating indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.config.AC OPTIONS.IAN": {
         "description": "34: IAN",
@@ -3261,15 +3366,15 @@
         "read_access": true,
         "write_access": false
     },
-    "system.switches.S_MIP_GEAR_OVERRIDE": {
-        "description": "Gear handle lock override [0:Normal, 1:Override]",
+    "system.switches.S_OH_LIGHT_STROBE_STEADY": {
+        "description": "Lights Strobe && Steady [0:Strobe && Steady, 1:Off, 2:Steady]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
-    "system.switches.S_OH_LIGHT_STROBE_STEADY": {
-        "description": "Lights Strobe && Steady [0:Strobe && Steady, 1:Off, 2:Steady]",
+    "system.switches.S_MIP_GEAR_OVERRIDE": {
+        "description": "Gear handle lock override [0:Normal, 1:Override]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3297,7 +3402,7 @@
         "write_access": false
     },
     "system.analog.R_NAV1_STANDBY": {
-        "description": "Radio standby freq input NAV1",
+        "description": "Radio standby freq input NAV1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3436,15 +3541,15 @@
         "read_access": true,
         "write_access": true
     },
-    "system.switches.S_HGS_KEY7": {
-        "description": "HGS CP Key 7 [0:Normal, 1:Pushed]",
+    "system.switches.S_OH_LIGHT_LOGO": {
+        "description": "Lights Logo [0:Off, 1:On]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
-    "system.switches.S_OH_LIGHT_LOGO": {
-        "description": "Lights Logo [0:Off, 1:On]",
+    "system.switches.S_HGS_KEY7": {
+        "description": "HGS CP Key 7 [0:Normal, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3493,7 +3598,7 @@
         "write_access": false
     },
     "system.analog.A_ASP3_FLT_VOLUME": {
-        "description": "ASP OBS FLT vol volume",
+        "description": "ASP OBS FLT vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3590,6 +3695,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.numerical.N_CHRONO_FO_L_R": {
+        "description": "Chrono f/o 7seg lower right",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_MC_APU": {
         "description": "Warn APU",
         "data_type": "Byte",
@@ -3612,7 +3724,7 @@
         "write_access": false
     },
     "system.analog.A_RMP1_SENSE": {
-        "description": "RMP Capt sense",
+        "description": "RMP Capt sense [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3640,7 +3752,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_FLT_VOLUME": {
-        "description": "ASP FO FLT vol volume",
+        "description": "ASP FO FLT vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3661,7 +3773,7 @@
         "write_access": true
     },
     "system.analog.A_RMP2_SENSE": {
-        "description": "RMP F/O sense",
+        "description": "RMP F/O sense [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3794,7 +3906,7 @@
         "write_access": true
     },
     "system.analog.A_WR_TILT_RIGHT": {
-        "description": "Weather Radar Tilt Right",
+        "description": "Weather Radar Tilt Right [-15 - 15]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3822,7 +3934,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_PA_VOLUME": {
-        "description": "ASP PA vol volume",
+        "description": "ASP PA vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3836,7 +3948,7 @@
         "write_access": true
     },
     "system.analog.A_FC_AILERON_FO": {
-        "description": "Aileron F/O input",
+        "description": "Aileron F/O input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3871,7 +3983,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_HF_1_VOLUME": {
-        "description": "ASP FO HF 1 volume",
+        "description": "ASP FO HF 1 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -3925,6 +4037,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.gates.B_LIGHT_LOGO": {
+        "description": "Lights Logo",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_OH_ELEC_DC": {
         "description": "Elec Pnl DC [0:STBY PWR, 1:BAT BUS, 2:BAT, 3:AUX BAT, 4:TR1, 5:TR2, 6:TR3, 7:TEST]",
@@ -4017,6 +4136,13 @@
         "read_access": false,
         "write_access": true
     },
+    "system.analog.A_DOUBLE_FC_TILLER_FO": {
+        "description": "Tiller F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.indicators.I_XPDR_ATC_2": {
         "description": "Transponder 2 Active",
         "data_type": "Byte",
@@ -4060,7 +4186,7 @@
         "write_access": true
     },
     "system.analog.R_ADF1_ACTIVE": {
-        "description": "Radio freq input ADF1",
+        "description": "Radio freq input ADF1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4108,6 +4234,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.switches.S_AIRSTAIRS_INTERNAL_RETRACT": {
+        "description": "Airstair internal retract [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.encoders.E_RADIO_NAV1_OUTER": {
         "description": "Radio NAV1 outer shaft",
         "data_type": "Int32",
@@ -4116,7 +4249,7 @@
         "write_access": true
     },
     "system.analog.R_XPDR": {
-        "description": "Radio freq input XPDR",
+        "description": "Radio freq input XPDR [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4128,6 +4261,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.switches.S_AIRSTAIRS_EXTERNAL_POWER": {
+        "description": "Airstair external power [0:Normal, 1:Standby]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.switches.S_CDU2_KEY_7": {
         "description": "CDU 2 KEY_7 [0:Normal, 1:Pushed]",
@@ -4177,6 +4317,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.switches.S_AIRSTAIRS_INTERNAL_OPERATING": {
+        "description": "Airstair internal operating [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.switches.S_OH_PROBE_HEAT_B": {
         "description": "Probe heat B [0:AUTO, 1:ON]",
@@ -4248,6 +4395,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.config.AFDS FMS.GlobalExecLight": {
+        "description": "Enable Global MCDU Exec",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.audio.GPWS_50": {
         "description": "GPWS 50",
         "data_type": "Byte",
@@ -4312,7 +4466,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_SVC_VOLUME": {
-        "description": "ASP OBS SVC vol volume",
+        "description": "ASP OBS SVC vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4353,6 +4507,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_HGS_AP_ROCTN": {
+        "description": "Panel RO CTN",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.encoders.E_MIP_CHRONO_FO_ENCODER": {
         "description": "Chrono f/o encoder",
         "data_type": "Int32",
@@ -4361,7 +4522,7 @@
         "write_access": true
     },
     "system.analog.A_MAP_LIGHT_CAPT": {
-        "description": "Map light captain",
+        "description": "Map light captain [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4381,17 +4542,17 @@
         "read_access": true,
         "write_access": true
     },
+    "system.indicators.I_OH_PA_IN_USE": {
+        "description": "PA IN USE",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_MCP_VS": {
         "description": "MCP V/S [0:Off, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "system.config.UNITS.TemperatureUnit": {
-        "description": "31: Temperature",
-        "data_type": "String",
-        "data_unit": "C,F",
         "read_access": true,
         "write_access": true
     },
@@ -4438,7 +4599,7 @@
         "write_access": false
     },
     "system.analog.R_NAV1_ACTIVE": {
-        "description": "Radio freq input NAV1",
+        "description": "Radio freq input NAV1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4487,7 +4648,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_SAT_2_VOLUME": {
-        "description": "ASP SATCOM 2 vol volume",
+        "description": "ASP SATCOM 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4564,7 +4725,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_ADF_1_VOLUME": {
-        "description": "ASP OBS ADF 1 vol volume",
+        "description": "ASP OBS ADF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4606,7 +4767,7 @@
         "write_access": false
     },
     "system.analog.A_FC_TOEBRAKE_LEFT_FO": {
-        "description": "Toebrake left F/O input",
+        "description": "Toebrake left F/O input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4690,7 +4851,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_MARKER_VOLUME": {
-        "description": "ASP Marker vol volume",
+        "description": "ASP Marker vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4774,7 +4935,7 @@
         "write_access": true
     },
     "system.analog.A_CHART_LIGHT_CAPT": {
-        "description": "Chart light captain",
+        "description": "Chart light captain [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4907,7 +5068,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_SAT_1_VOLUME": {
-        "description": "ASP SATCOM 1 vol volume",
+        "description": "ASP SATCOM 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -4928,7 +5089,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_LI_INNER": {
-        "description": "Left Inboard Brightness Inner",
+        "description": "Left Inboard Brightness Inner [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5005,7 +5166,7 @@
         "write_access": true
     },
     "system.analog.A_FC_ELEVATOR_FO": {
-        "description": "Elevator F/O input",
+        "description": "Elevator F/O input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5024,6 +5185,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.analog.A_DOUBLE_FC_AILERON_CAPT": {
+        "description": "Aileron captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.indicators.I_RMP2_AM": {
         "description": "RMP F/O AM",
@@ -5138,7 +5306,7 @@
         "write_access": true
     },
     "system.analog.A_FC_RUDDER_FO": {
-        "description": "Rudder F/O input",
+        "description": "Rudder F/O input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5354,6 +5522,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_R_SLEEVE_LOCK_2": {
+        "description": "EAU Engine 2 R Sleeve Lock Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.gates.B_GALLEY_BUS_1_POWERED": {
         "description": "Galley Bus 1 powered",
         "data_type": "Boolean",
@@ -5481,7 +5656,7 @@
         "write_access": true
     },
     "system.analog.R_COM3_STANDBY": {
-        "description": "Radio standby freq input COM3",
+        "description": "Radio standby freq input COM3 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5593,7 +5768,7 @@
         "write_access": true
     },
     "system.analog.A_CDU2_BRIGHTNESS": {
-        "description": "CDU 2 brightness",
+        "description": "CDU 2 brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5607,7 +5782,7 @@
         "write_access": true
     },
     "system.analog.A_THROTTLE_REVERSE_RIGHT": {
-        "description": "Throttle reverser input right",
+        "description": "Throttle reverser input right [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5658,7 +5833,7 @@
     "system.config.CONFIG.Repositioning": {
         "description": "115: Repositioning",
         "data_type": "String",
-        "data_unit": "Always quick,Automatic,Always full",
+        "data_unit": "Always quick,Automatic,Always full,Stable,Stable/Blank displays",
         "read_access": true,
         "write_access": true
     },
@@ -5705,7 +5880,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_NAV_1_VOLUME": {
-        "description": "ASP OBS NAV 1 vol volume",
+        "description": "ASP OBS NAV 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5788,6 +5963,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.analog.A_DOUBLE_FC_TOEBRAKE_LEFT_FO": {
+        "description": "Toebrake left F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.numerical.N_IRS_DISP_RIGHT": {
         "description": "IRS Display right number",
         "data_type": "Double",
@@ -5797,6 +5979,13 @@
     },
     "system.switches.S_FIRE_CUTOUT_FO": {
         "description": "Fire warning 2 [0:Off, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.analog.A_FC_RUDDER_CL": {
+        "description": "Rudder control loaded input [-3000 - 3000]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5852,7 +6041,7 @@
         "write_access": false
     },
     "system.analog.R_ADF2_ACTIVE": {
-        "description": "Radio freq input ADF2",
+        "description": "Radio freq input ADF2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5929,7 +6118,7 @@
         "write_access": true
     },
     "system.analog.A_WR_GAIN": {
-        "description": "Weather Radar Gain",
+        "description": "Weather Radar Gain [0 - 10]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -5991,8 +6180,22 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_L_SLEEVE_LOCK_2": {
+        "description": "EAU Engine 2 L Sleeve Lock Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_RMP1_AM": {
         "description": "RMP Capt AM",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_L_SLEEVE_LOCK_1": {
+        "description": "EAU Engine 1 L Sleeve Lock Indicator",
         "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
@@ -6048,7 +6251,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_SVC_VOLUME": {
-        "description": "ASP FO SVC vol volume",
+        "description": "ASP FO SVC vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -6088,13 +6291,6 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
-    },
-    "system.timers.drivers.FDS": {
-        "description": "FDS",
-        "data_type": "Double",
-        "data_unit": "ms",
-        "read_access": true,
-        "write_access": false
     },
     "system.indicators.I_OH_EQUIP_COOLING_EXHAUST": {
         "description": "Equip cooling exhaust Off",
@@ -6188,7 +6384,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_FO_LIGHT_PANEL": {
-        "description": "MIP panel fo light",
+        "description": "MIP panel fo light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -6299,17 +6495,17 @@
         "read_access": true,
         "write_access": true
     },
-    "system.config.AC OPTIONS.wxRadarModel": {
-        "description": "115: Weather radar mode",
-        "data_type": "String",
-        "data_unit": "Single,Dual",
-        "read_access": true,
-        "write_access": true
-    },
     "system.switches.S_OH_IRS_SEL_R": {
         "description": "IRS right [0:Nav, 1:Off, 2:Align, 3:Att]",
         "data_type": "Int32",
         "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.config.AC OPTIONS.wxRadarModel": {
+        "description": "115: Weather radar mode",
+        "data_type": "String",
+        "data_unit": "Single,Dual",
         "read_access": true,
         "write_access": true
     },
@@ -6376,6 +6572,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.analog.A_FC_AILERON_CL": {
+        "description": "Aileron control loaded input [-3000 - 3000]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_OH_ELT": {
         "description": "ELT [0:Armed, 1:On]",
         "data_type": "Int32",
@@ -6417,6 +6620,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_EAU_DIR_CTRL_1": {
+        "description": "EAU Engine 1 Dir Cont Valve Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_OH_LIGHT_RETRACT_L_3POS": {
         "description": "Light Main Retract L 3 POS [0:Retracted, 1:Extended, 2:On]",
@@ -6460,13 +6670,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.config.UNITS.WeightUnit": {
-        "description": "31: Weight",
-        "data_type": "String",
-        "data_unit": "KG,LBS",
-        "read_access": true,
-        "write_access": true
-    },
     "system.switches.S_RMP2_PANEL_OFF": {
         "description": "RMP F/O panel off [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -6482,7 +6685,7 @@
         "write_access": false
     },
     "system.analog.A_FLAP": {
-        "description": "Flap input",
+        "description": "Flap input [0 - 8]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -6531,7 +6734,7 @@
         "write_access": true
     },
     "system.analog.R_HF1_ACTIVE": {
-        "description": "Radio freq input HF1",
+        "description": "Radio freq input HF1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -6621,6 +6824,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.config.AFDS FMS.vsReversion": {
+        "description": "22: VS-LVLCHG reversion",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.gates.B_ENGINE_VIBRATION_LEFT": {
         "description": "Vibrations Engine 1",
         "data_type": "Boolean",
@@ -6705,6 +6915,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_FC_RUDDER_CAPT": {
+        "description": "Rudder captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.audio.TCAS_Climb": {
         "description": "TCAS Climb",
         "data_type": "Byte",
@@ -6733,13 +6950,6 @@
         "read_access": true,
         "write_access": true
     },
-    "system.numerical.N_REMOTE_THROTTLE_LEFT": {
-        "description": "Remote thrust handle left",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
     "system.indicators.I_OH_ELEV_PITOT1": {
         "description": "Elev pitot Heat L",
         "data_type": "Byte",
@@ -6753,13 +6963,6 @@
         "data_unit": null,
         "read_access": false,
         "write_access": true
-    },
-    "system.audio.Audio_addon_L_Packs": {
-        "description": "Audio addon L Packs",
-        "data_type": "Byte",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
     },
     "system.indicators.I_OH_YAW_DAMPER": {
         "description": "Yaw damper",
@@ -6796,6 +6999,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.gates.B_LIGHT_WING": {
+        "description": "Lights Wing",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_CDU2_KEY_2": {
         "description": "CDU 2 KEY_2 [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -6804,14 +7014,14 @@
         "write_access": true
     },
     "system.analog.V_MCP_SPEED": {
-        "description": "MCP SPEED VAL",
+        "description": "MCP SPEED VAL [10 - 400]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.R_COM2_STANDBY": {
-        "description": "Radio standby freq input COM2",
+        "description": "Radio standby freq input COM2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7006,13 +7216,6 @@
         "read_access": true,
         "write_access": false
     },
-    "system.timers.drivers.phidget22": {
-        "description": "phidget22",
-        "data_type": "Double",
-        "data_unit": "ms",
-        "read_access": true,
-        "write_access": false
-    },
     "system.indicators.I_ASP_VHF_1_CALL": {
         "description": "ASP VHF 1 vol call",
         "data_type": "Byte",
@@ -7028,7 +7231,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_PA_VOLUME": {
-        "description": "ASP OBS PA vol volume",
+        "description": "ASP OBS PA vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7069,6 +7272,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_FC_TOEBRAKE_RIGHT_FO": {
+        "description": "Toebrake right F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_CDU2_KEY_FIX": {
         "description": "CDU 2 KEY_FIX [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -7089,6 +7299,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.analog.A_DOUBLE_FC_TRIM_ELEVATOR": {
+        "description": "Elevator trim analog input [0 - 200]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.switches.S_CDU2_KEY_I": {
         "description": "CDU 2 KEY_I [0:Normal, 1:Pushed]",
@@ -7174,6 +7391,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.switches.S_R575_ENG_2_ALTN_PWR_RELAY": {
+        "description": "ENG 2 ALTN POWER RELAY Switch [0:Open, 1:Closed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.indicators.I_OH_ELEC": {
         "description": "ELEC",
         "data_type": "Byte",
@@ -7240,6 +7464,13 @@
     "system.config.HGS.HGSFDArmed": {
         "description": "Armed FD symb",
         "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.switches.S_AIRSTAIRS_INTERNAL_EXTEND": {
+        "description": "Airstair internal extend [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
@@ -7412,6 +7643,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.indicators.I_EAU_L_SLEEVE_SYN_2": {
+        "description": "EAU Engine 2 L Sleeve Sync CLock Pwr Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.numerical.N_ADF1_STDBY_MODE": {
         "description": "Radio Standby mode ADF1",
         "data_type": "Double",
@@ -7552,16 +7790,16 @@
         "read_access": true,
         "write_access": false
     },
-    "system.audio.Audio_addon_R_Packs": {
-        "description": "Audio addon R Packs",
+    "system.indicators.I_MC_HYDRAULICS": {
+        "description": "Warn HYD",
         "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
         "write_access": false
     },
-    "system.indicators.I_MC_HYDRAULICS": {
-        "description": "Warn HYD",
-        "data_type": "Byte",
+    "system.numerical.N_CHRONO_CAP_U_L": {
+        "description": "Chrono capt 7seg upper left",
+        "data_type": "Double",
         "data_unit": null,
         "read_access": true,
         "write_access": false
@@ -7574,7 +7812,7 @@
         "write_access": false
     },
     "system.analog.R_COM1_STANDBY": {
-        "description": "Radio standby freq input COM1",
+        "description": "Radio standby freq input COM1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7616,11 +7854,18 @@
         "write_access": false
     },
     "system.analog.A_WR_TILT": {
-        "description": "Weather Radar Tilt",
+        "description": "Weather Radar Tilt [-15 - 15]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.numerical.N_CHRONO_CAP_U_R": {
+        "description": "Chrono capt 7seg upper right",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_ASP3_ADF_2_REC_LATCH": {
         "description": "ASP OBS ADF 2 vol latch [0:Off, 1:On]",
@@ -7727,8 +7972,15 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_FC_TILLER_CAPT": {
+        "description": "Tiller captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.analog.A_FC_TRIM_AILERON": {
-        "description": "Aileron Trim analog input",
+        "description": "Aileron Trim analog input [0 - 200]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7784,7 +8036,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_DU_L_INNER": {
-        "description": "Lower DU Brightness Inner",
+        "description": "Lower DU Brightness Inner [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7833,7 +8085,7 @@
         "write_access": false
     },
     "system.analog.A_MIP_CAPT_LIGHT_PANEL": {
-        "description": "MIP panel capt light",
+        "description": "MIP panel capt light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7917,14 +8169,14 @@
         "write_access": false
     },
     "system.analog.A_MIP_BRIGHTNESS_LO": {
-        "description": "Left Outboard Brightness",
+        "description": "Left Outboard Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_LI": {
-        "description": "Left Inboard Brightness",
+        "description": "Left Inboard Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -7994,7 +8246,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_ADF_1_VOLUME": {
-        "description": "ASP FO ADF 1 vol volume",
+        "description": "ASP FO ADF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8021,6 +8273,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.config.Units.WeightUnit": {
+        "description": "31: Weight",
+        "data_type": "String",
+        "data_unit": "KG,LBS",
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_ASP_SAT_1_SEND": {
         "description": "ASP SATCOM 1 vol send [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -8043,7 +8302,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_MARKER_VOLUME": {
-        "description": "ASP OBS Marker vol volume",
+        "description": "ASP OBS Marker vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8064,7 +8323,7 @@
         "write_access": true
     },
     "system.analog.R_ADF2_STANDBY": {
-        "description": "Radio standby freq input ADF2",
+        "description": "Radio standby freq input ADF2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8085,7 +8344,7 @@
         "write_access": true
     },
     "system.analog.V_OH_CONTCAB": {
-        "description": "CONT CAB selector",
+        "description": "CONT CAB selector [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8189,6 +8448,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.analog.A_DOUBLE_FC_ELEVATOR_FO": {
+        "description": "Elevator F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_MIP_STAB_OUT_OF_TRIM_PTT": {
         "description": "Stab out of trim PTT [0:Normal, 1:Pushed]",
         "data_type": "Int32",
@@ -8218,7 +8484,7 @@
         "write_access": true
     },
     "system.analog.A_MAP_LIGHT_FO": {
-        "description": "Map light F/O",
+        "description": "Map light F/O [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8273,6 +8539,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_R_SLEEVE_SYN_1": {
+        "description": "EAU Engine 1 R Sleeve Sync CLock Pwr Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.encoders.E_RUDDER_TRIM": {
         "description": "Rudder trim encoder",
         "data_type": "Int32",
@@ -8309,11 +8582,18 @@
         "write_access": false
     },
     "system.analog.V_MCP_COURSE1": {
-        "description": "MCP COURSE 1 VAL",
+        "description": "MCP COURSE 1 VAL [0 - 359]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.numerical.N_CHRONO_CAP_L_R": {
+        "description": "Chrono capt 7seg lower right",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.numerical.N_MULTINAV1_DISPLAY_MODE_STDBY": {
         "description": "Multi Nav CAPT standby display mode",
@@ -8323,7 +8603,7 @@
         "write_access": false
     },
     "system.analog.V_MCP_COURSE2": {
-        "description": "MCP COURSE 2 VAL",
+        "description": "MCP COURSE 2 VAL [0 - 359]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8392,6 +8672,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.numerical.N_CHRONO_CAP_L_L": {
+        "description": "Chrono capt 7seg lower left",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.gates.B_ATTEND_ACTIVE": {
         "description": "Attend active",
         "data_type": "Boolean",
@@ -8456,8 +8743,15 @@
         "write_access": false
     },
     "system.analog.A_FC_TILLER_FO": {
-        "description": "Tiller F/O input",
+        "description": "Tiller F/O input [0 - 1024]",
         "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.config.CONFIG.engineAutoRestart": {
+        "description": "115: Automatically restart engine after failure cleared",
+        "data_type": "Boolean",
         "data_unit": null,
         "read_access": true,
         "write_access": true
@@ -8638,7 +8932,7 @@
         "write_access": true
     },
     "system.analog.V_OH_FLTALT": {
-        "description": "Flight alt in",
+        "description": "Flight alt in [-1000 - 42000]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8659,7 +8953,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_SPKR_VOLUME": {
-        "description": "ASP FO Spkr vol volume",
+        "description": "ASP FO Spkr vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8785,7 +9079,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_NAV_2_VOLUME": {
-        "description": "ASP OBS NAV 2 vol volume",
+        "description": "ASP OBS NAV 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -8910,6 +9204,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.config.CONFIG.autoFailure": {
+        "description": "115: Failures: Auto failures",
+        "data_type": "String",
+        "data_unit": "None,Minor,All",
+        "read_access": true,
+        "write_access": true
+    },
     "system.audio.Packs_right_sound": {
         "description": "Packs right sound",
         "data_type": "Byte",
@@ -8930,6 +9231,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.config.CONFIG.PAPIFix": {
+        "description": "Align G/S to PAPI",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.switches.S_ASP3_VHF_3_REC": {
         "description": "ASP OBS VHF 3 vol [0:Off, 1:Pushed]",
@@ -9030,7 +9338,7 @@
         "write_access": false
     },
     "system.analog.A_FC_TRIM_ELEVATOR": {
-        "description": "Elevator trim analog input",
+        "description": "Elevator trim analog input [0 - 200]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9247,7 +9555,7 @@
         "write_access": false
     },
     "system.analog.A_MIP_FLOOD_AFDS": {
-        "description": "AFDS flood light",
+        "description": "AFDS flood light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9303,7 +9611,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_PANEL": {
-        "description": "Panel lights",
+        "description": "Panel lights [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9317,7 +9625,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_HF_2_VOLUME": {
-        "description": "ASP OBS HF 2 volume",
+        "description": "ASP OBS HF 2 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9330,12 +9638,26 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_FC_TOEBRAKE_LEFT_CAPT": {
+        "description": "Toebrake left captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_OH_WINDOW_HEAT_SR": {
         "description": "Window heat Side R [0:Off, 1:On]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.numerical.N_CHRONO_FO_L_L": {
+        "description": "Chrono f/o 7seg lower left",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_RMP2_VHF1": {
         "description": "RMP F/O VHF1 [0:Normal, 1:Pushed]",
@@ -9366,7 +9688,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_NAV_2_VOLUME": {
-        "description": "ASP FO NAV 2 vol volume",
+        "description": "ASP FO NAV 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9436,7 +9758,7 @@
         "write_access": true
     },
     "system.analog.A_ASP2_ADF_2_VOLUME": {
-        "description": "ASP FO ADF 2 vol volume",
+        "description": "ASP FO ADF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9445,6 +9767,13 @@
     "system.switches.S_MIP_AUTOLAND_PTT": {
         "description": "Autoland PTT [0:Normal, 1:Pushed]",
         "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.analog.A_DOUBLE_FC_TRIM_AILERON": {
+        "description": "Aileron Trim analog input [0 - 200]",
+        "data_type": "Double",
         "data_unit": null,
         "read_access": true,
         "write_access": true
@@ -9506,7 +9835,7 @@
         "write_access": false
     },
     "system.analog.V_MCP_ALT": {
-        "description": "MCP ALT VAL",
+        "description": "MCP ALT VAL [0 - 50000]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9519,9 +9848,23 @@
         "read_access": true,
         "write_access": true
     },
+    "system.numerical.N_CHRONO_FO_U_R": {
+        "description": "Chrono f/o 7seg upper right",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.gates.B_ASP2_BOOM": {
         "description": "ASP FO ASP Boom Out",
         "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_FAULT_2": {
+        "description": "EAU Engine 2 Fault Indicator",
+        "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
         "write_access": false
@@ -9535,6 +9878,13 @@
     },
     "system.indicators.I_OH_PSEU": {
         "description": "PSEU",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_FAULT_1": {
+        "description": "EAU Engine 1 Fault Indicator",
         "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
@@ -9582,6 +9932,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.analog.A_DOUBLE_FC_TOEBRAKE_RIGHT_CAPT": {
+        "description": "Toebrake right captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.gates.B_RECIRCULATION_FAN_2": {
         "description": "Recirc Fan R running",
         "data_type": "Boolean",
@@ -9598,6 +9955,13 @@
     },
     "system.switches.S_OH_IRS_KEY_5": {
         "description": "IRS Keypad 5 [0:Off, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.switches.S_EAU_DEPLOY_2": {
+        "description": "EAU Engine 2 Deploy Faults Switch [0:Normal, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -9778,6 +10142,20 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_R_SLEEVE_STOW_2": {
+        "description": "EAU Engine 2 R Sleeve Stow Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_R_SLEEVE_STOW_1": {
+        "description": "EAU Engine 1 R Sleeve Stow Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_ASP3_FLT_REC": {
         "description": "ASP OBS FLT vol",
         "data_type": "Byte",
@@ -9793,7 +10171,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_RI_INNER": {
-        "description": "Right Inboard Brightness Inner",
+        "description": "Right Inboard Brightness Inner [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10135,6 +10513,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.config.Units.TemperatureUnit": {
+        "description": "31: Temperature",
+        "data_type": "String",
+        "data_unit": "C,F",
+        "read_access": true,
+        "write_access": true
+    },
     "system.switches.S_ASP3_NAV_1_REC": {
         "description": "ASP OBS NAV 1 vol [0:Off, 1:Pushed]",
         "data_type": "Int32",
@@ -10157,7 +10542,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_VHF_1_VOLUME": {
-        "description": "ASP OBS VHF 1 vol volume",
+        "description": "ASP OBS VHF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10255,7 +10640,7 @@
         "write_access": true
     },
     "system.analog.R_XPDR2": {
-        "description": "Radio freq input XPDR2",
+        "description": "Radio freq input XPDR2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10283,7 +10668,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_VHF_1_VOLUME": {
-        "description": "ASP FO VHF 1 vol volume",
+        "description": "ASP FO VHF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10297,7 +10682,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_ADF_1_VOLUME": {
-        "description": "ASP ADF 1 vol volume",
+        "description": "ASP ADF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10346,7 +10731,7 @@
         "write_access": false
     },
     "system.analog.A_ASP3_HF_1_VOLUME": {
-        "description": "ASP OBS HF 1 volume",
+        "description": "ASP OBS HF 1 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10457,6 +10842,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.config.CONFIG.failureRate": {
+        "description": "115: Failures: Maintenance",
+        "data_type": "String",
+        "data_unit": "Realistic,High",
+        "read_access": true,
+        "write_access": true
+    },
     "system.indicators.I_OH_STDBY_POWER_OFF": {
         "description": "Standby pwr off",
         "data_type": "Byte",
@@ -10549,15 +10941,29 @@
         "write_access": true
     },
     "system.analog.V_OH_AFTCAB": {
-        "description": "AFT CAB selector",
+        "description": "AFT CAB selector [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
+    "system.indicators.I_EAU_NO_FAULTS_2": {
+        "description": "EAU Engine 2 No Faults Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.gates.B_MIP_CHRONO_CAPT_LABEL_RUN": {
         "description": "Chrono capt  label RUN",
         "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.indicators.I_EAU_NO_FAULTS_1": {
+        "description": "EAU Engine 1 No Faults Indicator",
+        "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
         "write_access": false
@@ -10723,6 +11129,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.numerical.N_CHRONO_FO_U_L": {
+        "description": "Chrono f/o 7seg upper left",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_RADIO_ADF2_ANT": {
         "description": "ADF2 ANT",
         "data_type": "Byte",
@@ -10745,7 +11158,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_VHF_1_VOLUME": {
-        "description": "ASP VHF 1 vol volume",
+        "description": "ASP VHF 1 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10801,14 +11214,14 @@
         "write_access": true
     },
     "system.analog.A_HUD_BRIGHTNESS": {
-        "description": "Hud Brightness",
+        "description": "Hud Brightness [50 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.R_ADF1_STANDBY": {
-        "description": "Radio standby freq input ADF1",
+        "description": "Radio standby freq input ADF1 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10821,8 +11234,15 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_DIR_CTRL_2": {
+        "description": "EAU Engine 2 Dir Cont Valve Sensor Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.analog.A_ASP2_SAT_2_VOLUME": {
-        "description": "ASP FO SATCOM 2 vol volume",
+        "description": "ASP FO SATCOM 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -10878,7 +11298,7 @@
         "write_access": true
     },
     "system.analog.A_CHART_LIGHT_FO": {
-        "description": "Chart light F/O",
+        "description": "Chart light F/O [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11073,8 +11493,15 @@
         "read_access": true,
         "write_access": false
     },
+    "system.numerical.N_CHRONO_FO_L_MODE": {
+        "description": "Chrono f/o lower display mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.analog.A_ASP_VHF_2_VOLUME": {
-        "description": "ASP VHF 2 vol volume",
+        "description": "ASP VHF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11151,7 +11578,7 @@
         "write_access": true
     },
     "system.analog.A_WR_GAIN_RIGHT": {
-        "description": "Weather Radar Gain Right",
+        "description": "Weather Radar Gain Right [0 - 10]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11241,6 +11668,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_AIRSTAIRS_INTERNAL_EXTEND": {
+        "description": "Airstair internal extend indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_OH_TRIMAIR": {
         "description": "Trim air [0:Off, 1:On]",
         "data_type": "Int32",
@@ -11298,7 +11732,7 @@
         "write_access": false
     },
     "system.analog.A_FC_AILERON_CAPT": {
-        "description": "Aileron captain input",
+        "description": "Aileron captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11340,7 +11774,7 @@
         "write_access": true
     },
     "system.analog.A_COMBINED_THROTTLE_RIGHT": {
-        "description": "Combined Throttle/Reverser input right",
+        "description": "Combined Throttle/Reverser input right [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11473,14 +11907,14 @@
         "write_access": true
     },
     "system.analog.A_FC_TOEBRAKE_LEFT_CAPT": {
-        "description": "Toebrake left captain input",
+        "description": "Toebrake left captain input [0 - 1024]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.V_MCP_HEADING": {
-        "description": "MCP HEADING VAL",
+        "description": "MCP HEADING VAL [0 - 359]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11543,7 +11977,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_PA_VOLUME": {
-        "description": "ASP FO PA vol volume",
+        "description": "ASP FO PA vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11690,14 +12124,14 @@
         "write_access": false
     },
     "system.analog.V_OH_LANDALT": {
-        "description": "Land alt in",
+        "description": "Land alt in [-1000 - 14000]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.A_THROTTLE_REVERSE_LEFT": {
-        "description": "Throttle reverser input left",
+        "description": "Throttle reverser input left [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11802,7 +12236,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_VHF_3_VOLUME": {
-        "description": "ASP VHF 3 vol volume",
+        "description": "ASP VHF 3 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -11955,6 +12389,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.analog.A_DOUBLE_THROTTLE_RIGHT": {
+        "description": "Throttle input right [0 - 255]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.indicators.I_ASP3_VHF_1_REC": {
         "description": "ASP OBS VHF 1 vol",
         "data_type": "Byte",
@@ -12025,12 +12466,33 @@
         "read_access": true,
         "write_access": true
     },
+    "system.gates.B_OH_PASS_OXY_DEPLOYED_R": {
+        "description": "Pass oxy right deployed",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "system.gates.B_OH_PASS_OXY_DEPLOYED_L": {
+        "description": "Pass oxy left deployed",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_ASP_SVC_CALL": {
         "description": "ASP SVC vol call",
         "data_type": "Byte",
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.analog.A_DOUBLE_FC_AILERON_FO": {
+        "description": "Aileron F/O input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.gates.B_USER_8": {
         "description": "User 8 out",
@@ -12087,6 +12549,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.switches.S_EAU_DEPLOY_1": {
+        "description": "EAU Engine 1 Deploy Faults Switch [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.gates.B_USER_3": {
         "description": "User 3 out",
@@ -12194,7 +12663,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_ADF_2_VOLUME": {
-        "description": "ASP ADF 2 vol volume",
+        "description": "ASP ADF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -12243,7 +12712,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_MCP_BACKGROUND": {
-        "description": "MCP background light",
+        "description": "MCP background light [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -12459,6 +12928,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.numerical.N_CHRONO_CAP_L_MODE": {
+        "description": "Chrono capt lower display mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_CDU2_CALL": {
         "description": "CDU2 CALL",
         "data_type": "Byte",
@@ -12467,7 +12943,7 @@
         "write_access": false
     },
     "system.analog.R_NAV2_ACTIVE": {
-        "description": "Radio freq input NAV2",
+        "description": "Radio freq input NAV2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -12542,6 +13018,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.config.Units.Time": {
+        "description": "31: Time",
+        "data_type": "String",
+        "data_unit": "Local time,UTC,FS time",
+        "read_access": true,
+        "write_access": true
     },
     "system.config.AC OPTIONS.sfp": {
         "description": "115: Short field Package",
@@ -12620,6 +13103,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.indicators.I_EAU_R_SLEEVE_SYN_2": {
+        "description": "EAU Engine 2 R Sleeve Sync CLock Pwr Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.indicators.I_ASP_VHF_3_CALL": {
         "description": "ASP VHF 3 vol call",
         "data_type": "Byte",
@@ -12647,6 +13137,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_AIRSTAIRS_INTERNAL_RETRACT": {
+        "description": "Airstair internal retract indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_MULTINAV2_7": {
         "description": "Multi Nav F/O 7 [0:Normal, 1:Pushed]",
@@ -12768,7 +13265,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_HF_1_VOLUME": {
-        "description": "ASP HF 1 volume",
+        "description": "ASP HF 1 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -12850,6 +13347,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.analog.A_DOUBLE_FC_ELEVATOR_CAPT": {
+        "description": "Elevator captain input [0 - 1024]",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.indicators.I_OH_TEMP_PROBE": {
         "description": "Temp Probe Heat",
@@ -12998,22 +13502,15 @@
         "read_access": true,
         "write_access": false
     },
-    "system.numerical.N_REMOTE_THROTTLE_RIGHT": {
-        "description": "Remote thrust handle right",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "system.switches.S_OH_IRS_KEY_9": {
-        "description": "IRS Keypad 9 [0:Off, 1:Pushed]",
+    "system.switches.S_MIP_ISFD_HP_INCH": {
+        "description": "ISFD HP/IN [0:Off, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
-    "system.switches.S_MIP_ISFD_HP_INCH": {
-        "description": "ISFD HP/IN [0:Off, 1:Pushed]",
+    "system.switches.S_OH_IRS_KEY_9": {
+        "description": "IRS Keypad 9 [0:Off, 1:Pushed]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13076,7 +13573,7 @@
         "write_access": false
     },
     "system.analog.A_ASP_SVC_VOLUME": {
-        "description": "ASP SVC vol volume",
+        "description": "ASP SVC vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13166,6 +13663,13 @@
         "read_access": true,
         "write_access": false
     },
+    "system.gates.B_LIGHT_POSITION": {
+        "description": "Lights Position",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_OH_FLT_CTRL_A": {
         "description": "Flt Ctrl A [0:Off, 1:Stby Rud, 2:A On]",
         "data_type": "Int32",
@@ -13181,28 +13685,28 @@
         "write_access": true
     },
     "system.analog.A_CDU1_BRIGHTNESS": {
-        "description": "CDU 1 brightness",
+        "description": "CDU 1 brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.V_MCP_VS": {
-        "description": "MCP V/S VAL",
+        "description": "MCP V/S VAL [-6000 - 6000]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.R_NAV2_STANDBY": {
-        "description": "Radio standby freq input NAV2",
+        "description": "Radio standby freq input NAV2 [0 - 999999]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
         "write_access": true
     },
     "system.analog.A_ASP3_VHF_2_VOLUME": {
-        "description": "ASP OBS VHF 2 vol volume",
+        "description": "ASP OBS VHF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13334,6 +13838,20 @@
         "read_access": true,
         "write_access": true
     },
+    "system.switches.S_EAU_RESET_1": {
+        "description": "EAU Engine 1 Fault Reset Switch [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "system.switches.S_EAU_RESET_2": {
+        "description": "EAU Engine 2 Fault Reset Switch [0:Normal, 1:Pushed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "system.indicators.I_FW_FO": {
         "description": "Fire warning 2",
         "data_type": "Byte",
@@ -13412,7 +13930,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_ADF_2_VOLUME": {
-        "description": "ASP OBS ADF 2 vol volume",
+        "description": "ASP OBS ADF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13475,7 +13993,7 @@
         "write_access": true
     },
     "system.analog.A_THROTTLE_RIGHT": {
-        "description": "Throttle input right",
+        "description": "Throttle input right [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13524,7 +14042,7 @@
         "write_access": true
     },
     "system.analog.A_ASP3_VHF_3_VOLUME": {
-        "description": "ASP OBS VHF 3 vol volume",
+        "description": "ASP OBS VHF 3 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13550,6 +14068,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "system.switches.S_R576_ENG_1_ALTN_PWR_RELAY": {
+        "description": "ENG 1 ALTN POWER RELAY Switch [0:Open, 1:Closed]",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "system.switches.S_OH_IRS_KEY_CLR": {
         "description": "IRS Keypad CLR [0:Off, 1:Pushed]",
@@ -13698,6 +14223,13 @@
         "read_access": true,
         "write_access": true
     },
+    "system.indicators.I_EAU_L_SLEEVE_SYN_1": {
+        "description": "EAU Engine 1 L Sleeve Sync CLock Pwr Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "system.switches.S_MIP_N1_SET_VALUE": {
         "description": "N1 SET Rotary momentary [0:Center, 1:Up, 2:Down, 3:Up fast, 4:Down fast]",
         "data_type": "Int32",
@@ -13713,7 +14245,7 @@
         "write_access": false
     },
     "system.analog.A_ASP2_VHF_2_VOLUME": {
-        "description": "ASP FO VHF 2 vol volume",
+        "description": "ASP FO VHF 2 vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13734,7 +14266,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_SPKR_VOLUME": {
-        "description": "ASP Spkr vol volume",
+        "description": "ASP Spkr vol volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13767,6 +14299,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "system.indicators.I_R_SLEEVE_LOCK_1": {
+        "description": "EAU Engine 1 R Sleeve Lock Indicator",
+        "data_type": "Byte",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.switches.S_ASP2_SPKR_REC_LATCH": {
         "description": "ASP FO Spkr vol latch [0:Off, 1:On]",
@@ -13832,7 +14371,7 @@
         "write_access": true
     },
     "system.analog.A_THROTTLE_LEFT": {
-        "description": "Throttle input left",
+        "description": "Throttle input left [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13916,7 +14455,7 @@
         "write_access": true
     },
     "system.analog.A_ASP_HF_2_VOLUME": {
-        "description": "ASP HF 2 volume",
+        "description": "ASP HF 2 volume [0 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13930,7 +14469,7 @@
         "write_access": true
     },
     "system.analog.A_MIP_BRIGHTNESS_DU_L": {
-        "description": "Lower DU Brightness",
+        "description": "Lower DU Brightness [40 - 255]",
         "data_type": "Int32",
         "data_unit": null,
         "read_access": true,
@@ -13980,48 +14519,6 @@
     },
     "efb.aftStairs": {
         "description": "EFB Aft stairs",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.sds": {
-        "description": "Sidestick dampening simulation on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.rudderDamping": {
-        "description": "Rudder dampening on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.encoderAccelEnabled": {
-        "description": "Encoder acceleration",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.cabinVisibility": {
-        "description": "EFB cabin visibility",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.autoDoor": {
-        "description": "EFB autoDoor",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.autoJetway": {
-        "description": "EFB autoJetway",
         "data_type": "Boolean",
         "data_unit": null,
         "read_access": true,
@@ -14132,6 +14629,13 @@
         "read_access": true,
         "write_access": true
     },
+    "efb.aircraft.type": {
+        "description": "Type of the aircraft, e.g. A320",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "efb.plannedCargoKg": {
         "description": "Planned cargo KG",
         "data_type": "Double",
@@ -14223,6 +14727,20 @@
         "read_access": true,
         "write_access": true
     },
+    "efb.personalizedPageLink": {
+        "description": "Personalized Page Link",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "efb.personalizedPageName": {
+        "description": "Personalized Page Name",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "efb.chartModeDefault": {
         "description": "EFB chart mode default",
         "data_type": "String",
@@ -14251,61 +14769,12 @@
         "read_access": true,
         "write_access": true
     },
-    "efb.gsx.autoCatering": {
-        "description": "Whether to automatically call catering while refuelling with GSX",
-        "data_type": "Boolean",
+    "efb.cids.flightNumber": {
+        "description": "Flight number",
+        "data_type": "String",
         "data_unit": null,
         "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.boardingServiceSequence": {
-        "description": "GSX boarding service sequence. GsxBoardingServiceSequence enum",
-        "data_type": "Int32",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.autoPushback": {
-        "description": "GSX auto-pushback on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.autoDeboard": {
-        "description": "GSX auto-deboard on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.autoConnectGpu": {
-        "description": "GSX auto-connect GPU on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.autoDisconnectGpu": {
-        "description": "GSX auto-disconnect GPU on/off",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.shouldWaitForFuelToFinishToBoard": {
-        "description": "GSX wait for fueller to finish before start boarding pax & cargo",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "efb.gsx.autoSelectOperator": {
-        "description": "GSX auto-select operator. If enabled, operator selection menus will be automatically handled.",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
+        "write_access": false
     },
     "efb.naviSec": {
         "description": "Navigraph token",
@@ -14389,6 +14858,104 @@
         "data_type": "Boolean",
         "data_unit": null,
         "read_access": false,
+        "write_access": true
+    },
+    "simulator.sessionrecorder.filename": {
+        "description": "File name for session recording",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.sessionrecorder.elapsed.seconds": {
+        "description": "Session recorder elapsed time in seconds",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "debug.autopilot.rudder.p": {
+        "description": "Pitch rate P",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.rudder.d": {
+        "description": "Pitch rate D",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.pitchrate.p": {
+        "description": "Pitch rate P",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.pitch.p": {
+        "description": "Pitch P",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.pitch.D": {
+        "description": "Pitch D",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.elevatorFactor": {
+        "description": "Elevator factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.autopilot.pitch.maxrate": {
+        "description": "Maximum autopilot pitch rate",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.marker": {
+        "description": "Distance marker",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.lowLatencyHz": {
+        "description": "Low latency data update frequency",
+        "data_type": "Int32",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.papiBias": {
+        "description": "Papi bias",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.UseFpaForPitch": {
+        "description": "Use FPA for pitch",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "debug.NewDisplayProtocol": {
+        "description": "Use new display protocol",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
         "write_access": true
     },
     "DEU.PFDWarning": {
@@ -14763,7 +15330,7 @@
         "write_access": false
     },
     "aircraft.radio.nav1.horizontalDeviation": {
-        "description": "Horizontal deviation from localiser of NAV1 in dots (NaN if no signal)",
+        "description": "Horizontal deviation from localizer of NAV1 in dots (NaN if no signal)",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
@@ -14784,7 +15351,7 @@
         "write_access": false
     },
     "aircraft.radio.nav2.horizontalDeviation": {
-        "description": "Horizontal deviation from localiser of NAV1 in dots (NaN if no signal)",
+        "description": "Horizontal deviation from localizer of NAV1 in dots (NaN if no signal)",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
@@ -14846,15 +15413,15 @@
         "read_access": true,
         "write_access": false
     },
-    "aircraft.radio.ILS1.distance.localiser": {
-        "description": "ILS1 distance to localiser transmitter in NM",
+    "aircraft.radio.ILS1.distance.localizer": {
+        "description": "ILS1 distance to localizer transmitter in NM",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
         "write_access": false
     },
-    "aircraft.radio.ILS2.distance.localiser": {
-        "description": "ILS1 distance to localiser transmitter in NM",
+    "aircraft.radio.ILS2.distance.localizer": {
+        "description": "ILS1 distance to localizer transmitter in NM",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
@@ -14871,48 +15438,6 @@
         "description": "Engine 1 thrust",
         "data_type": "Double",
         "data_unit": "lbs",
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.oil.pressure": {
-        "description": "Engine 1 oil pressure",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.oil.pressure": {
-        "description": "Engine 2 oil pressure",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.oil.quantity": {
-        "description": "Engine 1 oil quantity",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.oil.quantity": {
-        "description": "Engine 2 oil quantity",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.oil.temperature": {
-        "description": "Engine 1 oil temperature",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.oil.temperature": {
-        "description": "Engine 2 oil temperature",
-        "data_type": "Double",
-        "data_unit": null,
         "read_access": true,
         "write_access": false
     },
@@ -14967,90 +15492,6 @@
     },
     "aircraft.engine2.FF": {
         "description": "Engine 2 FF",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.n1": {
-        "description": "Engine 1 N1 percent",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.n1": {
-        "description": "Engine 2 N1 percent",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.n2": {
-        "description": "Engine 1 N2 percent",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.n2": {
-        "description": "Engine 2 N2 percent",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.egt": {
-        "description": "Engine 1 EGT",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.egt": {
-        "description": "Engine 2 EGT",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.ff.kg": {
-        "description": "Engine 1 Fuel flow in kg/hour",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.ff.kg": {
-        "description": "Engine 2 Fuel flow in kg/hour",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.ff.lbs": {
-        "description": "Engine 1 Fuel flow in lbs/hour",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.ff.lbs": {
-        "description": "Engine 2 Fuel flow in lbs/hour",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.1.vib": {
-        "description": "Engine 1 vibration",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": false
-    },
-    "aircraft.engines.2.vib": {
-        "description": "Engine 2 vibration",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
@@ -15132,6 +15573,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "environment.icing.probe": {
+        "description": "Icing factor between 0 and 1",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "environment.airtemperature": {
         "description": "Outside air temperature in kelvin",
@@ -15237,6 +15685,13 @@
         "data_unit": null,
         "read_access": false,
         "write_access": true
+    },
+    "aircraft.repositioning": {
+        "description": "Aircraft is trimming for repositioning",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "system.sdk.normalizeIndicators": {
         "description": "Normalize values of indicators in SDK to off, bright and on",
@@ -15503,6 +15958,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "aircraft.hydraulics.generic.availabilityThreshold": {
+        "description": "Hydraulics availability threshold. PSI value at which hydraulics are considered \"available\"",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "aircraft.fms.origin": {
         "description": "Origin airport of FMS route",
@@ -15826,6 +16288,300 @@
         "read_access": true,
         "write_access": false
     },
+    "aircraft.autoflight.autothrottle.scalar.low": {
+        "description": "Autothrottle acceleration scalar low bank",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.scalar.high": {
+        "description": "Autothrottle acceleration scalar high Bank",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.maxAcceleration": {
+        "description": "Autothrottle max commanded acceleration",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.maxAcceleration.se ": {
+        "description": "Autothrottle max commanded acceleration single engine",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.scalar.low.se": {
+        "description": "Autothrottle acceleration scalar low bank single engine",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.scalar.high.se": {
+        "description": "Autothrottle acceleration scalar high Bank single engine",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.deltaVlsThreshold": {
+        "description": "Autothrottle Vls delta under which deceleration is guarded",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.maxDeceleration": {
+        "description": "Autothrottle guarded deceleration maximum value at Vls",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.singleEngineDampener.highspeed": {
+        "description": "Autothrottle single engine dampened mode high speed cutoff",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.singleEngineDampener.lowspeed": {
+        "description": "Autothrottle single engine dampened mode low speed cutoff",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.gain": {
+        "description": "Autothrottle gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.gain.singleEngine": {
+        "description": "Gain factor applied during single engine",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.accelerationTimeFactor": {
+        "description": "Autothrottle acceleration filter time factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.speedTimeFactor": {
+        "description": "Autothrottle speed filter time factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.gain.softAlt": {
+        "description": "Autothrottle gain in softAlt mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.gain.machMode": {
+        "description": "Autothrottle gain in mach mode",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autothrottle.gain.climbBuildup": {
+        "description": "Autothrottle gain during climb buildup",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.yaw.dutchRoll.gain": {
+        "description": "Dutch roll augmentation",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.McpSpeed_TargetPitchFactor": {
+        "description": "Mcp speed mode target pitch factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.adaptiveCmdDifferential": {
+        "description": "Enable IAS based CMD differential",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.adaptive": {
+        "description": "Use adaptive gain in autopilot pitch",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.proportional.high": {
+        "description": "Autopilot pitch proportional gain high",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.proportional.goAround": {
+        "description": "Autopilot pitch proportional gain go around",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.proportional.low": {
+        "description": "Autopilot pitch proportional gain low",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.differential.high": {
+        "description": "Autopilot pitch differential gain high",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.differential.low": {
+        "description": "Autopilot pitch differential gain low",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.highSpeed": {
+        "description": "Autopilot speed for high gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.lowSpeed": {
+        "description": "Autopilot speed for low gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.autopilot.pitch.cmdLimit": {
+        "description": "Max cmd input for pitch",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.elevatorRateLimit": {
+        "description": "Elevator rate limit in percent",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.feedForward": {
+        "description": "Pitch feed forward gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.proportional": {
+        "description": "Pitch proportional gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.differential": {
+        "description": "Pitch differential gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.integral": {
+        "description": "Pitch integral gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.accel.pitchGain": {
+        "description": "Acceleration pitch gain",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.uniformAxis": {
+        "description": "Rescale negative pitch range",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.maximumRate": {
+        "description": "Maximum pitch rate for AP roll channel",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.roll.maximumRate": {
+        "description": "Maximum roll rate for AP roll channel",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.yawDamper.D": {
+        "description": "Yaw damper D factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.yawDamper.P": {
+        "description": "Yaw damper P factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.reference.base": {
+        "description": "Pitch reference base filter time",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "aircraft.autoflight.pitch.reference.factor": {
+        "description": "Pitch reference aoa factor",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
     "simconnect.ticksPerSecond": {
         "description": "Current SimConnect ticks per second",
         "data_type": "Double",
@@ -15931,6 +16687,202 @@
         "read_access": true,
         "write_access": false
     },
+    "aircraft.engines.1.simvalue": {
+        "description": "Simulator throttle value",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.simvalue": {
+        "description": "Simulator throttle value",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.reset": {
+        "description": "Reset engine to cold state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": false,
+        "write_access": true
+    },
+    "aircraft.engines.2.reset": {
+        "description": "Reset engine to cold state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": false,
+        "write_access": true
+    },
+    "aircraft.engines.1.vib": {
+        "description": "vibration",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.vib": {
+        "description": "vibration",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.oil.temperature": {
+        "description": "Engine oil temperature",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.oil.temperature": {
+        "description": "Engine oil temperature",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.oil.pressure": {
+        "description": "Engine oil pressure",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.oil.pressure": {
+        "description": "Engine oil pressure",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.oil.quantity": {
+        "description": "Engine oil quantity",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.oil.quantity": {
+        "description": "Engine oil quantity",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.RPM.n1": {
+        "description": "N1 rotation speed",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.RPM.n1": {
+        "description": "N1 rotation speed",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.RPM.n2": {
+        "description": "N2 rotation speed",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.RPM.n2": {
+        "description": "N2 rotation speed",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.n1": {
+        "description": "N1 percent",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.n1": {
+        "description": "N1 percent",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.n2": {
+        "description": "N2 percent",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.n2": {
+        "description": "N2 percent",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.n2 raw": {
+        "description": "N2 percent raw",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.n2 raw": {
+        "description": "N2 percent raw",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.egt": {
+        "description": "EGT in celcius",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.egt": {
+        "description": "EGT in celcius",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.ff.kg": {
+        "description": "Fuel flow in kg/hour",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.ff.kg": {
+        "description": "Fuel flow in kg/hour",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.1.ff.lbs": {
+        "description": "Fuel flow in lbs/hour",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
+    "aircraft.engines.2.ff.lbs": {
+        "description": "Fuel flow in lbs/hour",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "groundservice.groundpower": {
         "description": "Electric ground service connection",
         "data_type": "Boolean",
@@ -15941,41 +16893,6 @@
     "aircraft.datalink.VHF3Data": {
         "description": "VHF3 in data mode",
         "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "aircraft.autoflight.PitchP": {
-        "description": "Pitch P",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "aircraft.autoflight.PitchI": {
-        "description": "Pitch IO",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "aircraft.autoflight.PitchD": {
-        "description": "Pitch D",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "aircraft.autoflight.yaw.dutchRoll.gain": {
-        "description": "Dutch roll augmentation",
-        "data_type": "Double",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
-    },
-    "aircraft.autoflight.McpSpeed_TargetPitchFactor": {
-        "description": "Mcp speed mode target pitch factor",
-        "data_type": "Double",
         "data_unit": null,
         "read_access": true,
         "write_access": true
@@ -16022,12 +16939,26 @@
         "read_access": true,
         "write_access": false
     },
+    "objects.LNAVHistory.value": {
+        "description": "JSON value",
+        "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
+    },
     "aircraft.cg": {
         "description": "Center of gravity in %MAC",
         "data_type": "Double",
         "data_unit": null,
         "read_access": true,
         "write_access": true
+    },
+    "aircraft.zfwcg": {
+        "description": "Center of gravity in %MAC fro current ZFW",
+        "data_type": "Double",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": false
     },
     "aircraft.weight.zfw": {
         "description": "Zero fuel weight",
@@ -16063,6 +16994,13 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
+    },
+    "simulator.freeze": {
+        "description": "Control for freezing the position(lat/lon) of the aircraft",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
     },
     "simulator.connected": {
         "description": "True if the underlying simulator is connected",
@@ -16245,13 +17183,6 @@
         "data_unit": null,
         "read_access": true,
         "write_access": false
-    },
-    "simulator.freeze": {
-        "description": "Control for freezing the position(lat/lon) of the aircraft",
-        "data_type": "Boolean",
-        "data_unit": null,
-        "read_access": true,
-        "write_access": true
     },
     "simulator.freeze.alt": {
         "description": "Control for freezing the altitude of the aircraft",
@@ -16445,6 +17376,188 @@
     "aircraft.datalink.printer.control": {
         "description": "SDK printer control. Commands: [Query: returns number of print jobs on hold in queue] [Print: returns the contetn of the first print job available]",
         "data_type": "String",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.brunnervalid": {
+        "description": "Check if Brunner control loading host and port are valid",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.brunnerconnected": {
+        "description": "Get Brunner connection status",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.simconnected": {
+        "description": "Get simulation connection status",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.elevator": {
+        "description": "Get pilot elevator device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.elevatortrim": {
+        "description": "Get pilot elevator trim device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.aileron": {
+        "description": "Get pilot aileron device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.ailerontrim": {
+        "description": "Get pilot aileron trim device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.rudder": {
+        "description": "Get pilot rudder device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.ruddertrim": {
+        "description": "Get pilot rudder trim device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.collective": {
+        "description": "Get pilot collective device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.nosewheel": {
+        "description": "Get pilot nose wheel device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.brakeleft": {
+        "description": "Get pilot brake left device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.pilot.brakeright": {
+        "description": "Get pilot brake right device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.elevator": {
+        "description": "Get copilot elevator device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.elevatortrim": {
+        "description": "Get pilot elevator device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.aileron": {
+        "description": "Get copilot aileron device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.ailerontrim": {
+        "description": "Get copilot aileron trim device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.rudder": {
+        "description": "Get copilot rudder device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.ruddertrim": {
+        "description": "Get copilot rudder trim device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.collective": {
+        "description": "Get copilot collective device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.nosewheel": {
+        "description": "Get copilot nose wheel device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.brakeleft": {
+        "description": "Get copilot brake left device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.copilot.brakeright": {
+        "description": "Get copilot brake right device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.general.throttle1": {
+        "description": "Get general throttle 1 device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.general.throttle2": {
+        "description": "Get general throttle 2 device state",
+        "data_type": "Boolean",
+        "data_unit": null,
+        "read_access": true,
+        "write_access": true
+    },
+    "simulator.controlloading.devicestates.general.speedbrake": {
+        "description": "Get general speedbrake device state",
+        "data_type": "Boolean",
         "data_unit": null,
         "read_access": true,
         "write_access": true

@@ -3,7 +3,7 @@
         "is_enable": true
     },
     "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic.py": {
-        "is_enable": true
+        "is_enable": false
     },
     "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\test_logic0.py": {
         "is_enable": true
@@ -22,5 +22,68 @@
     },
     "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_test.py": {
         "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_v3.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_v2.py": {
+        "is_enable": true
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_v3_test.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_v4_test.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\efis_logic.py": {
+        "is_enable": true
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_v5_test.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_A739_v1.py": {
+        "is_enable": false
+    },
+    "C:\\Users\\hfbet\\AppData\\Local\\AES-Aviologic\\config\\logic\\mcdu_logic_A739_v2.py": {
+        "is_enable": false
+    },
+    "LogicBase:clock_logic": {
+        "is_enable": true
+    },
+    "LogicBase:efis_logic": {
+        "is_enable": true
+    },
+    "LogicBase:hud_logic": {
+        "is_enable": true
+    },
+    "LogicBase:hud_logic_test": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_A739_v1": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_A739_v2": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_test": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_v2": {
+        "is_enable": true
+    },
+    "LogicBase:mcdu_logic_v3_test": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_v4_test": {
+        "is_enable": false
+    },
+    "LogicBase:mcdu_logic_v5_test": {
+        "is_enable": false
+    },
+    "LogicBase:test_logic0": {
+        "is_enable": true
     }
 }

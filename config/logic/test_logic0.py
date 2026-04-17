@@ -26,25 +26,25 @@ class Logic:
         rudder_x = [-17, -15, -10, -5, 0, 5, 10, 15, 17]
         self.rdsInp = interpolate.interp1d(rudder_x, rudder_y, kind="linear")
 
-        # Roll Angles
-        sai_roll_y = [6, 3.15, 1.55, 0, -3]
-        # Roll prosim Values
-        sai_roll_x = [-180, -90.0, 0, 90.0, 180]
-        self.saiRollInp = interpolate.interp1d(sai_roll_x, sai_roll_y, kind="linear")
+        # SAI Vertical Needle Angles
+        sai_needle_vt_y =  [3.0, -1.75, 0, 1.75]
+        # SAI Vertical Needle prosim Values
+        sai_needle_vt_x = [-40, -39, 0, 40]
+        self.saiNdlVertInp = interpolate.interp1d(sai_needle_vt_x, sai_needle_vt_y, kind="linear")
 
-        # Pitch Angles
-        sai_pitch_y =  [6, 3.85, 1.55, -0.5, -3]
-        # Pitch prosim Values
-        sai_pitch_x = [-180, -90.0, 0, 90.0, 180]
-        self.saiPitchInp = interpolate.interp1d(sai_pitch_x, sai_pitch_y, kind="linear")
+        # SAI Horizontal Needle Angles
+        sai_needle_hz_y =  [1.75, 0, -1.75, 3.0]
+        # SAI Horizontal Needle prosim Values
+        sai_needle_hz_x = [-25, 0, 24, 25]
+        self.saiNdlHozInp = interpolate.interp1d(sai_needle_hz_x, sai_needle_hz_y, kind="linear")
 
 
     async def update(self):
         self.vars.flaps_r.value = float(self.flpInpl(self.datarefs.prosim.flaps_r.value))
         self.vars.flaps_l.value = float(self.flpInpl(self.datarefs.prosim.flaps_l.value))
         self.vars.rudder_trim.value = float(self.rdsInp(self.datarefs.prosim.rudder_trim.value))
-        self.vars.sai_roll.value = float(self.saiRollInp(self.datarefs.prosim.sai_roll.value))
-        self.vars.sai_pitch.value = float(self.saiPitchInp(self.datarefs.prosim.sai_pitch.value))
+        self.vars.sai_needle_vt.value = float(self.saiNdlVertInp(self.datarefs.prosim.sai_localiser.value))
+        self.vars.sai_needle_hz.value = float(self.saiNdlHozInp(self.datarefs.prosim.sai_glideslope.value))
 
 
         # self.vars.flaps_r.value = self.some_counter

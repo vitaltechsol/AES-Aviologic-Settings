@@ -18,13 +18,13 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "sai_pitch": {
-      "name": "system.gauge.G_MIP_STDBY_ATT_PITCH",
+    "sai_glideslope": {
+      "name": "system.gauge.G_MIP_STDBY_GLIDESLOPE",
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "sai_roll": {
-      "name": "system.gauge.G_MIP_STDBY_ATT_BANK",
+    "sai_localiser": {
+      "name": "system.gauge.G_MIP_STDBY_LOCALISER",
       "read_interval_ms": 100,
       "reset_value": 0
     },

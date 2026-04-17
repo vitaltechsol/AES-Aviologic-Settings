@@ -46,31 +46,29 @@
                 "setting_time": 0.0001
             },
             {
-                "var_name": "sai_pitch",
+                "var_name": "sai_needle_vt",
                 "enable": true,
-                "mode": "RESOLVER_NO_MOD",
+                "mode": "ANALOG",
                 "channels": [
-                    6,
                     7
                 ],
                 "offset": 0.0,
                 "immediate_start": false,
-                "voltage_max": 12.0,
-                "voltage_min": 0.0,
+                "voltage_max": 3.0,
+                "voltage_min": -1.8,
                 "setting_time": 0.0001
             },
             {
-                "var_name": "sai_roll",
+                "var_name": "sai_needle_hz",
                 "enable": true,
-                "mode": "RESOLVER_NO_MOD",
+                "mode": "ANALOG",
                 "channels": [
-                    8,
-                    9
+                    6
                 ],
                 "offset": 0.0,
                 "immediate_start": false,
-                "voltage_max": 12.0,
-                "voltage_min": 0.0,
+                "voltage_max": 3.0,
+                "voltage_min": -1.8,
                 "setting_time": 0.0001
             }
         ],
