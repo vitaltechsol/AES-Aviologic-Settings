@@ -162,6 +162,61 @@
       "read_interval_ms": 10,
       "reset_value": 0
     },
+    "I_HGS_AP_AIII": {
+      "name": "system.indicators.I_HGS_AP_AIII",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_APP": {
+      "name": "system.indicators.I_HGS_AP_APP",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_FLARE": {
+      "name": "system.indicators.I_HGS_AP_FLARE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_HGSFAIL": {
+      "name": "system.indicators.I_HGS_AP_HGSFAIL",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_NOAIII": {
+      "name": "system.indicators.I_HGS_AP_NOAIII",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_RO": {
+      "name": "system.indicators.I_HGS_AP_RO",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_ROARM": {
+      "name": "system.indicators.I_HGS_AP_ROARM",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_TO": {
+      "name": "system.indicators.I_HGS_AP_TO",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_TOCTN": {
+      "name": "system.indicators.I_HGS_AP_TOCTN",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "I_HGS_AP_TOWARN": {
+      "name": "system.indicators.I_HGS_AP_TOWARN",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "B_LIGHT_TEST": {
+      "name": "system.gates.B_LIGHT_TEST",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
     "cdu1": {
       "name": "aircraft.cdu1.display",
       "read_interval_ms": 10,
