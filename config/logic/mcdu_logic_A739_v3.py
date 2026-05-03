@@ -477,14 +477,24 @@ class Logic:
                 if not repeat:
                     self._handle_key(key_code)
 
+                mal = self.lrus[0].locked_mal or self.lrus[0].mal_target
+                if mal is not None:
+                    # Send ACK to MCDU so it stops repeating the key
+                    ack_payload = (A739.ACK << 16) | ((label >> 8) & 0xFFFF)
+                    ack_word = ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal, ack_payload)
+                    self.dev.send_manual_single_fast(self.lrus[0].lru.channel, ack_word)
+
         try:
             xml_string = self.datarefs.prosim.cdu1.value
             if xml_string and xml_string.startswith("<") and xml_string != self._cdu1_text_prev:
                 self._prosim_lru.update_from_xml(xml_string)
                 self._cdu1_text_prev = xml_string
-                # Force immediate heartbeat so the MCDU gets an ENQ prompt right away
+                # Force immediate RTS to push new page data
                 for lru_data in self.lrus:
                     lru_data.heartbeat_elapsed_time = 0
+                    if lru_data.mal_target is not None:
+                        lru_data.current_request_type = RequestType.DATA.value
+                        lru_data.queue(TransmissionState.RTS)
         except Exception as e:
             log(f"[prosim] dataref read error: {e}")
 
