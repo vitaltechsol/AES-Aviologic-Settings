@@ -378,29 +378,28 @@ class LRUData:
 # Key map: A739 DC1 key code -> ProSim dataref name
 # =========================
 _KEY_MAP = {
-     39: "S_CDU1_KEY_0",   17: "S_CDU1_KEY_1",   33: "S_CDU1_KEY_2",
-     49: "S_CDU1_KEY_3",   19: "S_CDU1_KEY_4",   35: "S_CDU1_KEY_5",
-     51: "S_CDU1_KEY_6",   21: "S_CDU1_KEY_7",   37: "S_CDU1_KEY_8",
-     53: "S_CDU1_KEY_9",   75: "S_CDU1_KEY_A",   91: "S_CDU1_KEY_B",
-    107: "S_CDU1_KEY_C",   95: "S_CDU1_KEY_CLB", 145: "S_CDU1_KEY_CLEAR",
-    111: "S_CDU1_KEY_CRZ", 123: "S_CDU1_KEY_D",  103: "S_CDU1_KEY_DEL",
-     93: "S_CDU1_KEY_DEP_ARR", 127: "S_CDU1_KEY_DES", 23: "S_CDU1_KEY_DOT",
-    139: "S_CDU1_KEY_E",   141: "S_CDU1_KEY_EXEC", 73: "S_CDU1_KEY_F",
-     59: "S_CDU1_KEY_FIX",  89: "S_CDU1_KEY_G",  105: "S_CDU1_KEY_H",
-    109: "S_CDU1_KEY_HOLD", 121: "S_CDU1_KEY_I",   63: "S_CDU1_KEY_INIT_REF",
-    137: "S_CDU1_KEY_J",    65: "S_CDU1_KEY_K",    81: "S_CDU1_KEY_L",
-     77: "S_CDU1_KEY_LEGS",  11: "S_CDU1_KEY_LSK1L", 13: "S_CDU1_KEY_LSK1R",
-      9: "S_CDU1_KEY_LSK2L", 15: "S_CDU1_KEY_LSK2R", 27: "S_CDU1_KEY_LSK3L",
-     29: "S_CDU1_KEY_LSK3R", 25: "S_CDU1_KEY_LSK4L", 31: "S_CDU1_KEY_LSK4R",
-     43: "S_CDU1_KEY_LSK5L", 45: "S_CDU1_KEY_LSK5R", 41: "S_CDU1_KEY_LSK6L",
-     47: "S_CDU1_KEY_LSK6R", 97: "S_CDU1_KEY_M",    55: "S_CDU1_KEY_MINUS",
-    113: "S_CDU1_KEY_N",   149: "S_CDU1_KEY_N1_LIMIT", 57: "S_CDU1_KEY_NEXT_PAGE",
-    129: "S_CDU1_KEY_O",    67: "S_CDU1_KEY_P",   147: "S_CDU1_KEY_PREV_PAGE",
-    125: "S_CDU1_KEY_PROG", 83: "S_CDU1_KEY_Q",    99: "S_CDU1_KEY_R",
-     79: "S_CDU1_KEY_RTE", 115: "S_CDU1_KEY_S",   119: "S_CDU1_KEY_SLASH",
-     87: "S_CDU1_KEY_SPACE",131: "S_CDU1_KEY_T",    69: "S_CDU1_KEY_U",
-     85: "S_CDU1_KEY_V",   101: "S_CDU1_KEY_W",   117: "S_CDU1_KEY_X",
-    133: "S_CDU1_KEY_Y",    71: "S_CDU1_KEY_Z",
+    48: "S_CDU1_KEY_0", 49: "S_CDU1_KEY_1", 50: "S_CDU1_KEY_2", 51: "S_CDU1_KEY_3",
+    52: "S_CDU1_KEY_4", 53: "S_CDU1_KEY_5", 54: "S_CDU1_KEY_6", 55: "S_CDU1_KEY_7",
+    56: "S_CDU1_KEY_8", 57: "S_CDU1_KEY_9",
+    65: "S_CDU1_KEY_A", 66: "S_CDU1_KEY_B", 67: "S_CDU1_KEY_C", 68: "S_CDU1_KEY_D",
+    69: "S_CDU1_KEY_E", 70: "S_CDU1_KEY_F", 71: "S_CDU1_KEY_G", 72: "S_CDU1_KEY_H",
+    73: "S_CDU1_KEY_I", 74: "S_CDU1_KEY_J", 75: "S_CDU1_KEY_K", 76: "S_CDU1_KEY_L",
+    77: "S_CDU1_KEY_M", 78: "S_CDU1_KEY_N", 79: "S_CDU1_KEY_O", 80: "S_CDU1_KEY_P",
+    81: "S_CDU1_KEY_Q", 82: "S_CDU1_KEY_R", 83: "S_CDU1_KEY_S", 84: "S_CDU1_KEY_T",
+    85: "S_CDU1_KEY_U", 86: "S_CDU1_KEY_V", 87: "S_CDU1_KEY_W", 88: "S_CDU1_KEY_X",
+    89: "S_CDU1_KEY_Y", 90: "S_CDU1_KEY_Z",
+    46: "S_CDU1_KEY_DOT", 47: "S_CDU1_KEY_SLASH", 45: "S_CDU1_KEY_MINUS",
+    43: "S_CDU1_KEY_PLUS", 32: "S_CDU1_KEY_SPACE",
+    112: "S_CDU1_KEY_LSK1L", 113: "S_CDU1_KEY_LSK2L", 114: "S_CDU1_KEY_LSK3L",
+    115: "S_CDU1_KEY_LSK4L", 116: "S_CDU1_KEY_LSK5L", 117: "S_CDU1_KEY_LSK6L",
+    120: "S_CDU1_KEY_LSK1R", 121: "S_CDU1_KEY_LSK2R", 122: "S_CDU1_KEY_LSK3R",
+    123: "S_CDU1_KEY_LSK4R", 124: "S_CDU1_KEY_LSK5R", 125: "S_CDU1_KEY_LSK6R",
+    13: "S_CDU1_KEY_INIT_REF", 14: "S_CDU1_KEY_RTE", 15: "S_CDU1_KEY_CLB",
+    16: "S_CDU1_KEY_CRZ", 17: "S_CDU1_KEY_DES", 18: "S_CDU1_KEY_MENU",
+    19: "S_CDU1_KEY_LEGS", 20: "S_CDU1_KEY_DEP_ARR", 21: "S_CDU1_KEY_HOLD",
+    22: "S_CDU1_KEY_PROG", 23: "S_CDU1_KEY_EXEC", 24: "S_CDU1_KEY_N1_LIMIT",
+    25: "S_CDU1_KEY_FIX", 26: "S_CDU1_KEY_PREV_PAGE", 27: "S_CDU1_KEY_NEXT_PAGE",
+    127: "S_CDU1_KEY_DEL", 8: "S_CDU1_KEY_CLEAR"
 }
 
 # =========================
@@ -426,6 +425,8 @@ class Logic:
                 self._key_q.put(dataref_name)
             except Exception as e:
                 log(f"[key] dataref error: {e}")
+        else:
+            log(f"[key] unmapped code={key_code}")
 
     def _release_pending_keys(self):
         while not self._key_q.empty():
@@ -465,14 +466,8 @@ class Logic:
 
         self._release_pending_keys()
         for label, ts in received_labels:
-            # Primary: handle label 4 (hardware key codes, same format as v2)
-            p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
-            if label_id == 4:
-                key_hex = (label >> 12) & 0xFF
-                if key_hex > 0:
-                    self._handle_key(key_hex)
-            # Secondary: handle ARINC 739 DC1 keyboard labels if present
-            elif A739.is_keyboard(label):
+            # Handle ARINC 739 DC1 keyboard labels
+            if A739.is_keyboard(label):
                 key_code, sequence, repeat = A739.get_key_data(label)
                 if not repeat:
                     self._handle_key(key_code)
