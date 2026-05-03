@@ -204,8 +204,7 @@ def _parse_display_line(input_str, lower_case=False):
         input_str = _convert_numbers_to_cyrillic(input_str.lower())
     input_str = strip_s_tags(input_str)
     input_str = input_str.replace("[]", "#").replace("[l]", "").replace("[/l]", "")
-    for t in ("[I]","[1]","[2]","[3]"): input_str = input_str.replace(t, "F")
-    for t in ("[/I]","[/1]","[/2]","[/3]"): input_str = input_str.replace(t, "")
+    for t in ("[I]","[1]","[2]","[3]","[/I]","[/1]","[/2]","[/3]"): input_str = input_str.replace(t, "")
 
     dc = input_str.count(DELIMITER); left = center = right = ""
     if dc == 2: left, center, right = input_str.split(DELIMITER, 2)
@@ -341,8 +340,10 @@ class LRUData:
                 log(f"CTS Received (max_recs={max_recs})")
                 self.queue(TransmissionState.SEND_DATA); return
         if not self.repeat:
-            if self.current_request_type == RequestType.MENU.value: self.record_count = 1
-            else: self.record_count = self.lru.get_page_records()
+            if self.current_request_type == RequestType.MENU.value:
+                self.record_count = 1
+            else:
+                self.record_count = self.lru.get_page_records()
             rts_payload = (A739.DC2 << 16) | ((self.current_request_type & 0xF) << 8) | (self.record_count & 0xFF)
             rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)
             logic.dev.send_manual_single_fast(self.lru.channel, rts)
@@ -464,15 +465,26 @@ class Logic:
 
         self._release_pending_keys()
         for label, ts in received_labels:
-            if A739.is_keyboard(label):
+            # Primary: handle label 4 (hardware key codes, same format as v2)
+            p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
+            if label_id == 4:
+                key_hex = (label >> 12) & 0xFF
+                if key_hex > 0:
+                    self._handle_key(key_hex)
+            # Secondary: handle ARINC 739 DC1 keyboard labels if present
+            elif A739.is_keyboard(label):
                 key_code, sequence, repeat = A739.get_key_data(label)
-                if not repeat: self._handle_key(key_code)
+                if not repeat:
+                    self._handle_key(key_code)
 
         try:
             xml_string = self.datarefs.prosim.cdu1.value
             if xml_string and xml_string.startswith("<") and xml_string != self._cdu1_text_prev:
                 self._prosim_lru.update_from_xml(xml_string)
                 self._cdu1_text_prev = xml_string
+                # Force immediate heartbeat so the MCDU gets an ENQ prompt right away
+                for lru_data in self.lrus:
+                    lru_data.heartbeat_elapsed_time = 0
         except Exception as e:
             log(f"[prosim] dataref read error: {e}")
 
