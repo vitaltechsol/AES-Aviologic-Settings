@@ -85,5 +85,8 @@
     },
     "LogicBase:test_logic0": {
         "is_enable": true
+    },
+    "LogicBase:hgs_annunciator_logic": {
+        "is_enable": true
     }
 }

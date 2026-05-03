@@ -26,9 +26,11 @@
             "2": {
                 "enable": true,
                 "speed": "S100_KHZ",
-                "mode": "TX_MANUAL",
-                "description": "HGS Indicator Tx",
-                "name": "hgsInd_tx"
+                "mode": "TX_TIMETABLE",
+                "description": "HGS Annunciator Tx",
+                "link_equipment": {
+                    "hgs_annunciator": "hgs_annunciator_unit"
+                }
             },
             "3": {
                 "enable": true,
@@ -45,7 +47,7 @@
                 "mode": "RX_NORMAL",
                 "description": "CP_EFIS",
                 "link_equipment": {
-                    "EFIS": "efis_737ng"
+                    "EFIS": "efis_737ng_unit"
                 }
             },
             "1": {

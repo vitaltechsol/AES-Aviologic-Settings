@@ -1,0 +1,76 @@
+{
+  "brand": "Rockwell Collins",
+  "name": "hgs_annunciator",
+  "description": "HGS Head-Up Guidance System Annunciator Panel",
+  "note": "Label 270 octal — annunciator bitmap word transmitted by the ARINC card to the HGS panel",
+  "labels": {
+    "annunciator": {
+      "label": "270",
+      "data_type": "DISCRETE",
+      "channel_direction": "TX",
+      "description": "HGS Annunciator Panel Bitmap",
+      "sdi": 0,
+      "sdi_is_data": false,
+      "ssm": "NORMAL_OPERATION",
+      "data_init": "0",
+      "timing_ms": {
+        "min": 50.0,
+        "max": 100.0
+      },
+      "pad_bits": {
+        "aiii": {
+          "bits": "11",
+          "description": "Panel AIII"
+        },
+        "noaiii": {
+          "bits": "12",
+          "description": "Panel NO AIII"
+        },
+        "flare": {
+          "bits": "13",
+          "description": "Panel FLARE"
+        },
+        "dash": {
+          "bits": "14",
+          "description": "Panel Dash"
+        },
+        "ro": {
+          "bits": "15",
+          "description": "Panel RO"
+        },
+        "roctn": {
+          "bits": "16",
+          "description": "Panel RO CTN"
+        },
+        "roarm": {
+          "bits": "17",
+          "description": "Panel RO ARM"
+        },
+        "to_red": {
+          "bits": "18",
+          "description": "Panel TO - Red"
+        },
+        "to_grn": {
+          "bits": "19",
+          "description": "Panel TO - Green"
+        },
+        "toctn": {
+          "bits": "20",
+          "description": "Panel TO CTN"
+        },
+        "app": {
+          "bits": "21",
+          "description": "Panel APCH"
+        },
+        "warn": {
+          "bits": "22",
+          "description": "Panel WARN"
+        },
+        "hgsfail": {
+          "bits": "24",
+          "description": "Panel HGS FAIL"
+        }
+      }
+    }
+  }
+}
