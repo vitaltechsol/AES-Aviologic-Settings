@@ -155,10 +155,11 @@ class ControlEncoder:
         payload  = (end_code << 16) | ((record_index & 0xFF) << 8)
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
-    def cntrl_A(self, mal_target: int, *, color: int, line: int, col: int, attr: int) -> int:
+    def cntrl_A(self, mal_target: int, *, color: int, line: int, col: int, attr: int, font: int = 0) -> int:
         line = max(1, min(14, line)); col = max(1, min(24, col))
         color &= 0x7; attr &= 0x7
         payload = ((A739.CNTRL << 16)
+                   | ((font & 0x1) << 15)  
                    | ((color & 0x7) << 12)
                    | ((line  & 0xF) << 8)
                    | ((attr  & 0x7)  << 5)
@@ -269,6 +270,46 @@ class RobustSender:
 
         return False
 
+import re
+
+def parse_rich_text(line_str: str, line_idx: int, default_color: int = 7) -> List[TextData]:
+    """
+    Parses [0-7] color tags. Creates chunks of TextData tracking precise columns.
+    Optimized to drop chunks that are entirely spaces to avoid hitting unit record limits.
+    """
+    color = default_color
+    parts = re.split(r'(\[/?(?:[0-7])\])', line_str)
+
+    current_chars = []
+    current_color = color
+    start_col = 1
+    col_idx = 1
+    records = []
+
+    def flush():
+        nonlocal current_chars, start_col
+        text = "".join(current_chars)
+        # Drop records that are just spaces to save records matching the max_recs limits
+        if text and not text.isspace():
+            records.append(TextData(text, current_color, lineIdx=line_idx, initial_col=start_col))
+        current_chars.clear()
+        start_col = col_idx
+
+    for p in parts:
+        if not p: continue
+        if p.startswith('['):
+            tag = p[1:-1]
+            if tag.startswith('/'):
+                flush(); color = default_color; current_color = color
+            else:
+                flush(); color = int(tag); current_color = color
+        else:
+            current_chars.extend(list(p))
+            col_idx += len(p)
+
+    flush()
+    return records
+
 # =========================
 # LRU base + TEST LRU (two-line, two-color demo)
 # =========================
@@ -289,11 +330,10 @@ class LRU:
 class TEST_LRU(LRU):
     def __init__(self):
         super().__init__("DEMO", LRU_SAL, ARINC_CARD_TX_CHNL)
-        self.page: List[TextData] = [
-            TextData("CYAN ", color=1, lineIdx=1, initial_col=1, disp_attr=0),
-            TextData("RED", color=2, lineIdx=1, initial_col=10, disp_attr=0),
-            TextData("GREEN", color=4, lineIdx=2, initial_col=5, disp_attr=0),
-        ]
+        self.page: List[TextData] = []
+        # Test requested exact syntax formatting across same lines
+        self.page.extend(parse_rich_text("[1]CYAN[/1]  [2]RED[/2]", line_idx=1))
+        self.page.extend(parse_rich_text("[4]GREEN[/4]", line_idx=2))
 
     def get_page_records(self) -> int: return len(self.page)
     def get_page_text(self) -> List[TextData]: return self.page
