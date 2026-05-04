@@ -25,6 +25,9 @@ COLOR_WHITE = 7
 COLOR_GREEN = 2
 ROW_COLORS = (6,1,6,1,6,1,6,1,6,1,6,1,6,6)
 
+SQUARE_CHAR = chr(29)
+DEGREE_CHAR = chr(28)
+
 # 1 - Red - Small
 # 2 - Green - Small
 # 3 - Yelolow - Small
@@ -225,9 +228,9 @@ def _strip_display_controls(text):
     for c in text:
         if c in ('Ф', 'Ю'): continue
         if c == '#': 
-            result.append('_'); continue
+            result.append(SQUARE_CHAR); continue
         if c == '`': 
-            result.append('*'); continue
+            result.append(DEGREE_CHAR); continue
         result.append(_CYRILLIC_MAP.get(c, c))
     return ''.join(result)
 
