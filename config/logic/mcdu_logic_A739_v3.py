@@ -23,7 +23,16 @@ MCDU_COLS = 24
 MCDU_DATA_LINES = 12
 COLOR_WHITE = 7
 COLOR_GREEN = 2
-ROW_COLORS = (7,7,2,7,2,7,2,7,2,7,2,7,2,7)
+ROW_COLORS = (6,1,6,1,6,1,6,1,6,1,6,1,6,6)
+
+# 1 - Red - Small
+# 2 - Green - Small
+# 3 - Yelolow - Small
+# 4 - ??
+# 5 - Red - Big
+# 6 - Green- Big
+# 7 - Yellow - Big
+
 
 # =========================
 # Enums / Codes
@@ -72,48 +81,71 @@ class A739:
     MAL_SHIFT = 8
 
     @staticmethod
-    def num_words_for_text(s): return (len(s) + 2) // 3
+    def num_words_for_text(s): 
+        """Calculates the number of 3-character ARINC words needed to send the text."""
+        return (len(s) + 2) // 3
     @staticmethod
-    def is_enq(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.ENQ
+    def is_enq(dw): 
+        """Checks if the data word is an Enquiry (ENQ) control signal."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.ENQ
     @staticmethod
-    def is_cts(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC3
+    def is_cts(dw): 
+        """Checks if the data word is a Clear to Send (CTS) control signal."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC3
     @staticmethod
-    def is_keyboard(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC1
+    def is_keyboard(dw): 
+        """Checks if the data word indicates a physical key press from the MCDU."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC1
     @staticmethod
     def get_key_data(dw):
+        """Extracts the key code, sequence identifier, and repeat flag from a keyboard data word."""
         return (dw >> 16) & 0x7F, (dw >> 8) & 0x7F, (dw >> 23) & 0x1
     @staticmethod
-    def is_syn(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.SYN
+    def is_syn(dw): 
+        """Checks if the data word is a Sync (SYN) control signal (reject or busy)."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.SYN
     @staticmethod
-    def is_ack(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.ACK
+    def is_ack(dw): 
+        """Checks if the data word is an Acknowledge (ACK) control signal."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.ACK
     @staticmethod
-    def is_nack(dw): return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.NACK
+    def is_nack(dw): 
+        """Checks if the data word is a Negative Acknowledge (NACK) signal (unsupported data format)."""
+        return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.NACK
     @staticmethod
-    def get_request_type(dw): return (dw >> A739.REQUEST_TYPE_SHIFT) & A739.REQUEST_TYPE_MASK
+    def get_request_type(dw): 
+        """Retrieves the request type (e.g. data or menu) from the control word."""
+        return (dw >> A739.REQUEST_TYPE_SHIFT) & A739.REQUEST_TYPE_MASK
     @staticmethod
-    def get_mal(dw): return ArincLabel.Base._reverse_label_number((dw >> A739.MAL_SHIFT) & A739.MAL_MASK)
+    def get_mal(dw): 
+        """Retrieves the Master Address Label (MAL) to route responses to the correct MCDU system."""
+        return ArincLabel.Base._reverse_label_number((dw >> A739.MAL_SHIFT) & A739.MAL_MASK)
 
 class ControlEncoder:
     def __init__(self):
         self._preferred = None
 
     def build_stx(self, mal_target, record_index, data_words):
+        """Creates the Start of Text (STX) block header specifying record index and payload length."""
         count = (data_words + 3) & 0xFF
         stx_payload = (A739.STX << 16) | ((record_index & 0xFF) << 8) | count
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, stx_payload)
 
     def build_etx_eot(self, mal_target, record_index, last):
+        """Creates the End of Text (ETX) or End of Transmission (EOT) block footer indicating record completion."""
         end_code = A739.EOT if last else A739.ETX
         payload  = (end_code << 16) | ((record_index & 0xFF) << 8)
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
     def cntrl_A(self, mal_target, *, color, line, col, attr):
+        """Generates a Control A data word for specifying precise row, column, and display attributes."""
         line = max(1, min(31, line)); col = max(1, min(24, col))
         color &= 0x7; attr &= 0x7
         payload = ((A739.CNTRL << 16) | ((color & 0x7) << 13) | ((line & 0x1F) << 8) | ((attr & 0x7) << 5) | (col & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
     def cntrl_B(self, mal_target, *, color, line, col_unused, attr_as_function):
+        """Generates an alternative Control B data word when MCDU hardware rejects Control A."""
         color &= 0x7; lineStart = max(1, min(31, line)); lineCount = 1; function = attr_as_function & 0x7
         payload = ((A739.CNTRL << 16) | ((color & 0x7) << 12) | ((lineCount & 0xF) << 8) | ((function & 0x7) << 5) | (lineStart & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
@@ -127,10 +159,12 @@ class RobustSender:
         self.dev = dev; self.channel = channel; self.ctrl = ControlEncoder()
 
     def _send_word(self, word):
+        """Sends a single ARINC word to the designated channel, maintaining the required gap delay."""
         self.dev.send_manual_single_fast(self.channel, word)
         if ARINC_WORD_GAP_SEC > 0: time.sleep(ARINC_WORD_GAP_SEC)
 
     def _send_data_words(self, mal_target, text):
+        """Splits text into 3-character payload sequences and dispatches them line by line."""
         words = A739.num_words_for_text(text); sent = 0
         for _ in range(words):
             c1 = ord(text[sent])     if sent     < len(text) else 0
@@ -142,6 +176,7 @@ class RobustSender:
         return words
 
     def _try_send_once(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, encoder_tag):
+        """Builds and transmits one complete protocol block (STX -> CNTRL -> DATA -> ETX/EOT)."""
         if ENABLE_SPACE_PADDING_FOR_COLUMN and col > 1:
             text_to_send = (" " * (col - 1)) + text; effective_col = 1
         else:
@@ -158,6 +193,7 @@ class RobustSender:
         return encoder_tag
 
     def send_text_adaptive(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, rx_labels):
+        """Attempts transmission using preferred Control word encoding, falling back to alternative format on rejection."""
         preferred = self.ctrl.get_preferred()
         order = ['A', 'B'] if preferred is None else [preferred, 'B' if preferred == 'A' else 'A']
         for attempt_tag in order:
@@ -180,9 +216,11 @@ _CYRILLIC_MAP = {'?':'0','?':'1','?':'2','?':'3','?':'4','?':'5','?':'6','?':'7'
 _NUMBER_TO_CYRILLIC = {v: k for k, v in _CYRILLIC_MAP.items()}
 
 def _convert_numbers_to_cyrillic(text):
+    """Converts numbers in the text to their Cyrillic counterparts for proper MCDU mapping."""
     return ''.join(_NUMBER_TO_CYRILLIC.get(c, c) for c in text)
 
 def _strip_display_controls(text):
+    """Cleans up the text by mapping display controls and special characters to A739-safe equivalents."""
     result = []
     for c in text:
         if c in ('Ф', 'Ю'): continue
@@ -194,11 +232,14 @@ def _strip_display_controls(text):
     return ''.join(result)
 
 def _parse_display_line(input_str, lower_case=False):
+    """Parses a ProSim display line string, extracting left, center, and right alignments based on the delimiter."""
     DELIMITER = "\u00A8"
     if not input_str: return ["", "", ""]
 
+    # Handle [s]...[/s] tags by converting enclosed text to lowercase (smaller font on the MCDU) and mapping numbers to Cyrillic
     def process_s(content):
-        return _convert_numbers_to_cyrillic(content.lower())
+        # content = content.lower()
+        return _convert_numbers_to_cyrillic(content)
 
     def strip_s_tags(s):
         s = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s(m.group(1)), s)
@@ -206,7 +247,9 @@ def _parse_display_line(input_str, lower_case=False):
         return s.replace("[s]", "").replace("[/s]", "")
 
     if lower_case:
-        input_str = _convert_numbers_to_cyrillic(input_str.lower())
+        # input_str = input_str.lower()
+        input_str = _convert_numbers_to_cyrillic(input_str)
+
     input_str = strip_s_tags(input_str)
     input_str = input_str.replace("[]", "#").replace("[l]", "").replace("[/l]", "")
     for t in ("[I]","[1]","[2]","[3]","[/I]","[/1]","[/2]","[/3]"): input_str = input_str.replace(t, "")
@@ -223,6 +266,7 @@ def _parse_display_line(input_str, lower_case=False):
     return [left, center, right]
 
 def _format_row(left="", center="", right="", cols=MCDU_COLS):
+    """Combines left, center, and right text segments into a single padded line of length `cols`."""
     row = [' '] * cols
     for i, ch in enumerate(left):
         if i < cols: row[i] = ch
@@ -235,6 +279,7 @@ def _format_row(left="", center="", right="", cols=MCDU_COLS):
     return ''.join(row)
 
 def _parse_xml(xml_string):
+    """Parses the raw XML payload from ProSim into a dictionary of title, title_page, scratchpad, and lines."""
     root = ET.fromstring(xml_string)
     def txt(tag): n = root.find(tag); return (n.text or "") if n is not None else ""
     lines = [l.text or "" for l in root.findall('line')]
@@ -242,6 +287,7 @@ def _parse_xml(xml_string):
     return {"title": txt('title'), "title_page": txt('titlePage'), "scratchpad": txt('scratchpad'), "lines": lines}
 
 def _xml_to_text_data(xml_result):
+    """Converts the parsed XML dictionary into a list of TextData records ready for transmission."""
     records = []
     log(f"[prosim] raw title: {repr(xml_result['title'])}")
     for idx, l in enumerate(xml_result['lines']):
@@ -251,21 +297,26 @@ def _xml_to_text_data(xml_result):
     left_align = title_parts[0]
     try: title_spaces = int(title_parts[1]) if title_parts[1] else 0
     except ValueError: title_spaces = 0
+
     title_text = _format_row(
         ' ' * title_spaces + title_parts[2] if left_align == "True" else "",
         title_parts[2] if left_align != "True" else "",
         _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else "",
     )
+
     title_text = _strip_display_controls(title_text).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Title text built (hex): {[hex(ord(c)) for c in title_text]}")
     records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
+
     for ln, raw in enumerate(xml_result["lines"]):
-        parts = _parse_display_line(raw, lower_case=False)
+        parts = _parse_display_line(raw, lower_case=True)
         row_text = _strip_display_controls(_format_row(*parts)).ljust(MCDU_COLS)[:MCDU_COLS]
         log(f"  -> Line {ln} text built (hex): {[hex(ord(c)) for c in row_text]}")
         records.append(TextData(row_text, ROW_COLORS[ln + 1], lineIdx=ln + 2, initial_col=1))
+
     sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
+
     records.append(TextData(sp, ROW_COLORS[13], lineIdx=14, initial_col=1))
     return records
 
@@ -318,11 +369,13 @@ class LRUData:
         self.sender = None
 
     def queue(self, new_state):
+        """Queues a transition to a new transmission state."""
         if new_state != self.state:
             log(f"Transition: {self.state} -> {new_state}")
             self.next_state = new_state
 
     def update(self, logic, lru_data, rx):
+        """Advances the internal state machine based on queued states and incoming labels."""
         if self.next_state != self.state:
             self.repeat = False; self.state = self.next_state
         if self.state == TransmissionState.IDLE: self._idle(logic, rx)
@@ -330,6 +383,7 @@ class LRUData:
         elif self.state == TransmissionState.SEND_DATA: self._send_data(logic, rx)
 
     def _idle(self, logic, rx):
+        """Listens for an ENQ signal from the MCDU while in IDLE state, acquiring the target MAL."""
         if self.sender is None and logic.dev is not None:
             self.sender = RobustSender(logic.dev, self.lru.channel)
         for label, ts in rx:
@@ -346,6 +400,7 @@ class LRUData:
             self.message_repeat_count = 0; self.repeat = True
 
     def _rts(self, logic, rx):
+        """Sends a Request to Send (RTS) and waits for a Clear to Send (CTS) from the MCDU."""
         for label, ts in rx:
             if A739.is_cts(label):
                 max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
@@ -363,6 +418,7 @@ class LRUData:
             self.repeat = True
 
     def _send_data(self, logic, rx):
+        """Transmits the cached page data sequentially and listens for completion or NACK/SYN."""
         if self.repeat:
             for label, ts in rx:
                 if A739.is_syn(label): log("SYN -> retry"); self._retry_or_idle(); return
@@ -381,6 +437,7 @@ class LRUData:
         self.message_response_elapsed_time = time.time(); self.repeat = True
 
     def _retry_or_idle(self):
+        """Retries transmission up to a threshold limit before yielding to IDLE state."""
         if self.message_repeat_count < 3:
             self.message_repeat_count += 1; self.repeat = False; self.queue(TransmissionState.RTS)
         else:
@@ -429,6 +486,7 @@ class Logic:
         self._key_q = queue.Queue()
 
     def _handle_key(self, key_code):
+        """Translates physical MCDU key presses to simulator dataref commands."""
         dataref_name = _KEY_MAP.get(key_code, "")
         if dataref_name:
             log(f"[key] {dataref_name} (code={key_code})")
@@ -441,6 +499,7 @@ class Logic:
             log(f"[key] unmapped code={key_code}")
 
     def _release_pending_keys(self):
+        """Releases previously held simulator keys that have been acknowledged."""
         while not self._key_q.empty():
             try:
                 getattr(self.datarefs.prosim, self._key_q.get_nowait()).value = 0
@@ -448,6 +507,7 @@ class Logic:
                 pass
 
     async def update(self):
+        """Main update loop that processes ARINC queues and syncs the display state."""
         if not hasattr(self, "devices") or self.devices is None or len(self.devices) == 0:
             log("[wait] No ARINC devices registered yet."); return
         if ARINC_CARD_NAME in self.devices:
