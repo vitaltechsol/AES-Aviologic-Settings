@@ -146,6 +146,7 @@ class RobustSender:
             text_to_send = (" " * (col - 1)) + text; effective_col = 1
         else:
             text_to_send = text; effective_col = col
+        log(f"[send] Line {line} encoded text='{text_to_send}'")
         data_words = A739.num_words_for_text(text_to_send)
         self._send_word(self.ctrl.build_stx(mal_target, rec_idx, data_words))
         if encoder_tag == 'A':
@@ -185,6 +186,9 @@ def _strip_display_controls(text):
     result = []
     for c in text:
         if c in ('Ф', 'Ю'): continue
+        if c == '#': 
+            result.append('_') # Use standard underscore to represent empty boxes safely without causing NAK
+            continue
         result.append(_CYRILLIC_MAP.get(c, c))
     return ''.join(result)
 
@@ -238,6 +242,10 @@ def _parse_xml(xml_string):
 
 def _xml_to_text_data(xml_result):
     records = []
+    log(f"[prosim] raw title: {repr(xml_result['title'])}")
+    for idx, l in enumerate(xml_result['lines']):
+        log(f"[prosim] raw line {idx}: {repr(l)}")
+
     title_parts = _parse_display_line(xml_result["title"])
     left_align = title_parts[0]
     try: title_spaces = int(title_parts[1]) if title_parts[1] else 0
@@ -247,13 +255,16 @@ def _xml_to_text_data(xml_result):
         title_parts[2] if left_align != "True" else "",
         _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else "",
     )
-    title_text = _strip_display_controls(title_text).ljust(MCDU_COLS)[:MCDU_COLS]
+    title_text = _strip_display_controls(title_text).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+    log(f"  -> Title text built (hex): {[hex(ord(c)) for c in title_text]}")
     records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
     for ln, raw in enumerate(xml_result["lines"]):
-        parts = _parse_display_line(raw, lower_case=(ln % 2 == 0))
-        row_text = _strip_display_controls(_format_row(*parts)).ljust(MCDU_COLS)[:MCDU_COLS]
+        parts = _parse_display_line(raw, lower_case=False)
+        row_text = _strip_display_controls(_format_row(*parts)).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+        log(f"  -> Line {ln} text built (hex): {[hex(ord(c)) for c in row_text]}")
         records.append(TextData(row_text, ROW_COLORS[ln + 1], lineIdx=ln + 2, initial_col=1))
-    sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
+    sp = _strip_display_controls(xml_result["scratchpad"]).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+    log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
     records.append(TextData(sp, ROW_COLORS[13], lineIdx=14, initial_col=1))
     return records
 
