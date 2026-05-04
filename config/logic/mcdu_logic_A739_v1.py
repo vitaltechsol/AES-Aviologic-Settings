@@ -19,14 +19,23 @@ HEARTBEAT_SEC = 0.9
 HELLO_TEXT  = "HELLO"
 WORLD_TEXT  = "WORLD"
 HELLO_LINE  = 2
-HELLO_COL   = 5
+HELLO_COL   = 1
 HELLO_COLOR = 1  # CYAN (0..7)
 WORLD_LINE  = 3
-WORLD_COL   = 10
-WORLD_COLOR = 6  # AMBER (0..7)
+WORLD_COL   = 2
+WORLD_COLOR = 5  # AMBER (0..7)
+
+#0 Black
+#1 Cyan
+#2 Red
+#3 Amber
+#4 Green
+#5 Pink
+#6 Yellow
+#7 white
 
 # If the unit ignores CNTRL column, pad with spaces to reach the desired col.
-ENABLE_SPACE_PADDING_FOR_COLUMN = True
+ENABLE_SPACE_PADDING_FOR_COLUMN = False
 
 # Optional small pacing between words (in seconds). 0 = disabled.
 ARINC_WORD_GAP_SEC = 0.0
@@ -147,11 +156,11 @@ class ControlEncoder:
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
     def cntrl_A(self, mal_target: int, *, color: int, line: int, col: int, attr: int) -> int:
-        line = max(1, min(31, line)); col = max(1, min(24, col))
+        line = max(1, min(14, line)); col = max(1, min(24, col))
         color &= 0x7; attr &= 0x7
         payload = ((A739.CNTRL << 16)
-                   | ((color & 0x7) << 13)
-                   | ((line  & 0x1F) << 8)
+                   | ((color & 0x7) << 12)
+                   | ((line  & 0xF) << 8)
                    | ((attr  & 0x7)  << 5)
                    | (col    & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
@@ -217,10 +226,14 @@ class RobustSender:
         if encoder_tag == 'A':
             cntrl = self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr)
         else:
+            # Control encoder B does not take font as param
             cntrl = self.ctrl.cntrl_B(mal_target, color=color, line=line, col_unused=effective_col, attr_as_function=0)
         self._send_word(cntrl)
 
         self._send_data_words(mal_target, text_to_send)
+
+        # Allow small settling delay between blocks if unit gets overloaded and returns SYN/NAK loops
+        time.sleep(0.01)
 
         end = self.ctrl.build_etx_eot(mal_target, rec_idx, last)
         self._send_word(end)
@@ -277,9 +290,11 @@ class TEST_LRU(LRU):
     def __init__(self):
         super().__init__("DEMO", LRU_SAL, ARINC_CARD_TX_CHNL)
         self.page: List[TextData] = [
-            TextData(HELLO_TEXT, HELLO_COLOR, HELLO_LINE, HELLO_COL, disp_attr=0),  # cyan
-            TextData(WORLD_TEXT, WORLD_COLOR, WORLD_LINE, WORLD_COL, disp_attr=0),  # amber
+            TextData("CYAN ", color=1, lineIdx=1, initial_col=1, disp_attr=0),
+            TextData("RED", color=2, lineIdx=1, initial_col=10, disp_attr=0),
+            TextData("GREEN", color=4, lineIdx=2, initial_col=5, disp_attr=0),
         ]
+
     def get_page_records(self) -> int: return len(self.page)
     def get_page_text(self) -> List[TextData]: return self.page
 
@@ -305,6 +320,9 @@ class LRUData:
 
         self.repeat: bool = False
         self.sender: Optional[RobustSender] = None
+        self.records_sent: int = 0
+        self.max_recs: int = 4
+        self.waiting_cts: bool = False
 
     def queue(self, new_state: TransmissionState):
         if new_state != self.state:
@@ -349,8 +367,10 @@ class LRUData:
     def _rts(self, logic, rx):
         for label, ts in rx:
             if A739.is_cts(label):
-                max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
-                log(f"CTS Received (max_recs={max_recs})")
+                self.max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
+                if self.max_recs == 0:
+                    self.max_recs = 4 # default fallback if unit sends 0
+                log(f"CTS Received (max_recs={self.max_recs})")
                 self.queue(TransmissionState.SEND_DATA)
                 return
 
@@ -359,6 +379,8 @@ class LRUData:
                 self.record_count = 1
             else:
                 self.record_count = self.lru.get_page_records()
+            self.records_sent = 0
+            self.waiting_cts = False
 
             rts_payload = (A739.DC2 << 16) | ((self.current_request_type & 0xF) << 8) | (self.record_count & 0xFF)
             rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)
@@ -375,7 +397,18 @@ class LRUData:
                     return
                 if A739.is_ack(label):
                     log("ACK")
-                    self.queue(TransmissionState.IDLE)
+                    if self.records_sent < self.record_count:
+                        self.waiting_cts = True
+                    else:
+                        self.queue(TransmissionState.IDLE)
+                    return
+                if getattr(self, "waiting_cts", False) and A739.is_cts(label):
+                    self.max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
+                    if self.max_recs == 0:
+                        self.max_recs = 4 # default fallback if unit sends 0
+                    log(f"CTS Received for next block (max_recs={self.max_recs})")
+                    self.waiting_cts = False
+                    self.repeat = False # Trigger send next block
                     return
                 if A739.is_nack(label):
                     log("NAK → retry")
@@ -387,6 +420,13 @@ class LRUData:
             return
 
         # --- transmit ---
+        if getattr(self, "waiting_cts", False):
+            # If we are waiting for CTS, do NOT transmit any records yet. Just yield and wait for CTS in rx.
+            if time.time() - self.message_response_elapsed_time > 1.5:
+                # If we waited around 1.5 seconds out here and still no CTS, assume lost and retry block or RTS
+                self._retry_or_idle()
+            return
+
         if self.current_request_type == RequestType.MENU.value:
             # MENU label (units often force color; WHITE is a safe request)
             _ = self.sender.send_text_adaptive(
@@ -394,18 +434,27 @@ class LRUData:
                 line=1, col=1, color=Color.C7,
                 disp_attr=0, last=True, rec_idx=1, rx_labels=rx
             )
+            self.records_sent = 1
         else:
             records = self.lru.get_page_text()
-            for idx, rec in enumerate(records):
+            start_idx = self.records_sent
+            end_idx = min(self.record_count, start_idx + self.max_recs)
+
+            for idx in range(start_idx, end_idx):
+                rec = records[idx]
+                is_last_overall = (idx == self.record_count - 1)
+
                 ok = self.sender.send_text_adaptive(
                     self.mal_target, rec.text,
                     line=rec.lineIdx, col=rec.initial_col, color=rec.color,
                     disp_attr=rec.disp_attr,
-                    last=(idx == len(records) - 1), rec_idx=idx + 1, rx_labels=rx
+                    last=is_last_overall, rec_idx=idx + 1, rx_labels=rx
                 )
                 if not ok:
                     self._retry_or_idle()
                     return
+
+            self.records_sent = end_idx
 
         self.message_response_elapsed_time = time.time()
         self.repeat = True
