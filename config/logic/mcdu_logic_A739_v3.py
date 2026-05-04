@@ -176,7 +176,7 @@ class RobustSender:
 # XML / display parsing helpers
 # =========================
 _CYRILLIC_TO_NUMBER = {'A':'0','B':'1','B':'2','G':'3','D':'4','E':'5','ZH':'6','Z':'7','I':'8','J':'9'}
-_CYRILLIC_MAP = {'А':'0','Б':'1','В':'2','Г':'3','Д':'4','Е':'5','Ж':'6','З':'7','И':'8','Й':'9'}
+_CYRILLIC_MAP = {'?':'0','?':'1','?':'2','?':'3','?':'4','?':'5','?':'6','?':'7','?':'8','?':'9'}
 _NUMBER_TO_CYRILLIC = {v: k for k, v in _CYRILLIC_MAP.items()}
 
 def _convert_numbers_to_cyrillic(text):
@@ -187,8 +187,9 @@ def _strip_display_controls(text):
     for c in text:
         if c in ('Ф', 'Ю'): continue
         if c == '#': 
-            result.append('_') # Use standard underscore to represent empty boxes safely without causing NAK
-            continue
+            result.append('_'); continue
+        if c == '`': 
+            result.append('*'); continue
         result.append(_CYRILLIC_MAP.get(c, c))
     return ''.join(result)
 
@@ -255,15 +256,15 @@ def _xml_to_text_data(xml_result):
         title_parts[2] if left_align != "True" else "",
         _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else "",
     )
-    title_text = _strip_display_controls(title_text).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+    title_text = _strip_display_controls(title_text).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Title text built (hex): {[hex(ord(c)) for c in title_text]}")
     records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
     for ln, raw in enumerate(xml_result["lines"]):
         parts = _parse_display_line(raw, lower_case=False)
-        row_text = _strip_display_controls(_format_row(*parts)).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+        row_text = _strip_display_controls(_format_row(*parts)).ljust(MCDU_COLS)[:MCDU_COLS]
         log(f"  -> Line {ln} text built (hex): {[hex(ord(c)) for c in row_text]}")
         records.append(TextData(row_text, ROW_COLORS[ln + 1], lineIdx=ln + 2, initial_col=1))
-    sp = _strip_display_controls(xml_result["scratchpad"]).upper().ljust(MCDU_COLS)[:MCDU_COLS]
+    sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
     records.append(TextData(sp, ROW_COLORS[13], lineIdx=14, initial_col=1))
     return records
