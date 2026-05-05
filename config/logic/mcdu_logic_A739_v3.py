@@ -17,24 +17,25 @@ ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 HEARTBEAT_SEC = 0.9
-ENABLE_SPACE_PADDING_FOR_COLUMN = True
+ENABLE_SPACE_PADDING_FOR_COLUMN = False
 ARINC_WORD_GAP_SEC = 0.0
 MCDU_COLS = 24
 MCDU_DATA_LINES = 12
 COLOR_WHITE = 7
 COLOR_GREEN = 2
-ROW_COLORS = (1,2,3,5,6,7,6,1,6,1,6,1,6,6)
+ROW_COLORS = (4,7,7,7,7,7,7,7,7,7,7,7,7,7,7)
 
 SQUARE_CHAR = chr(29)
 DEGREE_CHAR = chr(28)
 
-# 1 - Red - Small
-# 2 - Green - Small
-# 3 - Yelolow - Small
-# 4 - ??
-# 5 - Red - Big
-# 6 - Green- Big
-# 7 - Yellow - Big
+# 0 0 0 | BLACK       0
+# 0 0 1 | CYAN        1 
+# 0 1 0 | RED         2
+# 0 1 1 | YELLOW      3
+# 1 0 0 | GREEN       4
+# 1 0 1 | MAGENTA     5
+# 1 1 0 | AMBER       6
+# 1 1 1 | WHITE       7
 
 
 # =========================
@@ -143,7 +144,7 @@ class ControlEncoder:
     def cntrl_A(self, mal_target, *, color, line, col, attr, font: int = 1):
         """Generates a Contro`l A data word for specifying precise row, column, and display attributes."""
         line = max(1, min(31, line)); col = max(1, min(24, col))
-        color &= 0x3; attr &= 0x7
+        color &= 0x7; attr &= 0x7
         payload = ((A739.CNTRL << 16) 
                    | ((font & 0x1) << 15)  
                    | ((color & 0x7) << 12) 
@@ -289,6 +290,68 @@ def _format_row(left="", center="", right="", cols=MCDU_COLS):
         if 0 <= cs + i < cols: row[cs + i] = ch
     return ''.join(row)
 
+def _parse_rich_display_line(input_str, default_color):
+    DELIMITER = "\u00A8"
+    if not input_str: return [], [], []
+
+    m_match = re.search(r'\[m\](.*?)\[/m\]', input_str)
+    center_raw = ""
+    if m_match:
+        center_raw = m_match.group(1)
+        input_str = input_str[:m_match.start()] + input_str[m_match.end():]
+
+    dc = input_str.count(DELIMITER)
+    left_raw = ""
+    right_raw = ""
+    if dc == 2:
+        left_raw, center_raw_2, right_raw = input_str.split(DELIMITER, 2)
+        if not center_raw: center_raw = center_raw_2
+    elif dc == 1:
+        left_raw, right_raw = input_str.split(DELIMITER, 1)
+    else:
+        left_raw = input_str
+
+    def tokenize(s, def_col):
+        tokens = []
+        i = 0
+        color = def_col
+        is_small = False
+        while i < len(s):
+            if s[i:i+3].lower() == "[s]":
+                is_small = True; i += 3; continue
+            if s[i:i+4].lower() == "[/s]":
+                is_small = False; i += 4; continue
+            m = re.match(r'\[([1234])\]', s[i:i+3])
+            if m:
+                color = {'1':1, '2':4, '3':5, '4':2}.get(m.group(1), def_col)
+                i += 3; continue
+            m = re.match(r'\[/([1234])\]', s[i:i+4])
+            if m:
+                color = def_col; i += 4; continue
+            if s[i:i+3] == "[I]": i += 3; continue
+            if s[i:i+4] == "[/I]": i += 4; continue
+            if s[i:i+3] == "[l]": i += 3; continue
+            if s[i:i+4] == "[/l]": i += 4; continue
+            if s[i:i+2] == "[]":
+                tokens.append(('#', color, is_small)); i += 2; continue
+            tokens.append((s[i], color, is_small))
+            i += 1
+        return tokens
+
+    return tokenize(left_raw, default_color), tokenize(center_raw, default_color), tokenize(right_raw, default_color)
+
+def _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=7):
+    row = [( ' ', default_color, False )] * cols
+    for i, tk in enumerate(left_tk):
+        if i < cols: row[i] = tk
+    rs = cols - len(right_tk)
+    for i, tk in enumerate(right_tk):
+        if 0 <= rs + i < cols: row[rs + i] = tk
+    cs = (cols - len(center_tk)) // 2
+    for i, tk in enumerate(center_tk):
+        if 0 <= cs + i < cols: row[cs + i] = tk
+    return row
+
 def _parse_xml(xml_string):
     """Parses the raw XML payload from ProSim into a dictionary of title, title_page, scratchpad, and lines."""
     root = ET.fromstring(xml_string)
@@ -320,10 +383,28 @@ def _xml_to_text_data(xml_result):
     records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
 
     for ln, raw in enumerate(xml_result["lines"]):
-        parts = _parse_display_line(raw, lower_case=True)
-        row_text = _strip_display_controls(_format_row(*parts)).ljust(MCDU_COLS)[:MCDU_COLS]
-        log(f"  -> Line {ln} text built (hex): {[hex(ord(c)) for c in row_text]}")
-        records.append(TextData(row_text, ROW_COLORS[ln + 1], lineIdx=ln + 2, initial_col=1))
+        def_color = ROW_COLORS[ln + 1]
+        left_tk, center_tk, right_tk = _parse_rich_display_line(raw, def_color)
+        row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color)
+
+        current_color = row[0][1]
+        current_text = ""
+        start_col = 1
+
+        for col_idx, (char, color, is_small) in enumerate(row):
+            c = _convert_numbers_to_cyrillic(char)
+
+            if color != current_color:
+                if current_text:
+                    records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col))
+                current_color = color
+                current_text = c
+                start_col = col_idx + 1
+            else:
+                current_text += c
+
+        if current_text:
+            records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col))
 
     sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
