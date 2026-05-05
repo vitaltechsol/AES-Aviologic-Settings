@@ -17,12 +17,13 @@ ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 HEARTBEAT_SEC = 0.9
-ENABLE_SPACE_PADDING_FOR_COLUMN = False
+ENABLE_SPACE_PADDING_FOR_COLUMN = True
 ARINC_WORD_GAP_SEC = 0.0
 MCDU_COLS = 24
 MCDU_DATA_LINES = 12
 COLOR_WHITE = 7
 COLOR_GREEN = 2
+ROW_COLORS = (1,2,3,5,6,7,6,1,6,1,6,1,6,6)
 
 SQUARE_CHAR = chr(29)
 DEGREE_CHAR = chr(28)
@@ -56,13 +57,12 @@ def log(msg: str):
     print(msg)
 
 class TextData:
-    def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0, font: int = 1):
+    def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0):
         self.text = text
         self.color = color & 0x7
         self.lineIdx = max(1, min(31, lineIdx))
         self.initial_col = max(1, min(24, initial_col))
         self.disp_attr = disp_attr & 0x7
-        self.font = font & 0x1
 
 class A739:
     ENQ  = 0b0000101
@@ -139,21 +139,17 @@ class ControlEncoder:
         end_code = A739.EOT if last else A739.ETX
         payload  = (end_code << 16) | ((record_index & 0xFF) << 8)
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
-    #font = 0 (small) | Font = 1 (large)
+
     def cntrl_A(self, mal_target, *, color, line, col, attr, font: int = 1):
         """Generates a Contro`l A data word for specifying precise row, column, and display attributes."""
         line = max(1, min(31, line)); col = max(1, min(24, col))
-        color &= 0x7; attr &= 0x7
-        # Custom GE MCDU format mapped to ArincLabel pack bits.
-        # Color: 21-23 (<< 13)
-        # Line: 17-21 (<< 9)
-        # Attr: 14-16 (<< 6)
-        # Col: 9-13 (<< 1)
+        color &= 0x3; attr &= 0x7
         payload = ((A739.CNTRL << 16) 
-                   | ((color & 0x7) << 13) 
-                   | ((line & 0x1F) << 9) 
-                   | ((attr & 0x7) << 6) 
-                   | ((col & 0x1F) << 1))
+                   | ((font & 0x1) << 15)  
+                   | ((color & 0x7) << 12) 
+                   | ((line & 0x1F) << 8) 
+                   | ((attr & 0x7) << 5) 
+                   | (col & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
     def cntrl_B(self, mal_target, *, color, line, col_unused, attr_as_function):
@@ -188,7 +184,7 @@ class RobustSender:
             sent += 3
         return words
 
-    def _try_send_once(self, mal_target, text, *, line, col, color, disp_attr, font, last, rec_idx, encoder_tag):
+    def _try_send_once(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, encoder_tag):
         """Builds and transmits one complete protocol block (STX -> CNTRL -> DATA -> ETX/EOT)."""
         if ENABLE_SPACE_PADDING_FOR_COLUMN and col > 1:
             text_to_send = (" " * (col - 1)) + text; effective_col = 1
@@ -199,7 +195,7 @@ class RobustSender:
         self._send_word(self.ctrl.build_stx(mal_target, rec_idx, data_words))
 
         if encoder_tag == 'A':
-            self._send_word(self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr, font=font))
+            self._send_word(self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr))
         else:
             self._send_word(self.ctrl.cntrl_B(mal_target, color=color, line=line, col_unused=effective_col, attr_as_function=0))
 
@@ -207,13 +203,13 @@ class RobustSender:
         self._send_word(self.ctrl.build_etx_eot(mal_target, rec_idx, last))
         return encoder_tag
 
-    def send_text_adaptive(self, mal_target, text, *, line, col, color, disp_attr, font, last, rec_idx, rx_labels):
+    def send_text_adaptive(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, rx_labels):
         """Attempts transmission using preferred Control word encoding, falling back to alternative format on rejection."""
         preferred = self.ctrl.get_preferred()
         order = ['A', 'B'] if preferred is None else [preferred, 'B' if preferred == 'A' else 'A']
         for attempt_tag in order:
             log(f"[send] rec={rec_idx} try CNTRL-{attempt_tag} line={line} col={col} color={color}")
-            self._try_send_once(mal_target, text, line=line, col=col, color=color, disp_attr=disp_attr, font=font, last=last, rec_idx=rec_idx, encoder_tag=attempt_tag)
+            self._try_send_once(mal_target, text, line=line, col=col, color=color, disp_attr=disp_attr, last=last, rec_idx=rec_idx, encoder_tag=attempt_tag)
             saw_syn = any(A739.is_syn(l) for l, _ in rx_labels)
             saw_ack = any(A739.is_ack(l) for l, _ in rx_labels)
             if saw_ack and not saw_syn:
@@ -238,13 +234,60 @@ def _strip_display_controls(text):
     """Cleans up the text by mapping display controls and special characters to A739-safe equivalents."""
     result = []
     for c in text:
-        if c in ('?', '?'): continue
+        if c in ('Ф', 'Ю'): continue
         if c == '#': 
             result.append(SQUARE_CHAR); continue
         if c == '`': 
             result.append(DEGREE_CHAR); continue
         result.append(_CYRILLIC_MAP.get(c, c))
     return ''.join(result)
+
+def _parse_display_line(input_str, lower_case=False):
+    """Parses a ProSim display line string, extracting left, center, and right alignments based on the delimiter."""
+    DELIMITER = "\u00A8"
+    if not input_str: return ["", "", ""]
+
+    # Handle [s]...[/s] tags by converting enclosed text to lowercase (smaller font on the MCDU) and mapping numbers to Cyrillic
+    def process_s(content):
+        # content = content.lower()
+        return _convert_numbers_to_cyrillic(content)
+
+    def strip_s_tags(s):
+        s = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s(m.group(1)), s)
+        s = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s(m.group(1)), s)
+        return s.replace("[s]", "").replace("[/s]", "")
+
+    if lower_case:
+        # input_str = input_str.lower()
+        input_str = _convert_numbers_to_cyrillic(input_str)
+
+    input_str = strip_s_tags(input_str)
+    input_str = input_str.replace("[]", "#").replace("[l]", "").replace("[/l]", "")
+    for t in ("[I]","[1]","[2]","[3]","[/I]","[/1]","[/2]","[/3]"): input_str = input_str.replace(t, "")
+
+    dc = input_str.count(DELIMITER); left = center = right = ""
+    if dc == 2: left, center, right = input_str.split(DELIMITER, 2)
+    elif dc == 1: left, right = input_str.split(DELIMITER, 1)
+    else: left = input_str
+
+    m = re.search(r'\[m\](.*?)\[/m\]', input_str)
+    if m:
+        center = m.group(1)
+        left = left.replace(m.group(0), ''); right = right.replace(m.group(0), '')
+    return [left, center, right]
+
+def _format_row(left="", center="", right="", cols=MCDU_COLS):
+    """Combines left, center, and right text segments into a single padded line of length `cols`."""
+    row = [' '] * cols
+    for i, ch in enumerate(left):
+        if i < cols: row[i] = ch
+    rs = cols - len(right)
+    for i, ch in enumerate(right):
+        if 0 <= rs + i < cols: row[rs + i] = ch
+    cs = (cols - len(center)) // 2
+    for i, ch in enumerate(center):
+        if 0 <= cs + i < cols: row[cs + i] = ch
+    return ''.join(row)
 
 def _parse_xml(xml_string):
     """Parses the raw XML payload from ProSim into a dictionary of title, title_page, scratchpad, and lines."""
@@ -257,103 +300,35 @@ def _parse_xml(xml_string):
 def _xml_to_text_data(xml_result):
     """Converts the parsed XML dictionary into a list of TextData records ready for transmission."""
     records = []
+    log(f"[prosim] raw title: {repr(xml_result['title'])}")
+    for idx, l in enumerate(xml_result['lines']):
+        log(f"[prosim] raw line {idx}: {repr(l)}")
 
-    def process_segment(seg_text, start_col, line_idx, default_color=7):
-        fragments = []
-        tokens = re.split(r'(\[/?(?:1|2|3|4|s|S|I|m|l)\]|\[\])', seg_text)
-        current_color = default_color
-        current_font = 1
-        current_col = start_col
-        current_text = ""
-        small_font_active = False
+    title_parts = _parse_display_line(xml_result["title"])
+    left_align = title_parts[0]
+    try: title_spaces = int(title_parts[1]) if title_parts[1] else 0
+    except ValueError: title_spaces = 0
 
-        def push_frag():
-            nonlocal current_text, current_col
-            if current_text:
-                clean_text = _strip_display_controls(current_text)
-                if clean_text:
-                    fragments.append(TextData(clean_text, current_color, lineIdx=line_idx, initial_col=current_col, font=current_font))
-                current_col += len(clean_text)
-            current_text = ""
+    title_text = _format_row(
+        ' ' * title_spaces + title_parts[2] if left_align == "True" else "",
+        title_parts[2] if left_align != "True" else "",
+        _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else "",
+    )
 
-        for token in tokens:
-            if not token: continue
-            if token == '[]': current_text += '#'
-            elif token == '[1]': push_frag(); current_color = 1
-            elif token == '[2]': push_frag(); current_color = 4
-            elif token == '[3]': push_frag(); current_color = 5
-            elif token == '[4]': push_frag(); current_color = 2
-            elif token in ('[/1]', '[/2]', '[/3]', '[/4]'): push_frag(); current_color = default_color
-            elif token in ('[s]', '[S]'): push_frag(); current_font = 0; small_font_active = True
-            elif token in ('[/s]', '[/S]'): push_frag(); current_font = 1; small_font_active = False
-            elif token in ('[I]', '[/I]', '[l]', '[/l]', '[m]', '[/m]'): pass
-            else:
-                if small_font_active:
-                    current_text += _convert_numbers_to_cyrillic(token.lower())
-                else:
-                    current_text += token.upper() if token else ""
-        push_frag()
-        return fragments
+    title_text = _strip_display_controls(title_text).ljust(MCDU_COLS)[:MCDU_COLS]
+    log(f"  -> Title text built (hex): {[hex(ord(c)) for c in title_text]}")
+    records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
 
-    def get_length(seg_text):
-        if not seg_text: return 0
-        text_num = re.sub(r'\[/?(?:1|2|3|4|s|S|I|m|l)\]', '', seg_text.replace("[]", "#"))
-        return len(_strip_display_controls(text_num))
+    for ln, raw in enumerate(xml_result["lines"]):
+        parts = _parse_display_line(raw, lower_case=True)
+        row_text = _strip_display_controls(_format_row(*parts)).ljust(MCDU_COLS)[:MCDU_COLS]
+        log(f"  -> Line {ln} text built (hex): {[hex(ord(c)) for c in row_text]}")
+        records.append(TextData(row_text, ROW_COLORS[ln + 1], lineIdx=ln + 2, initial_col=1))
 
-    try:
-        t_raw = xml_result.get("title", "")
-        t_parts = t_raw.split("\u00A8")
-        if len(t_parts) >= 3:
-            l_align = (t_parts[0] == "True")
-            try: t_spaces = int(t_parts[1])
-            except ValueError: t_spaces = 0
-            t_text = t_parts[2]
-        else:
-            l_align = False; t_spaces = 0; t_text = t_raw
+    sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
+    log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
 
-        t_col = t_spaces + 1 if l_align else (MCDU_COLS - get_length(t_text)) // 2 + 1
-        records.extend(process_segment(t_text, t_col, 1, 7))
-
-        tp_raw = xml_result.get("title_page", "")
-        if tp_raw:
-            tp_text = _convert_numbers_to_cyrillic(tp_raw)
-            tp_len = len(_strip_display_controls(tp_text))
-            records.extend(process_segment(tp_text, MCDU_COLS - tp_len + 1, 1, 7))
-
-        for ln, raw_line in enumerate(xml_result.get("lines", [])):
-            if not raw_line: continue
-
-            m = re.search(r'\[m\](.*?)\[/m\]', raw_line)
-            l_raw = raw_line; c_raw = ""; r_raw = ""
-            if m:
-                c_raw = m.group(1)
-                l_raw = l_raw.replace(m.group(0), '')
-
-            DELIMITER = "\u00A8"
-            splits = l_raw.split(DELIMITER)
-            if len(splits) == 3:
-                l_raw = splits[0]
-                c_raw = splits[1] if splits[1] else c_raw
-                r_raw = splits[2]
-            elif len(splits) == 2:
-                l_raw = splits[0]
-                r_raw = splits[1]
-
-            l_raw = _convert_numbers_to_cyrillic(l_raw)
-            c_raw = _convert_numbers_to_cyrillic(c_raw)
-            r_raw = _convert_numbers_to_cyrillic(r_raw)
-
-            if l_raw: records.extend(process_segment(l_raw, 1, ln + 2, 7))
-            if c_raw: records.extend(process_segment(c_raw, (MCDU_COLS - get_length(c_raw)) // 2 + 1, ln + 2, 7))
-            if r_raw: records.extend(process_segment(r_raw, MCDU_COLS - get_length(r_raw) + 1, ln + 2, 7))
-
-        sp = xml_result.get("scratchpad", "")
-        if sp:
-            records.extend(process_segment(sp, 1, 14, 7))
-    except Exception as e:
-        log(f"[prosim] err building text: {e}")
-        pass
-
+    records.append(TextData(sp, ROW_COLORS[13], lineIdx=14, initial_col=1))
     return records
 
 # =========================
@@ -442,10 +417,6 @@ class LRUData:
                 max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
                 log(f"CTS Received (max_recs={max_recs})")
                 self.queue(TransmissionState.SEND_DATA); return
-            if A739.is_syn(label):
-                log("SYN Received in RTS")
-            if A739.is_nack(label):
-                log("NACK Received in RTS")
         if not self.repeat:
             if self.current_request_type == RequestType.MENU.value:
                 self.record_count = 1
@@ -455,12 +426,7 @@ class LRUData:
             rts = ArincLabel.Base.pack_dec_no_sdi_no_ssm(self.mal_target, rts_payload)
             logic.dev.send_manual_single_fast(self.lru.channel, rts)
             log(f"RTS -> MAL {oct(self.mal_target)} (req={self.current_request_type}, recs={self.record_count})")
-            self.message_response_elapsed_time = time.time()
             self.repeat = True
-        else:
-            if time.time() - self.message_response_elapsed_time > 1.5:
-                log("RTS timeout -> retry")
-                self._retry_or_idle()
 
     def _send_data(self, logic, rx):
         """Transmits the cached page data sequentially and listens for completion or NACK/SYN."""
@@ -472,12 +438,12 @@ class LRUData:
             if time.time() - self.message_response_elapsed_time > 1.5: self._retry_or_idle()
             return
         if self.current_request_type == RequestType.MENU.value:
-            self.sender.send_text_adaptive(self.mal_target, self.lru.name, line=1, col=1, color=Color.C7, disp_attr=0, font=1, last=True, rec_idx=1, rx_labels=rx)
+            self.sender.send_text_adaptive(self.mal_target, self.lru.name, line=1, col=1, color=Color.C7, disp_attr=0, last=True, rec_idx=1, rx_labels=rx)
         else:
             records = self.lru.get_page_text()
             if not records: self.queue(TransmissionState.IDLE); return
             for idx, rec in enumerate(records):
-                ok = self.sender.send_text_adaptive(self.mal_target, rec.text, line=rec.lineIdx, col=rec.initial_col, color=rec.color, disp_attr=rec.disp_attr, font=rec.font, last=(idx == len(records) - 1), rec_idx=idx + 1, rx_labels=rx)
+                ok = self.sender.send_text_adaptive(self.mal_target, rec.text, line=rec.lineIdx, col=rec.initial_col, color=rec.color, disp_attr=rec.disp_attr, last=(idx == len(records) - 1), rec_idx=idx + 1, rx_labels=rx)
                 if not ok: self._retry_or_idle(); return
         self.message_response_elapsed_time = time.time(); self.repeat = True
 
@@ -572,10 +538,10 @@ class Logic:
                 p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
                 decoded_label = ArincLabel.Base._reverse_label_number(label_id)
                 sal_field = (data >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK
-                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN, A739.NACK):
-                    log(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data:#010x}")
-                else:
-                    pass # log(f"[rx] {oct(decoded_label)} ssm={ssm} sdi={sdi} data={data:#010x}")
+                # if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN):
+                #     print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
+                # else:
+                #     print(oct(decoded_label), ssm, sdi, data)
             except Exception:
                 break
 
@@ -618,10 +584,3 @@ class Logic:
                 self.dev.send_manual_single_fast(lru_data.lru.channel, sal_id)
                 lru_data.heartbeat_elapsed_time = now
             lru_data.update(self, lru_data, received_labels)
-
-
-
-
-
-
-
