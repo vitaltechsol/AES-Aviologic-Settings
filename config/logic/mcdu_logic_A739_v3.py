@@ -23,7 +23,7 @@ MCDU_COLS = 24
 MCDU_DATA_LINES = 12
 COLOR_WHITE = 7
 COLOR_GREEN = 2
-ROW_COLORS = (6,1,6,1,6,1,6,1,6,1,6,1,6,6)
+ROW_COLORS = (1,2,3,5,6,7,6,1,6,1,6,1,6,6)
 
 SQUARE_CHAR = chr(29)
 DEGREE_CHAR = chr(28)
@@ -140,15 +140,21 @@ class ControlEncoder:
         payload  = (end_code << 16) | ((record_index & 0xFF) << 8)
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
-    def cntrl_A(self, mal_target, *, color, line, col, attr):
-        """Generates a Control A data word for specifying precise row, column, and display attributes."""
+    def cntrl_A(self, mal_target, *, color, line, col, attr, font: int = 1):
+        """Generates a Contro`l A data word for specifying precise row, column, and display attributes."""
         line = max(1, min(31, line)); col = max(1, min(24, col))
-        color &= 0x7; attr &= 0x7
-        payload = ((A739.CNTRL << 16) | ((color & 0x7) << 13) | ((line & 0x1F) << 8) | ((attr & 0x7) << 5) | (col & 0x1F))
+        color &= 0x3; attr &= 0x7
+        payload = ((A739.CNTRL << 16) 
+                   | ((font & 0x1) << 15)  
+                   | ((color & 0x7) << 12) 
+                   | ((line & 0x1F) << 8) 
+                   | ((attr & 0x7) << 5) 
+                   | (col & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
 
     def cntrl_B(self, mal_target, *, color, line, col_unused, attr_as_function):
         """Generates an alternative Control B data word when MCDU hardware rejects Control A."""
+        log("************************cntrl_B")
         color &= 0x7; lineStart = max(1, min(31, line)); lineCount = 1; function = attr_as_function & 0x7
         payload = ((A739.CNTRL << 16) | ((color & 0x7) << 12) | ((lineCount & 0xF) << 8) | ((function & 0x7) << 5) | (lineStart & 0x1F))
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, payload)
@@ -187,10 +193,12 @@ class RobustSender:
         log(f"[send] Line {line} encoded text='{text_to_send}'")
         data_words = A739.num_words_for_text(text_to_send)
         self._send_word(self.ctrl.build_stx(mal_target, rec_idx, data_words))
+
         if encoder_tag == 'A':
             self._send_word(self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr))
         else:
             self._send_word(self.ctrl.cntrl_B(mal_target, color=color, line=line, col_unused=effective_col, attr_as_function=0))
+
         self._send_data_words(mal_target, text_to_send)
         self._send_word(self.ctrl.build_etx_eot(mal_target, rec_idx, last))
         return encoder_tag
@@ -530,10 +538,10 @@ class Logic:
                 p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
                 decoded_label = ArincLabel.Base._reverse_label_number(label_id)
                 sal_field = (data >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK
-                if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN):
-                    print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
-                else:
-                    print(oct(decoded_label), ssm, sdi, data)
+                # if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN):
+                #     print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
+                # else:
+                #     print(oct(decoded_label), ssm, sdi, data)
             except Exception:
                 break
 
