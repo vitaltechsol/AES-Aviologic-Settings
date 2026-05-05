@@ -236,8 +236,6 @@ def _strip_display_controls(text):
     result = []
     for c in text:
         if c in ('Ф', 'Ю'): continue
-        if c == '#': 
-            result.append(SQUARE_CHAR); continue
         if c == '`': 
             result.append(DEGREE_CHAR); continue
         result.append(_CYRILLIC_MAP.get(c, c))
@@ -290,6 +288,33 @@ def _format_row(left="", center="", right="", cols=MCDU_COLS):
         if 0 <= cs + i < cols: row[cs + i] = ch
     return ''.join(row)
 
+def _tokenize(s, def_col):
+    tokens = []
+    i = 0
+    color = def_col
+    is_small = False
+    while i < len(s):
+        if s[i:i+3].lower() == "[s]":
+            is_small = True; i += 3; continue
+        if s[i:i+4].lower() == "[/s]":
+            is_small = False; i += 4; continue
+        m = re.match(r'\[([1234])\]', s[i:i+3])
+        if m:
+            color = {'1':1, '2':4, '3':5, '4':2}.get(m.group(1), def_col)
+            i += 3; continue
+        m = re.match(r'\[/([1234])\]', s[i:i+4])
+        if m:
+            color = def_col; i += 4; continue
+        if s[i:i+3] == "[I]": i += 3; continue
+        if s[i:i+4] == "[/I]": i += 4; continue
+        if s[i:i+3] == "[l]": i += 3; continue
+        if s[i:i+4] == "[/l]": i += 4; continue
+        if s[i:i+2] == "[]":
+            tokens.append((SQUARE_CHAR, color, is_small)); i += 2; continue
+        tokens.append((s[i], color, is_small))
+        i += 1
+    return tokens
+
 def _parse_rich_display_line(input_str, default_color):
     DELIMITER = "\u00A8"
     if not input_str: return [], [], []
@@ -311,34 +336,7 @@ def _parse_rich_display_line(input_str, default_color):
     else:
         left_raw = input_str
 
-    def tokenize(s, def_col):
-        tokens = []
-        i = 0
-        color = def_col
-        is_small = False
-        while i < len(s):
-            if s[i:i+3].lower() == "[s]":
-                is_small = True; i += 3; continue
-            if s[i:i+4].lower() == "[/s]":
-                is_small = False; i += 4; continue
-            m = re.match(r'\[([1234])\]', s[i:i+3])
-            if m:
-                color = {'1':1, '2':4, '3':5, '4':2}.get(m.group(1), def_col)
-                i += 3; continue
-            m = re.match(r'\[/([1234])\]', s[i:i+4])
-            if m:
-                color = def_col; i += 4; continue
-            if s[i:i+3] == "[I]": i += 3; continue
-            if s[i:i+4] == "[/I]": i += 4; continue
-            if s[i:i+3] == "[l]": i += 3; continue
-            if s[i:i+4] == "[/l]": i += 4; continue
-            if s[i:i+2] == "[]":
-                tokens.append(('#', color, is_small)); i += 2; continue
-            tokens.append((s[i], color, is_small))
-            i += 1
-        return tokens
-
-    return tokenize(left_raw, default_color), tokenize(center_raw, default_color), tokenize(right_raw, default_color)
+    return _tokenize(left_raw, default_color), _tokenize(center_raw, default_color), _tokenize(right_raw, default_color)
 
 def _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=7):
     row = [( ' ', default_color, False )] * cols
@@ -367,20 +365,43 @@ def _xml_to_text_data(xml_result):
     for idx, l in enumerate(xml_result['lines']):
         log(f"[prosim] raw line {idx}: {repr(l)}")
 
-    title_parts = _parse_display_line(xml_result["title"])
-    left_align = title_parts[0]
-    try: title_spaces = int(title_parts[1]) if title_parts[1] else 0
+    t_raw = xml_result["title"]
+    title_parts = t_raw.split("\u00A8")
+    
+    left_align = title_parts[0] if len(title_parts) > 0 else ""
+    try: title_spaces = int(title_parts[1]) if len(title_parts) > 1 else 0
     except ValueError: title_spaces = 0
+    text_raw = title_parts[2] if len(title_parts) > 2 else t_raw
 
-    title_text = _format_row(
-        ' ' * title_spaces + title_parts[2] if left_align == "True" else "",
-        title_parts[2] if left_align != "True" else "",
-        _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else "",
-    )
+    left_str = ' ' * title_spaces + text_raw if left_align == "True" else ""
+    center_str = text_raw if left_align != "True" else ""
+    right_str = _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else ""
 
-    title_text = _strip_display_controls(title_text).ljust(MCDU_COLS)[:MCDU_COLS]
-    log(f"  -> Title text built (hex): {[hex(ord(c)) for c in title_text]}")
-    records.append(TextData(title_text, ROW_COLORS[0], lineIdx=1, initial_col=1))
+    def_color = ROW_COLORS[0]
+    left_tk = _tokenize(left_str, def_color)
+    center_tk = _tokenize(center_str, def_color)
+    right_tk = _tokenize(right_str, def_color)
+
+    row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color)
+
+    current_color = row[0][1]
+    current_text = ""
+    start_col = 1
+
+    for col_idx, (char, color, is_small) in enumerate(row):
+        c = _convert_numbers_to_cyrillic(char)
+
+        if color != current_color:
+            if current_text:
+                records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col))
+            current_color = color
+            current_text = c
+            start_col = col_idx + 1
+        else:
+            current_text += c
+
+    if current_text:
+        records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col))
 
     for ln, raw in enumerate(xml_result["lines"]):
         def_color = ROW_COLORS[ln + 1]
