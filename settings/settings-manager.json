@@ -72,7 +72,7 @@
         "is_enable": false
     },
     "LogicBase:mcdu_logic_v2": {
-        "is_enable": true
+        "is_enable": false
     },
     "LogicBase:mcdu_logic_v3_test": {
         "is_enable": false
@@ -84,9 +84,15 @@
         "is_enable": false
     },
     "LogicBase:test_logic0": {
-        "is_enable": true
+        "is_enable": false
     },
     "LogicBase:hgs_annunciator_logic": {
         "is_enable": true
+    },
+    "LogicBase:mcdu_logic_A739_v3": {
+        "is_enable": true
+    },
+    "LogicBase:mcdu_logic_char_test": {
+        "is_enable": false
     }
 }

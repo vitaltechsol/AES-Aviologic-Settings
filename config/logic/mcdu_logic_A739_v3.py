@@ -58,12 +58,13 @@ def log(msg: str):
     print(msg)
 
 class TextData:
-    def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0):
+    def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0, font: int = 1):
         self.text = text
         self.color = color & 0x7
         self.lineIdx = max(1, min(31, lineIdx))
         self.initial_col = max(1, min(24, initial_col))
         self.disp_attr = disp_attr & 0x7
+        self.font = font & 0x1
 
 class A739:
     ENQ  = 0b0000101
@@ -185,7 +186,7 @@ class RobustSender:
             sent += 3
         return words
 
-    def _try_send_once(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, encoder_tag):
+    def _try_send_once(self, mal_target, text, *, line, col, color, font, disp_attr, last, rec_idx, encoder_tag):
         """Builds and transmits one complete protocol block (STX -> CNTRL -> DATA -> ETX/EOT)."""
         if ENABLE_SPACE_PADDING_FOR_COLUMN and col > 1:
             text_to_send = (" " * (col - 1)) + text; effective_col = 1
@@ -196,7 +197,7 @@ class RobustSender:
         self._send_word(self.ctrl.build_stx(mal_target, rec_idx, data_words))
 
         if encoder_tag == 'A':
-            self._send_word(self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr))
+            self._send_word(self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr, font=font))
         else:
             self._send_word(self.ctrl.cntrl_B(mal_target, color=color, line=line, col_unused=effective_col, attr_as_function=0))
 
@@ -204,13 +205,13 @@ class RobustSender:
         self._send_word(self.ctrl.build_etx_eot(mal_target, rec_idx, last))
         return encoder_tag
 
-    def send_text_adaptive(self, mal_target, text, *, line, col, color, disp_attr, last, rec_idx, rx_labels):
+    def send_text_adaptive(self, mal_target, text, *, line, col, color, font, disp_attr, last, rec_idx, rx_labels):
         """Attempts transmission using preferred Control word encoding, falling back to alternative format on rejection."""
         preferred = self.ctrl.get_preferred()
         order = ['A', 'B'] if preferred is None else [preferred, 'B' if preferred == 'A' else 'A']
         for attempt_tag in order:
             log(f"[send] rec={rec_idx} try CNTRL-{attempt_tag} line={line} col={col} color={color}")
-            self._try_send_once(mal_target, text, line=line, col=col, color=color, disp_attr=disp_attr, last=last, rec_idx=rec_idx, encoder_tag=attempt_tag)
+            self._try_send_once(mal_target, text, line=line, col=col, color=color, font=font, disp_attr=disp_attr, last=last, rec_idx=rec_idx, encoder_tag=attempt_tag)
             saw_syn = any(A739.is_syn(l) for l, _ in rx_labels)
             saw_ack = any(A739.is_ack(l) for l, _ in rx_labels)
             if saw_ack and not saw_syn:
@@ -288,11 +289,11 @@ def _format_row(left="", center="", right="", cols=MCDU_COLS):
         if 0 <= cs + i < cols: row[cs + i] = ch
     return ''.join(row)
 
-def _tokenize(s, def_col):
+def _tokenize(s, def_col, def_small):
     tokens = []
     i = 0
     color = def_col
-    is_small = False
+    is_small = def_small
     while i < len(s):
         if s[i:i+3].lower() == "[s]":
             is_small = True; i += 3; continue
@@ -315,7 +316,7 @@ def _tokenize(s, def_col):
         i += 1
     return tokens
 
-def _parse_rich_display_line(input_str, default_color):
+def _parse_rich_display_line(input_str, default_color, default_small=False):
     DELIMITER = "\u00A8"
     if not input_str: return [], [], []
 
@@ -336,10 +337,10 @@ def _parse_rich_display_line(input_str, default_color):
     else:
         left_raw = input_str
 
-    return _tokenize(left_raw, default_color), _tokenize(center_raw, default_color), _tokenize(right_raw, default_color)
+    return _tokenize(left_raw, default_color, default_small), _tokenize(center_raw, default_color, default_small), _tokenize(right_raw, default_color, default_small)
 
-def _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=7):
-    row = [( ' ', default_color, False )] * cols
+def _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=7, default_small=False):
+    row = [( ' ', default_color, default_small )] * cols
     for i, tk in enumerate(left_tk):
         if i < cols: row[i] = tk
     rs = cols - len(right_tk)
@@ -378,54 +379,59 @@ def _xml_to_text_data(xml_result):
     right_str = _convert_numbers_to_cyrillic(xml_result["title_page"]) if xml_result["title_page"] else ""
 
     def_color = ROW_COLORS[0]
-    left_tk = _tokenize(left_str, def_color)
-    center_tk = _tokenize(center_str, def_color)
-    right_tk = _tokenize(right_str, def_color)
+    left_tk = _tokenize(left_str, def_color, False)
+    center_tk = _tokenize(center_str, def_color, False)
+    right_tk = _tokenize(right_str, def_color, True)
 
-    row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color)
+    row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color, default_small=False)
 
     current_color = row[0][1]
+    current_small = row[0][2]
     current_text = ""
     start_col = 1
 
     for col_idx, (char, color, is_small) in enumerate(row):
         c = _convert_numbers_to_cyrillic(char)
 
-        if color != current_color:
+        if color != current_color or is_small != current_small:
             if current_text:
-                records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col))
+                records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col, font=0 if current_small else 1))
             current_color = color
+            current_small = is_small
             current_text = c
             start_col = col_idx + 1
         else:
             current_text += c
 
     if current_text:
-        records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col))
+        records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=1, initial_col=start_col, font=0 if current_small else 1))
 
     for ln, raw in enumerate(xml_result["lines"]):
         def_color = ROW_COLORS[ln + 1]
-        left_tk, center_tk, right_tk = _parse_rich_display_line(raw, def_color)
-        row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color)
+        def_small = (ln % 2 == 0)
+        left_tk, center_tk, right_tk = _parse_rich_display_line(raw, def_color, def_small)
+        row = _format_rich_row(left_tk, center_tk, right_tk, cols=MCDU_COLS, default_color=def_color, default_small=def_small)
 
         current_color = row[0][1]
+        current_small = row[0][2]
         current_text = ""
         start_col = 1
 
         for col_idx, (char, color, is_small) in enumerate(row):
             c = _convert_numbers_to_cyrillic(char)
 
-            if color != current_color:
+            if color != current_color or is_small != current_small:
                 if current_text:
-                    records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col))
+                    records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col, font=0 if current_small else 1))
                 current_color = color
+                current_small = is_small
                 current_text = c
                 start_col = col_idx + 1
             else:
                 current_text += c
 
         if current_text:
-            records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col))
+            records.append(TextData(_strip_display_controls(current_text), current_color, lineIdx=ln + 2, initial_col=start_col, font=0 if current_small else 1))
 
     sp = _strip_display_controls(xml_result["scratchpad"]).ljust(MCDU_COLS)[:MCDU_COLS]
     log(f"  -> Scratchpad text built (hex): {[hex(ord(c)) for c in sp]}")
@@ -540,12 +546,12 @@ class LRUData:
             if time.time() - self.message_response_elapsed_time > 1.5: self._retry_or_idle()
             return
         if self.current_request_type == RequestType.MENU.value:
-            self.sender.send_text_adaptive(self.mal_target, self.lru.name, line=1, col=1, color=Color.C7, disp_attr=0, last=True, rec_idx=1, rx_labels=rx)
+            self.sender.send_text_adaptive(self.mal_target, self.lru.name, line=1, col=1, color=Color.C7, font=1, disp_attr=0, last=True, rec_idx=1, rx_labels=rx)
         else:
             records = self.lru.get_page_text()
             if not records: self.queue(TransmissionState.IDLE); return
             for idx, rec in enumerate(records):
-                ok = self.sender.send_text_adaptive(self.mal_target, rec.text, line=rec.lineIdx, col=rec.initial_col, color=rec.color, disp_attr=rec.disp_attr, last=(idx == len(records) - 1), rec_idx=idx + 1, rx_labels=rx)
+                ok = self.sender.send_text_adaptive(self.mal_target, rec.text, line=rec.lineIdx, col=rec.initial_col, color=rec.color, font=rec.font, disp_attr=rec.disp_attr, last=(idx == len(records) - 1), rec_idx=idx + 1, rx_labels=rx)
                 if not ok: self._retry_or_idle(); return
         self.message_response_elapsed_time = time.time(); self.repeat = True
 
