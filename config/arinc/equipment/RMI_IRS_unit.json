@@ -1,0 +1,31 @@
+{
+    "brand": "RMI IRS channel",
+    "name": "irs",
+    "note": "",
+    "labels": {
+        "hdg_m": {
+            "label": "320",
+            "sdi": 0,
+            "description": "Magnetic HDG",
+            "data_bits": 15,
+            "data_type": "BNR",
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 0.0054931640625,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 25.0,
+                "max": 50.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": -180.0,
+                "max": 180.0
+            }
+        }
+    },
+    "description": "RMI IRS channel"
+}

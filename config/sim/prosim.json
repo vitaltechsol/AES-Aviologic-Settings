@@ -717,6 +717,37 @@
       "name": "system.switches.S_MCP_EFIS1_WXR",
       "read_interval_ms": 10,
       "reset_value": 0
+    },
+    "IRS_HEADING_1": {
+      "name": "aircraft.irs1.heading",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "IRS_HEADING_2": {
+      "name": "aircraft.irs2.heading",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_ADF_1_BEARING": {
+      "name": "aircraft.navigation.adf.1.adfBearing",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_VOR_1_BEARING": {
+      "name": "aircraft.navigation.vor.1.vorBearingg",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_ADF_2_BEARING": {
+      "name": "aircraft.navigation.adf.2.adfBearing",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_VOR_2_BEARING": {
+      "name": "aircraft.navigation.vor.2.vorBearingg",
+      "read_interval_ms": 100,
+      "reset_value": 0
     }
+
   }
 }

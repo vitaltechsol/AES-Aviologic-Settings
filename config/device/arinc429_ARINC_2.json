@@ -1,0 +1,90 @@
+{
+    "product": "ARI_10",
+    "uuid": "2b001a000951333233393839",
+    "type": "ARINC429",
+    "description": "<describe what this card is for>",
+    "settings": {
+        "name": "arinc_2",
+        "enable": true,
+      "TX_channels": {
+        "0": {
+          "enable": true,
+          "speed": "S12_KHZ",
+          "mode": "TX_TIMETABLE",
+          "description": "<describe what this channel is used for>",
+          "link_equipment": {
+            "vor_adf1": "RMI_VOR_ADF_unit"
+          }
+        },
+        "1": {
+          "enable": true,
+          "speed": "S12_KHZ",
+          "mode": "TX_TIMETABLE",
+          "description": "<describe what this channel is used for>",
+          "link_equipment": {
+            "vor_adf2": "RMI_VOR_ADF_unit"
+          }
+        },
+        "2": {
+          "enable": true,
+          "speed": "S100_KHZ",
+          "mode": "TX_TIMETABLE",
+          "description": "<describe what this channel is used for>",
+          "link_equipment": {
+            "rmi_irs": "RMI_IRS_unit"
+          }
+        },
+        "3": {
+          "enable": false,
+          "speed": "S12_KHZ",
+          "mode": "TX_TIMETABLE",
+          "description": "<describe what this channel is used for>",
+          "link_equipment": {}
+        },
+        "4": {
+          "enable": false,
+          "speed": "S12_KHZ",
+          "mode": "TX_TIMETABLE",
+          "description": "<describe what this channel is used for>",
+          "link_equipment": {}
+        }
+      },
+        "RX_channels": {
+            "0": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            },
+            "1": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            },
+            "2": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            },
+            "3": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            },
+            "4": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            }
+        }
+    }
+}

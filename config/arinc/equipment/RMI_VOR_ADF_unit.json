@@ -1,0 +1,67 @@
+{
+    "brand": "None",
+    "name": "rmi_vor_adf",
+    "note": "RMI VOR and ADF buses",
+    "labels": {
+        "vor_bear": {
+            "label": "222",
+            "pad_bits": {
+                "inner": {
+                    "bits": "13",
+                    "description": "Inner Marker"
+                },
+                "middle": {
+                    "bits": "12",
+                    "description": "Middle Marker"
+                },
+                "outer": {
+                    "bits": "11",
+                    "description": "Outer Marker"
+                }
+            },
+            "sdi": 0,
+            "description": "VOR 1 Bearing",
+            "data_bits": 12,
+            "data_type": "BNR",
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "data_is_signed": true,
+            "value_resolution": 0.0439453125,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 50.0,
+                "max": 100.0
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": -180.0,
+                "max": 180.0
+            }
+        },
+        "adf_bear": {
+            "label": "162",
+            "sdi": 0,
+            "description": "ADF Bearing",
+            "data_bits": 12,
+            "data_type": "BNR",
+            "sdi_is_data": false,
+            "channel_direction": "TX",
+            "pad_bits": {},
+            "data_is_signed": true,
+            "value_resolution": 0.0439453125,
+            "ssm": "NORMAL_OPERATION",
+            "data_init": "0",
+            "timing_ms": {
+                "min": 31.3,
+                "max": 62.5
+            },
+            "value_clamping": {
+                "enable": true,
+                "min": -180.0,
+                "max": 180.0
+            }
+        }
+    },
+    "description": "RMI VOR and ADF channel"
+}
