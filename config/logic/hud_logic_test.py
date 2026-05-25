@@ -48,8 +48,8 @@ from resources.libs.arinc_lib.arinc_lib import ArincLabel
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
-ARINC_CARD_TX_CHNL: int = 1
-ARINC_CARD_RX_CHNL: int = 1
+ARINC_CARD_TX_CHNL: int = 2
+ARINC_CARD_RX_CHNL: int = 2
 
 
 class HUD:
