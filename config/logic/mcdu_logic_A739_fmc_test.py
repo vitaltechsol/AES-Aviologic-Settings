@@ -1,38 +1,20 @@
-﻿from resources.libs.arinc_lib.arinc_lib import ArincLabel
+from resources.libs.arinc_lib.arinc_lib import ArincLabel
 from resources.driver.arinc.arinc_async import ArincAsync
 
 from fast_enum import FastEnum
 from enum import IntEnum
 from typing import List, Optional, Tuple
 import time
+import re
 
 # =========================
 # Config
 # =========================
-LRU_SAL = 0o300                  # SAL we advertise via label 0o172
+LRU_SAL = 0x04                   # SAL we advertise (FMC subsystem)
 ARINC_CARD_NAME: str = "arinc_1"
-ARINC_CARD_TX_CHNL: int = 3      # TX channel (pins 20/24 @ 12.5 kb/s)
-ARINC_CARD_RX_CHNL: int = 3      # RX/sniffer channel (pins 16/17)
+ARINC_CARD_TX_CHNL: int = 2      # TX channel matching the 429 setup
+ARINC_CARD_RX_CHNL: int = 2      # RX channel matching the 429 setup
 HEARTBEAT_SEC = 0.9
-
-# ---- Demo content ----
-HELLO_TEXT  = "HELLO"
-WORLD_TEXT  = "WORLD"
-HELLO_LINE  = 2
-HELLO_COL   = 1
-HELLO_COLOR = 1  # CYAN (0..7)
-WORLD_LINE  = 3
-WORLD_COL   = 2
-WORLD_COLOR = 5  # AMBER (0..7)
-
-#0 Black
-#1 Cyan
-#2 Red
-#3 Amber
-#4 Green
-#5 Pink
-#6 Yellow
-#7 white
 
 # If the unit ignores CNTRL column, pad with spaces to reach the desired col.
 ENABLE_SPACE_PADDING_FOR_COLUMN = False
@@ -64,12 +46,6 @@ def log(msg: str):
 
 class TextData:
     def __init__(self, text: str, color: int, lineIdx: int, initial_col: int = 1, disp_attr: int = 0):
-        """
-        color:       3-bit color (0..7)
-        lineIdx:     1..31 (5 bits)
-        initial_col: 1..24 (5 bits)
-        disp_attr:   3-bit (0=normal; 1=reverse; 2=underscore; 4=flash) — vendor mapped
-        """
         self.text = text
         self.color = color & 0x7
         self.lineIdx = max(1, min(31, lineIdx))
@@ -98,7 +74,6 @@ class A739:
 
     @staticmethod
     def num_words_for_text(s: str) -> int:
-        # 3 ASCII chars per ARINC-429 data word
         return (len(s) + 2) // 3
 
     @staticmethod
@@ -112,8 +87,18 @@ class A739:
         return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.DC1
     @staticmethod
     def get_key_data(dw: int) -> Tuple[int, int, int]:
-        key = (dw >> 16) & 0x7F; sequence = (dw >> 8) & 0x7F; repeat = (dw >> 23) & 0x1
+        key = (dw >> 16) & 0x7F
+        sequence = (dw >> 8) & 0x7F
+        repeat = (dw >> 23) & 0x1
         return key, sequence, repeat
+
+    @staticmethod
+    def get_key_data_from_unpacked_data(data: int) -> Tuple[int, int, int, int]:
+        primary_key = (data >> 6) & 0x7F
+        sequence = data & 0x3F
+        repeat = (data >> 13) & 0x1
+        extended_key = (data >> 8) & 0xFF
+        return primary_key, sequence, repeat, extended_key
     @staticmethod
     def is_syn(dw: int) -> bool:
         return ((dw >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK) == A739.SYN
@@ -128,24 +113,16 @@ class A739:
         return (dw >> A739.REQUEST_TYPE_SHIFT) & A739.REQUEST_TYPE_MASK
     @staticmethod
     def get_mal(dw: int) -> int:
-        # Return octal label number encoded as MAL in payload
         return ArincLabel.Base._reverse_label_number((dw >> A739.MAL_SHIFT) & A739.MAL_MASK)
 
 # =========================
 # Two CNTRL encoders (field-adaptive)
 # =========================
 class ControlEncoder:
-    """
-    Two encoders:
-      - Encoder A (spec-style): COLOR<<13 | LINE<<8 | ATTR<<5 | COL
-      - Encoder B (field-proven): COLOR<<12 | lineCount<<8 | FUNCTION<<5 | lineStart
-    Auto-detect which one the unit ACKs and cache it.
-    """
     def __init__(self):
-        self._preferred = None  # 'A' or 'B'
+        self._preferred = None
 
     def build_stx(self, mal_target: int, record_index: int, data_words: int) -> int:
-        # >>> IMPORTANT: length must be DATA + CNTRL + trailer (ETX/EOT) = data_words + 3
         count = (data_words + 3) & 0xFF
         stx_payload = (A739.STX << 16) | ((record_index & 0xFF) << 8) | count
         return ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal_target, stx_payload)
@@ -212,7 +189,6 @@ class RobustSender:
         return words
 
     def _try_send_once(self, mal_target: int, text: str, *, line: int, col: int, color: int, disp_attr: int, last: bool, rec_idx: int, encoder_tag: str) -> str:
-        # Optional space-padding to guarantee horizontal placement on column-agnostic units
         if ENABLE_SPACE_PADDING_FOR_COLUMN and col > 1:
             text_to_send = (" " * (col - 1)) + text
             effective_col = 1
@@ -227,13 +203,10 @@ class RobustSender:
         if encoder_tag == 'A':
             cntrl = self.ctrl.cntrl_A(mal_target, color=color, line=line, col=effective_col, attr=disp_attr)
         else:
-            # Control encoder B does not take font as param
             cntrl = self.ctrl.cntrl_B(mal_target, color=color, line=line, col_unused=effective_col, attr_as_function=0)
         self._send_word(cntrl)
 
         self._send_data_words(mal_target, text_to_send)
-
-        # Allow small settling delay between blocks if unit gets overloaded and returns SYN/NAK loops
         time.sleep(0.01)
 
         end = self.ctrl.build_etx_eot(mal_target, rec_idx, last)
@@ -249,7 +222,6 @@ class RobustSender:
             log(f"[send] rec={rec_idx} try CNTRL-{attempt_tag} line={line} col={col} color={color}")
             self._try_send_once(mal_target, text, line=line, col=col, color=color, disp_attr=disp_attr, last=last, rec_idx=rec_idx, encoder_tag=attempt_tag)
 
-            # Look at immediate rx this tick
             saw_syn = False
             saw_ack = False
             for label, ts in rx_labels:
@@ -265,18 +237,11 @@ class RobustSender:
                 log(f"[send] CNTRL-{attempt_tag} rejected (SYN). Trying alternative…")
                 continue
 
-            # Neither observed now; allow outer state machine to catch ACK shortly
             return True
 
         return False
 
-import re
-
 def parse_rich_text(line_str: str, line_idx: int, default_color: int = 7) -> List[TextData]:
-    """
-    Parses [0-7] color tags. Creates chunks of TextData tracking precise columns.
-    Optimized to drop chunks that are entirely spaces to avoid hitting unit record limits.
-    """
     color = default_color
     parts = re.split(r'(\[/?(?:[0-7])\])', line_str)
 
@@ -289,7 +254,6 @@ def parse_rich_text(line_str: str, line_idx: int, default_color: int = 7) -> Lis
     def flush():
         nonlocal current_chars, start_col
         text = "".join(current_chars)
-        # Drop records that are just spaces to save records matching the max_recs limits
         if text and not text.isspace():
             records.append(TextData(text, current_color, lineIdx=line_idx, initial_col=start_col))
         current_chars.clear()
@@ -311,7 +275,7 @@ def parse_rich_text(line_str: str, line_idx: int, default_color: int = 7) -> Lis
     return records
 
 # =========================
-# LRU base + TEST LRU (two-line, two-color demo)
+# LRU base + FMC LRU
 # =========================
 class LRU:
     def __init__(self, name: str, sal: int, channel: int):
@@ -327,13 +291,12 @@ class LRU:
     def get_page_records(self) -> int: return 0
     def get_page_text(self) -> List[TextData]: return []
 
-class TEST_LRU(LRU):
+class FMC_LRU(LRU):
     def __init__(self):
-        super().__init__("DEMO", LRU_SAL, ARINC_CARD_TX_CHNL)
+        super().__init__("FMC", LRU_SAL, ARINC_CARD_TX_CHNL)
         self.page: List[TextData] = []
-        # Test requested exact syntax formatting across same lines
-        self.page.extend(parse_rich_text("[1]CYAN[/1]  [2]RED[/2]", line_idx=1))
-        self.page.extend(parse_rich_text("[4]GREEN[/4]", line_idx=2))
+        self.page.extend(parse_rich_text("[7]Test Zero[/7]", line_idx=1))
+        self.page.extend(parse_rich_text("[7]Just see if works[/7]", line_idx=2))
 
     def get_page_records(self) -> int: return len(self.page)
     def get_page_text(self) -> List[TextData]: return self.page
@@ -409,7 +372,7 @@ class LRUData:
             if A739.is_cts(label):
                 self.max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
                 if self.max_recs == 0:
-                    self.max_recs = 4 # default fallback if unit sends 0
+                    self.max_recs = 4 
                 log(f"CTS Received (max_recs={self.max_recs})")
                 self.queue(TransmissionState.SEND_DATA)
                 return
@@ -445,10 +408,10 @@ class LRUData:
                 if getattr(self, "waiting_cts", False) and A739.is_cts(label):
                     self.max_recs = (ArincLabel.Base.unpack_dec(label)[2] >> 16) & 0x7F
                     if self.max_recs == 0:
-                        self.max_recs = 4 # default fallback if unit sends 0
+                        self.max_recs = 4 
                     log(f"CTS Received for next block (max_recs={self.max_recs})")
                     self.waiting_cts = False
-                    self.repeat = False # Trigger send next block
+                    self.repeat = False 
                     return
                 if A739.is_nack(label):
                     log("NAK → retry")
@@ -459,16 +422,12 @@ class LRUData:
                 self._retry_or_idle()
             return
 
-        # --- transmit ---
         if getattr(self, "waiting_cts", False):
-            # If we are waiting for CTS, do NOT transmit any records yet. Just yield and wait for CTS in rx.
             if time.time() - self.message_response_elapsed_time > 1.5:
-                # If we waited around 1.5 seconds out here and still no CTS, assume lost and retry block or RTS
                 self._retry_or_idle()
             return
 
         if self.current_request_type == RequestType.MENU.value:
-            # MENU label (units often force color; WHITE is a safe request)
             _ = self.sender.send_text_adaptive(
                 self.mal_target, self.lru.name,
                 line=1, col=1, color=Color.C7,
@@ -507,9 +466,6 @@ class LRUData:
         else:
             self.queue(TransmissionState.IDLE)
 
-# =========================
-# Key map: A739 DC1 key code -> ProSim dataref name
-# =========================
 _KEY_MAP = {
     48: "S_CDU1_KEY_0", 49: "S_CDU1_KEY_1", 50: "S_CDU1_KEY_2", 51: "S_CDU1_KEY_3",
     52: "S_CDU1_KEY_4", 53: "S_CDU1_KEY_5", 54: "S_CDU1_KEY_6", 55: "S_CDU1_KEY_7",
@@ -543,18 +499,24 @@ _KEY_MAP = {
 # =========================
 class Logic:
     def __init__(self):
-        self.version = "mcdu_a739_adaptive_v2.1"
-        self.lrus = [LRUData(TEST_LRU())]
+        self.version = "mcdu_a739_fmc_test_v1.0"
+        self.lrus = [LRUData(FMC_LRU())]
         self.mcdu_rx_channel = ARINC_CARD_RX_CHNL
         self.data_recv = False
         self.dev = None
 
-    def _handle_key(self, key_code):
+    def _handle_key(self, key_code: int, extended_key: Optional[int] = None, raw_data: Optional[int] = None):
         dataref_name = _KEY_MAP.get(key_code, "")
+
         if dataref_name:
             log(f"[key] {dataref_name} (code={key_code})")
-        else:
-            log(f"[key] unmapped code={key_code}")
+            return
+
+        if key_code == 24:
+            log(f"[key] SPECIAL/DEDICATED key code=24 extended={extended_key} raw=0x{raw_data:08X}")
+            return
+
+        log(f"[key] unmapped code={key_code} extended={extended_key} raw=0x{raw_data:08X}")
 
     async def update(self):
         if not hasattr(self, "devices") or self.devices is None or len(self.devices) == 0:
@@ -578,13 +540,6 @@ class Logic:
             try:
                 label, ts = self.dev._rx_chnl[self.mcdu_rx_channel]._label_queue.popleft()
                 received_labels.append((label, ts))
-                p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
-                decoded_label = ArincLabel.Base._reverse_label_number(label_id)
-                sal_field = (data >> A739.SAL_TYPE_SHIFT) & A739.SAL_TYPE_MASK
-                # if sal_field in (A739.ENQ, A739.DC3, A739.ACK, A739.SYN):
-                #     print(f"[rx] {oct(decoded_label)} ctl={sal_field:02x} data={data}")
-                # else:
-                #     print(oct(decoded_label), ssm, sdi, data)
             except Exception:
                 break
 
@@ -592,15 +547,31 @@ class Logic:
             self.data_recv = True
 
         for label, ts in received_labels:
-            # Handle ARINC 739 DC1 keyboard labels
             if A739.is_keyboard(label):
-                key_code, sequence, repeat = A739.get_key_data(label)
+                try:
+                    p, ssm, data, sdi, label_id = ArincLabel.Base.unpack_dec(label)
+                    decoded_label = ArincLabel.Base._reverse_label_number(label_id)
+                except Exception:
+                    data = 0
+                    decoded_label = 0
+
+                legacy_key, legacy_sequence, legacy_repeat = A739.get_key_data(label)
+                data_key, data_sequence, data_repeat, extended_key = A739.get_key_data_from_unpacked_data(data)
+
+                key_code = data_key if data_key != 0 else legacy_key
+                repeat = data_repeat or legacy_repeat
+
+                log(
+                    f"[key raw] label={oct(decoded_label)} data=0x{data:08X} "
+                    f"legacy_key={legacy_key} data_key={data_key} "
+                    f"extended={extended_key} seq={data_sequence} repeat={repeat}"
+                )
+
                 if not repeat:
-                    self._handle_key(key_code)
+                    self._handle_key(key_code, extended_key=extended_key, raw_data=data)
 
                 mal = self.lrus[0].locked_mal or self.lrus[0].mal_target
                 if mal is not None:
-                    # Send ACK to MCDU so it stops repeating the key
                     ack_payload = (A739.ACK << 16) | ((label >> 8) & 0xFFFF)
                     ack_word = ArincLabel.Base.pack_dec_no_sdi_no_ssm(mal, ack_payload)
                     self.dev.send_manual_single_fast(self.lrus[0].lru.channel, ack_word)

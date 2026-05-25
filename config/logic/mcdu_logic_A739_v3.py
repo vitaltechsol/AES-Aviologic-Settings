@@ -23,8 +23,9 @@ MCDU_COLS = 24
 MCDU_DATA_LINES = 12
 COLOR_WHITE = 7
 COLOR_GREEN = 2
-ROW_COLORS = (4,7,7,7,7,7,7,7,7,7,7,7,7,7,7)
+ROW_COLORS = (3,7,7,7,7,7,7,7,7,7,7,7,7,7,7)
 
+ARROW_DOWN_CHAR = chr(30)
 SQUARE_CHAR = chr(29)
 DEGREE_CHAR = chr(28)
 
@@ -237,6 +238,10 @@ def _strip_display_controls(text):
     result = []
     for c in text:
         if c in ('Ф', 'Ю'): continue
+        if c == '¥': 
+            result.append(ARROW_DOWN_CHAR); continue
+        if c == '#': 
+            result.append(SQUARE_CHAR); continue
         if c == '`': 
             result.append(DEGREE_CHAR); continue
         result.append(_CYRILLIC_MAP.get(c, c))

@@ -23,20 +23,20 @@
                 "description": "hud_tx",
                 "name": "hud_tx"
             },
-            "2": {
-                "enable": true,
-                "speed": "S100_KHZ",
-                "mode": "TX_TIMETABLE",
-                "description": "HGS Annunciator Tx",
-                "link_equipment": {
-                    "hgs_annunciator": "hgs_annunciator_unit"
-                }
-            },
+          "2": {
+            "enable": true,
+            "speed": "S100_KHZ",
+            "mode": "TX_TIMETABLE",
+            "description": "HGS Annunciator Tx",
+            "link_equipment": {
+              "hgs_annunciator": "hgs_annunciator_unit"
+            }
+          },
             "3": {
                 "enable": true,
-                "speed": "S12_KHZ",
+                "speed": "S100_KHZ",
                 "mode": "TX_MANUAL",
-                "description": "<describe what this channel is used for>",
+                "description": "A329",
                 "name": "mcdu_tx"
             }
         },
@@ -58,10 +58,10 @@
                 "link_equipment": {}
             },
             "2": {
-                "enable": false,
-                "speed": "S100_KHZ",
+                "enable": true,
+                "speed": "S12_KHZ",
                 "mode": "RX_NORMAL",
-                "description": "hud_rx",
+                "description": "mcd_rx_2",
                 "link_equipment": {}
             },
             "3": {
