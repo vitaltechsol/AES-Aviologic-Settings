@@ -718,13 +718,28 @@
       "read_interval_ms": 10,
       "reset_value": 0
     },
-    "IRS_HEADING_1": {
-      "name": "aircraft.irs1.heading",
+    "IRS1_TRACK": {
+      "name": "aircraft.irs1.track",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "IRS2_TRACK": {
+      "name": "aircraft.irs2.track",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "IRS1_ALIGNING": {
+      "name": "aircraft.irs1.aligning",
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "IRS_HEADING_2": {
-      "name": "aircraft.irs2.heading",
+    "IRS1_HEADING_FLAG": {
+      "name": "aircraft.irs1.headingFlag",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_VOR_1_BEARING": {
+      "name": "aircraft.navigation.vor.1.vorBearing",
       "read_interval_ms": 100,
       "reset_value": 0
     },
@@ -733,8 +748,8 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
-    "NAV_VOR_1_BEARING": {
-      "name": "aircraft.navigation.vor.1.vorBearingg",
+    "NAV_VOR_2_BEARING": {
+      "name": "aircraft.navigation.vor.2.vorBearing",
       "read_interval_ms": 100,
       "reset_value": 0
     },
@@ -742,12 +757,6 @@
       "name": "aircraft.navigation.adf.2.adfBearing",
       "read_interval_ms": 100,
       "reset_value": 0
-    },
-    "NAV_VOR_2_BEARING": {
-      "name": "aircraft.navigation.vor.2.vorBearingg",
-      "read_interval_ms": 100,
-      "reset_value": 0
     }
-
   }
 }
