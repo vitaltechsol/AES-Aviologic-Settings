@@ -748,6 +748,11 @@
       "read_interval_ms": 100,
       "reset_value": 0
     },
+    "NAV_VOR_1_BEARING_FLAG": {
+      "name": "aircraft.navigation.vor.1.vorBearingFlag",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
     "NAV_VOR_2_BEARING": {
       "name": "aircraft.navigation.vor.2.vorBearing",
       "read_interval_ms": 100,
@@ -755,6 +760,11 @@
     },
     "NAV_ADF_2_BEARING": {
       "name": "aircraft.navigation.adf.2.adfBearing",
+      "read_interval_ms": 100,
+      "reset_value": 0
+    },
+    "NAV_VOR_2_BEARING_FLAG": {
+      "name": "aircraft.navigation.vor.2.vorBearingFlag",
       "read_interval_ms": 100,
       "reset_value": 0
     }
