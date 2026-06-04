@@ -62,7 +62,8 @@ class Logic:
         self.vars.vor_adf2.adf_bear.ssm = 3 # hide flag
 
         # Set VOR and ADF bearings in degrees. These values
-        # are absolute bearings to the stations, not relative to the aircraft heading.
+        # VOR absolute bearings to the stations, not relative to the aircraft heading.
+        # ADF are relative to the aircraft heading.
         adf1_bearing = ps.NAV_ADF_1_BEARING.value
         vor1_bearing = ps.NAV_VOR_1_BEARING.value
         adf2_bearing = ps.NAV_ADF_2_BEARING.value
@@ -83,10 +84,10 @@ class Logic:
             self.vars.vor_adf2.vor_bear.ssm = 0 # show flag
 
         # Smooth VOR and ADF needles using time-based math
-        self.sm_adf1 = smooth_angle(self.sm_adf1, adf1_bearing + heading, dt, speed=3.0)
-        self.sm_vor1 = smooth_angle(self.sm_vor1, vor1_bearing + heading, dt, speed=3.0)
-        self.sm_adf2 = smooth_angle(self.sm_adf2, adf2_bearing + heading, dt, speed=3.0)
-        self.sm_vor2 = smooth_angle(self.sm_vor2, vor2_bearing + heading, dt, speed=3.0)
+        self.sm_adf1 = smooth_angle(self.sm_adf1, adf1_bearing % 360, dt, speed=3.0)
+        self.sm_vor1 = smooth_angle(self.sm_vor1, vor1_bearing + heading % 360, dt, speed=3.0)
+        self.sm_adf2 = smooth_angle(self.sm_adf2, adf2_bearing % 360, dt, speed=3.0)
+        self.sm_vor2 = smooth_angle(self.sm_vor2, vor2_bearing + heading % 360, dt, speed=3.0)
 
         self.vars.vor_adf1.adf_bear.value = self.sm_adf1
         self.vars.vor_adf1.vor_bear.value = self.sm_vor1
