@@ -18,7 +18,7 @@ def smooth_angle(current, target, dt, speed=5.0):
 
 class Logic:
     def __init__(self):
-        self.version = "v1.0.0"
+        self.version = "v1.0.1"
         self.last_log_time = time.time()
         self.last_update_time = time.time()
         self.last_raw_heading = None
