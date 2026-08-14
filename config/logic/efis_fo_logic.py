@@ -23,8 +23,8 @@ class Logic:
             print(f"Set value {ref} to: {value}")  # Debug output
                                
     async def update(self):
-        efis_num = 1
-        efis = self.vars.EFIS
+        efis_num = 2
+        efis = self.vars.EFIS_FO
 
         match efis.BUTTONS_275.value:
             case 8192:

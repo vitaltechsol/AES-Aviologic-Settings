@@ -1,0 +1,244 @@
+{
+  "brand": "<write the brand of this equipment>",
+  "description": "<describe what this equipment is for>",
+  "name": "EFIS737",
+  "labels": {
+    "BUTTONS_273": {
+      "label": "273",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Bottom Label 273",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "TERR": {
+          "bits": "18",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "MIN_RADIO": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "MIN_BARO": {
+          "bits": "20",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "RST": {
+          "bits": "22",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR1_VOR": {
+          "bits": "23",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR1_ADF": {
+          "bits": "24",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "UP_FAST": {
+          "bits": "11",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "UP_SLOW": {
+          "bits": "12",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DOWN_FAST": {
+          "bits": "13",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DOWN_SLOW": {
+          "bits": "14",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "OFF": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+      },
+      "ssm": "NORMAL_OPERATION"
+    },
+    "BUTTONS_274": {
+      "label": "274",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Buttons Label 274",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "BARO_IN": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "BARO_HPA": {
+          "bits": "20",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "STD": {
+          "bits": "22",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR2_VOR": {
+          "bits": "23",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR2_ADF": {
+          "bits": "24",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "UP_FAST": {
+          "bits": "11",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "UP_SLOW": {
+          "bits": "12",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DOWN_FAST": {
+          "bits": "13",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DOWN_SLOW": {
+          "bits": "14",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "OFF": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+      },
+      "ssm": "NORMAL_OPERATION"
+      },
+    "BUTTONS_275": {
+      "label": "275",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Bottom Label 275",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "FPV": {
+          "bits": "11",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "MTRS": {
+          "bits": "12",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "WRX": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "STA": {
+          "bits": "16",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "WPT": {
+          "bits": "17",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "ARPT": {
+          "bits": "18",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "DATA": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "POS": {
+          "bits": "20",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "CTR": {
+          "bits": "22",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "TFC": {
+          "bits": "29",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "APP": {
+          "bits": "24",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "VOR": {
+          "bits": "25",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "MAP": {
+          "bits": "26",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "PLN": {
+          "bits": "27",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+
+      },
+      "ssm": "NORMAL_OPERATION"
+    },
+    "RANGE": {
+      "label": "272",
+      "data_type": "DISCRETE",
+      "sdi_is_data": false,
+      "channel_direction": "RX",
+      "description": "EFIS Range Selector",
+      "sdi": 0,
+      "timing_ms": {
+        "max": 200.0,
+        "min": 100.0
+      },
+      "data_init": "0",
+      "pad_bits": {
+        "sixfourty": {
+          "bits": "21",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "threetwenty": {
+          "bits": "20",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "onesixty": {
+          "bits": "19",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "eighty": {
+          "bits": "18",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "forty": {
+          "bits": "17",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "twenty": {
+          "bits": "16",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "ten": {
+          "bits": "15",
+          "description": "<describe what bit or range of bits does/do>"
+        },
+        "five": {
+          "bits": "14",
+          "description": "<describe what bit or range of bits does/do>"
+        }
+      },
+      "ssm": "NORMAL_OPERATION"
+    }
+  }
+}

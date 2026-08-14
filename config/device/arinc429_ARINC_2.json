@@ -6,56 +6,58 @@
     "settings": {
         "name": "arinc_2",
         "enable": true,
-      "TX_channels": {
-        "0": {
-          "enable": true,
-          "speed": "S12_KHZ",
-          "mode": "TX_TIMETABLE",
-          "description": "<describe what this channel is used for>",
-          "link_equipment": {
-            "vor_adf1": "RMI_VOR_ADF_unit"
-          }
-        },
-        "1": {
-          "enable": true,
-          "speed": "S12_KHZ",
-          "mode": "TX_TIMETABLE",
-          "description": "<describe what this channel is used for>",
-          "link_equipment": {
-            "vor_adf2": "RMI_VOR_ADF_unit"
-          }
-        },
-        "2": {
-          "enable": true,
-          "speed": "S100_KHZ",
-          "mode": "TX_TIMETABLE",
-          "description": "<describe what this channel is used for>",
-          "link_equipment": {
-            "rmi_irs": "RMI_IRS_unit"
-          }
-        },
-        "3": {
-          "enable": false,
-          "speed": "S12_KHZ",
-          "mode": "TX_TIMETABLE",
-          "description": "<describe what this channel is used for>",
-          "link_equipment": {}
-        },
-        "4": {
-          "enable": false,
-          "speed": "S12_KHZ",
-          "mode": "TX_TIMETABLE",
-          "description": "<describe what this channel is used for>",
-          "link_equipment": {}
-        }
-      },
-        "RX_channels": {
+        "TX_channels": {
             "0": {
+                "enable": true,
+                "speed": "S12_KHZ",
+                "mode": "TX_TIMETABLE",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {
+                    "vor_adf1": "RMI_VOR_ADF_unit"
+                }
+            },
+            "1": {
+                "enable": true,
+                "speed": "S12_KHZ",
+                "mode": "TX_TIMETABLE",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {
+                    "vor_adf2": "RMI_VOR_ADF_unit"
+                }
+            },
+            "2": {
+                "enable": true,
+                "speed": "S100_KHZ",
+                "mode": "TX_TIMETABLE",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {
+                    "rmi_irs": "RMI_IRS_unit"
+                }
+            },
+            "3": {
                 "enable": false,
                 "speed": "S12_KHZ",
-                "mode": "RX_NORMAL",
+                "mode": "TX_TIMETABLE",
                 "description": "<describe what this channel is used for>",
                 "link_equipment": {}
+            },
+            "4": {
+                "enable": false,
+                "speed": "S12_KHZ",
+                "mode": "TX_TIMETABLE",
+                "description": "<describe what this channel is used for>",
+                "link_equipment": {}
+            }
+        },
+        "RX_channels": {
+            "0": {
+                "enable": true,
+                "speed": "S12_KHZ",
+                "mode": "RX_NORMAL",
+                "description": "FO_EFIS",
+                "link_equipment": {
+                    "EFIS_FO": "efis_737ng_fo_unit"
+                }
             },
             "1": {
                 "enable": false,

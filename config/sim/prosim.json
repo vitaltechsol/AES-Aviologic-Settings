@@ -718,6 +718,111 @@
       "read_interval_ms": 10,
       "reset_value": 0
     },
+    "S_MCP_EFIS2_ARPT": {
+      "name": "system.switches.S_MCP_EFIS2_ARPT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_BARO": {
+      "name": "system.switches.S_MCP_EFIS2_BARO",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_BARO_MODE": {
+      "name": "system.switches.S_MCP_EFIS2_BARO_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_BARO_STD": {
+      "name": "system.switches.S_MCP_EFIS2_BARO_STD",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_CTR": {
+      "name": "system.switches.S_MCP_EFIS2_CTR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_DATA": {
+      "name": "system.switches.S_MCP_EFIS2_DATA",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_FPV": {
+      "name": "system.switches.S_MCP_EFIS2_FPV",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_MINIMUMS": {
+      "name": "system.switches.S_MCP_EFIS2_MINIMUMS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_MINIMUMS_MODE": {
+      "name": "system.switches.S_MCP_EFIS2_MINIMUMS_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_MINIMUMS_RESET": {
+      "name": "system.switches.S_MCP_EFIS2_MINIMUMS_RESET",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_MODE": {
+      "name": "system.switches.S_MCP_EFIS2_MODE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_MTRS": {
+      "name": "system.switches.S_MCP_EFIS2_MTRS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_POS": {
+      "name": "system.switches.S_MCP_EFIS2_POS",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_RANGE": {
+      "name": "system.switches.S_MCP_EFIS2_RANGE",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_SEL1": {
+      "name": "system.switches.S_MCP_EFIS2_SEL1",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_SEL2": {
+      "name": "system.switches.S_MCP_EFIS2_SEL2",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_STA": {
+      "name": "system.switches.S_MCP_EFIS2_STA",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_TERR": {
+      "name": "system.switches.S_MCP_EFIS2_TERR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_TFC": {
+      "name": "system.switches.S_MCP_EFIS2_TFC",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_WPT": {
+      "name": "system.switches.S_MCP_EFIS2_WPT",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
+    "S_MCP_EFIS2_WXR": {
+      "name": "system.switches.S_MCP_EFIS2_WXR",
+      "read_interval_ms": 10,
+      "reset_value": 0
+    },
     "IRS1_TRACK": {
       "name": "aircraft.irs1.track",
       "read_interval_ms": 10,
