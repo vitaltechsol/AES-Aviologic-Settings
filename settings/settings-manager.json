@@ -100,5 +100,8 @@
     },
     "LogicBase:RMI_logic": {
         "is_enable": true
+    },
+    "LogicBase:efis_fo_logic": {
+        "is_enable": true
     }
 }

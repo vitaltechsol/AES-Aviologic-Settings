@@ -1,11 +1,11 @@
 ﻿import asyncio
 from resources.libs.arinc_lib.arinc_lib import ArincLabel
 import time
+import queue
 from enum import Enum
 from typing import Callable
 import re
 import xml.etree.ElementTree as ET
-import queue
 
 # Setup Definitions
 ARINC_CARD_NAME: str = "arinc_1"
@@ -152,8 +152,6 @@ class MCDU:
                 max_chars += (right or "").count(char)
 
             row = [' '] * max_chars
-            print("max_chars")
-            print(max_chars);
     
             # Add the left text, starting at index 0
             if (left):
@@ -558,7 +556,8 @@ class Logic:
             "xml_lines": ["","","","","","","","","","","",""],
             "xml_scratchpad": ""
         }
-        self.run_again = 0
+        self._key_pulse_seconds = 0.12
+        self._pending_key_release = {}
 
     def key_pressed_callback(self, name):
         if name != 4612:
@@ -573,7 +572,7 @@ class Logic:
                 #     )
                 if (selected_key != ""):
                     getattr(self.datarefs.prosim, selected_key).value = 1
-                    self.mcdu.key_queue_add(selected_key)
+                    self._pending_key_release[selected_key] = time.monotonic() + self._key_pulse_seconds
              
              
             # print(name)
@@ -603,23 +602,15 @@ class Logic:
         # inverted color
 
 
-        if ( xml_string.startswith("<") and xml_string != self.cdu1_text and self.run_again <= 2):
-            print("xml_string")
-            print(xml_string)
-            print(len(xml_string))
-      #  if (xml_string != self.cdu1_text):
+        if xml_string.startswith("<") and xml_string != self.cdu1_text:
+            self.cdu1_text = xml_string
 
             # self.fmc_subsys.add_text(1, "inversed", control=1)
 
             # print("***** update")
             # print(self.run_again)
             # print(xml_string)
-            if (self.run_again == 1):
-                self.cdu1_text = xml_string
-                self.run_again = 0
-
-            offset = 0;
-            self.run_again = self.run_again + 1
+            offset = 0
             
             xml_result = self.fmc_subsys.parse_xml(xml_string)
             xml_lines = xml_result["lines"]
@@ -668,12 +659,17 @@ class Logic:
             # print("mcdu._trig_update", self.mcdu._trig_update)
 
         # check queue and turn off keys
-        off_key = self.mcdu.key_queue_pop()
-        if (off_key):
-            getattr(self.datarefs.prosim, off_key).value = 0
+        now = time.monotonic()
+        keys_to_release = [
+            key for key, release_at in self._pending_key_release.items()
+            if now >= release_at
+        ]
+        for key in keys_to_release:
+            getattr(self.datarefs.prosim, key).value = 0
+            del self._pending_key_release[key]
    
       
-        time.sleep(0.08)
+        await asyncio.sleep(0.01)
         
 
         
