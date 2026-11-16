@@ -13,28 +13,24 @@ ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 
 # ProSim CDU markup tags and the display style each one selects.
-PROSIM_STYLE_TAGS = {"1": "cyan", "2": "green", "3": "magenta", "4": "red", "i": "inverse"}
+PROSIM_STYLE_TAGS = {"1": "cyan", "2": "green", "3": "magenta", "4": "red", "5": "yellow", "i": "inverse"}
 
 # Wire encoding of each display style as (block colour, character control).
 # Block colour is the 9-bit field at bits 20-28 (0-based) of the text block configuration
 # word; character control is the 9-bit field at bits 20-28 of each character word.
-# Character control 1 is reverse video. The colour codes are not known yet: set
-# COLOR_PROBE = True, read the codes off the MCDU, and fill them in here.
-# A style set to None is drawn in reverse video.
+# Codes read off the MCDU: colours are character control codes, block colour stays 0.
 STYLE_ENCODING = {
     "": (0, 0),
-    "inverse": (0, 1),
-    "cyan": None,
-    "green": None,
-    "magenta": None,
-    "red": None,
+    "inverse": (0, 0x001),
+    "green": (0, 0x108),
+    "magenta": (0, 0x10A),
+    "yellow": (0, 0x10C),
+    "cyan": (0, 0x112),
+    "red": (0, 0x114),
 }
 
-# Show the colour probe pages instead of ProSim (NEXT PAGE / PREV PAGE to step through).
-COLOR_PROBE = False
-
-# ProSim markup tags: [1]..[4] colour, [I] inverse, [s] small font, [l] large font (ignored).
-TAG_RE = re.compile(r"\[(/?)([1-4isl])\]", re.IGNORECASE)
+# ProSim markup tags: [1]..[5] colour, [I] inverse, [s] small font, [l] large font (ignored).
+TAG_RE = re.compile(r"\[(/?)([1-5isl])\]", re.IGNORECASE)
 
 # Cyrillic stand-ins for small-font digits, mapped to the digit they replace.
 CYRILLIC_TO_DIGIT = {
@@ -526,48 +522,6 @@ class MCDU:
             # time.sleep(0.05)
 
 
-class ColorProbe:
-    """Test pages that show what each block colour and character control code does.
-
-    Each page lists 12 consecutive codes, one per row, as "<hex code> <sample>".
-    BLOCK pages draw the whole row in one block with that block colour. CHAR pages
-    draw the code normally and the sample with that character control.
-    """
-
-    CODES = 512  # both fields are 9 bits wide
-    ROWS = 12
-    PAGES_PER_FIELD = (CODES + ROWS - 1) // ROWS
-    SAMPLE = "ABC abc 123 #`"
-
-    def __init__(self):
-        self.page = 0
-        self.dirty = True
-
-    def step(self, delta: int):
-        """Moves `delta` pages forward, wrapping from the last CHAR page to the first BLOCK page."""
-        self.page = (self.page + delta) % (2 * self.PAGES_PER_FIELD)
-        self.dirty = True
-
-    def draw(self, subsys: MCDU.Subsystem):
-        """Queues the current page on the subsystem."""
-        self.dirty = False
-        is_block = self.page < self.PAGES_PER_FIELD
-        first = (self.page % self.PAGES_PER_FIELD) * self.ROWS
-        width = MCDU.Subsystem.COL
-
-        title = f"{'BLOCK' if is_block else 'CHAR'} {first:03X} {self.page + 1}/{2 * self.PAGES_PER_FIELD}"
-        subsys.add_text(0, title.ljust(width))
-        for code in range(first, first + self.ROWS):
-            if code >= self.CODES:
-                subsys.add_text(0, " " * width)
-            elif is_block:
-                subsys.add_text(0, f"{code:03X} {self.SAMPLE}".ljust(width), color=code)
-            else:
-                subsys.add_text(0, f"{code:03X} ")
-                subsys.add_chars(self.SAMPLE.ljust(width - 4), control=code)
-        subsys.add_text(0, "NEXT/PREV PAGE TO STEP".ljust(width))
-
-
 class Logic:
     def __init__(self):
         self.version = "v2.2.0"
@@ -591,7 +545,6 @@ class Logic:
         }
         self._key_pulse_seconds = 0.12
         self._pending_key_release = {}
-        self._probe = ColorProbe() if COLOR_PROBE else None
 
     def key_pressed_callback(self, name):
         if name != 4612:
@@ -600,13 +553,6 @@ class Logic:
 
             if (key_hex > 0):
                 selected_key = self.mcdu.get_ps_key(key_hex)
-                if self._probe is not None:
-                    # Page keys step the probe; nothing goes to ProSim
-                    if selected_key == "S_CDU1_KEY_NEXT_PAGE":
-                        self._probe.step(1)
-                    elif selected_key == "S_CDU1_KEY_PREV_PAGE":
-                        self._probe.step(-1)
-                    return
                 # if hasattr(self, 'fmc_subsys') and self.fmc_subsys is not None:
                 #     self.fmc_subsys.add_text(0, 
                 #         str(key_hex) + "  "
@@ -643,11 +589,7 @@ class Logic:
         # inverted color
 
 
-        if self._probe is not None:
-            if self._probe.dirty:
-                self._probe.draw(self.fmc_subsys)
-                self.mcdu._trig_update = True
-        elif xml_string.startswith("<") and xml_string != self.cdu1_text:
+        if xml_string.startswith("<") and xml_string != self.cdu1_text:
             self.cdu1_text = xml_string
 
             # self.fmc_subsys.add_text(1, "inversed", control=1)
