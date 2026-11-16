@@ -12,6 +12,41 @@ ARINC_CARD_NAME: str = "arinc_1"
 ARINC_CARD_TX_CHNL: int = 3
 ARINC_CARD_RX_CHNL: int = 3
 
+# ProSim CDU markup tags and the display style each one selects.
+PROSIM_STYLE_TAGS = {"1": "cyan", "2": "green", "3": "magenta", "4": "red", "i": "inverse"}
+
+# Wire encoding of each display style as (block colour, character control).
+# Block colour is the 9-bit field at bits 20-28 (0-based) of the text block configuration
+# word; character control is the 9-bit field at bits 20-28 of each character word.
+# Character control 1 is reverse video. The colour codes are not known yet: set
+# COLOR_PROBE = True, read the codes off the MCDU, and fill them in here.
+# A style set to None is drawn in reverse video.
+STYLE_ENCODING = {
+    "": (0, 0),
+    "inverse": (0, 1),
+    "cyan": None,
+    "green": None,
+    "magenta": None,
+    "red": None,
+}
+
+# Show the colour probe pages instead of ProSim (NEXT PAGE / PREV PAGE to step through).
+COLOR_PROBE = False
+
+# ProSim markup tags: [1]..[4] colour, [I] inverse, [s] small font, [l] large font (ignored).
+TAG_RE = re.compile(r"\[(/?)([1-4isl])\]", re.IGNORECASE)
+
+# Cyrillic stand-ins for small-font digits, mapped to the digit they replace.
+CYRILLIC_TO_DIGIT = {
+    'А': '0', 'Б': '1', 'В': '2', 'Г': '3', 'Д': '4',
+    'Е': '5', 'Ж': '6', 'З': '7', 'И': '8', 'Й': '9',
+}
+
+
+def style_encoding(style: str) -> tuple:
+    """Returns (block colour, character control) for a display style; unknown styles draw inverse."""
+    return STYLE_ENCODING.get(style) or STYLE_ENCODING["inverse"]
+
 
 class MCDU:
     class ArgumentException(Exception):
@@ -60,25 +95,10 @@ class MCDU:
                     for c in text.encode("iso-8859-5")
                 ]
 
-        def add_text(self, offset: int, text: str, color: int = 0):
+        def open_block(self, offset: int, color: int = 0):
+            """Opens a text block `offset` characters past the cursor, drawn in block colour `color`."""
             block_base = self._sal | 0x400
             block2_base = block_base | 0x40000
-            control = 0;
-
-            
-             # Mapping of Cyrillic characters to corresponding numbers. Used to show small font numbers
-            cyrillic_to_number = {
-                'А': '0',
-                'Б': '1',
-                'В': '2',
-                'Г': '3',
-                'Д': '4',
-                'Е': '5',
-                'Ж': '6',
-                'З': '7',
-                'И': '8',
-                'Й': '9'
-            }
 
             if offset < 0:
                 raise Exception("Offset should be bigger than 0")
@@ -90,89 +110,90 @@ class MCDU:
                 self._apply_par(block2_base | ((color & 0x1FF) << 20)),
             ]
 
-            # if len(text) > 0:
-            #     self._block += [
-            #         self._char_label(self._sal, c, control)
-            #         for c in text.encode("iso-8859-5")
-            #     ]
-
-            i = 0
-            while i < len(text):
-                c = text[i]
-
-                # Special case for `#` which is the empty box, add the corresponding int (64)
+        def add_chars(self, text: str, control: int = 0):
+            """Appends characters to the open block, mapping ProSim's special characters."""
+            for c in text:
                 if c == "#":
+                    # Empty box
                     self._block += [self._char_label(0x04, 64, control)]
-
-                # # Check for the sequence "[I]" (start inverted text)
-                # elif c == "[" and i + 2 < len(text) and text[i + 1:i + 3] == "I]":
-                #     # Add empty space to replace the special wrapper
-          
-                #     self._block += [self._char_label(0x04, b, 0) for b in "        ".encode("iso-8859-5")]
-                #     self._block += [self._char_label(0x04, b, 1) for b in " ".encode("iso-8859-5")]
-                #     control = 1 # Start inverted text
-                #     i += 3  # Skip past "[I]"
-                # # Check for the sequence "[/I]" (ende inverted text)
-                # elif c == "[" and i + 3 < len(text) and text[i + 1:i + 4] == "/I]":
-                #     control = 0 # End inverted tex
-                #     i += 4  # Skip past "[/I]"
-    
-                # Inverted, Color 1, 2, Color 3
-                elif c == "Ф":
-                    control = 1 # Start inverted text
-
-                elif c == "Ю":
-                    control = 0 # End inverted text
-
                 elif c == "`":
-                    # for degrees symbol prosim uses `
+                    # ProSim's degree sign
                     self._block += [self._char_label(0x04, 36, control)]
-
-                elif c in cyrillic_to_number:
-                    # Map Cyrillic characters to numbers and use the same logic as for digits
-                    n = cyrillic_to_number[c]
-                    self._block += [self._char_label(0x04, 16 + int(n), control)]
-
+                elif c in CYRILLIC_TO_DIGIT:
+                    # Small-font digit
+                    self._block += [self._char_label(0x04, 16 + int(CYRILLIC_TO_DIGIT[c]), control)]
                 else:
-                    # Encode other characters in ISO-8859-5 and add them to the block
                     self._block += [self._char_label(0x04, b, control) for b in c.encode("iso-8859-5")]
 
+        def add_text(self, offset: int, text: str, color: int = 0, control: int = 0):
+            """Writes `text` in a new block with one block colour and one character control."""
+            self.open_block(offset, color)
+            self.add_chars(text, control)
+
+        def add_row(self, cells: list):
+            """Writes a row of (char, style) cells.
+
+            Character control is set per character; a new block opens only where the block
+            colour changes, so a row whose styles all use block colour 0 stays one block.
+            """
+            block_color = None
+            for char, style in cells:
+                color, control = style_encoding(style)
+                if color != block_color:
+                    self.open_block(0, color)
+                    block_color = color
+                self.add_chars(char, control)
+
+        def tokenize(self, text: str, small: bool = False) -> list:
+            """Splits ProSim markup into (char, style) cells.
+
+            Small-font characters come back lowercased, with digits mapped to their Cyrillic
+            stand-ins. Tags are read before that mapping, so they work on small-font lines too.
+            """
+            cells = []
+            style = ""
+            i = 0
+            text = text or ""
+            while i < len(text):
+                tag = TAG_RE.match(text, i)
+                if tag:
+                    closing, name = tag.group(1), tag.group(2).lower()
+                    if name == "s":
+                        small = not closing
+                    elif name in PROSIM_STYLE_TAGS:
+                        style = "" if closing else PROSIM_STYLE_TAGS[name]
+                    i = tag.end()
+                    continue
+                if text.startswith("[]", i):
+                    # ProSim's empty box
+                    cells.append(("#", style))
+                    i += 2
+                    continue
+                c = text[i]
+                if small:
+                    c = self.convert_numbers_to_cyrillic(c.lower())
+                cells.append((c, style))
                 i += 1
+            return cells
 
+        def format_row(self, left=(), center=(), right=()) -> list:
+            """Lays out left-, center- and right-aligned cells on one row of COL cells."""
+            row = [(" ", "")] * self.COL
 
+            for i, cell in enumerate(left[:self.COL]):
+                row[i] = cell
 
-        def format_row(self, left="", center="", right=""):
-            # Start with an empty 24-character line filled with spaces
-            special_chars = ['Ф', 'Ю']
-            max_chars = 24;
-            # Check each string for occurrences of the special characters then add more spaces for when they are removed
-            for char in special_chars:
-                max_chars += (left or "").count(char)
-                max_chars += (center or "").count(char)
-                max_chars += (right or "").count(char)
+            right_start = self.COL - len(right)
+            for i, cell in enumerate(right):
+                if 0 <= right_start + i < self.COL:
+                    row[right_start + i] = cell
 
-            row = [' '] * max_chars
-    
-            # Add the left text, starting at index 0
-            if (left):
-                for i, char in enumerate(left):
-                    if i < max_chars:  # Ensure we do not overflow the row
-                        row[i] = char
-    
-            # Add the right text, aligned to the right, starting at the correct index
-            right_start = max_chars - len(right)
-            for i, char in enumerate(right):
-                if right_start + i >= 0 and right_start + i < max_chars:  # Ensure we do not overflow the row
-                    row[right_start + i] = char
-    
-            # Add the center text, centered within the row
-            center_start = (max_chars - len(center)) // 2
-            for i, char in enumerate(center):
-                if center_start + i >= 0 and center_start + i < max_chars:  # Ensure we do not overflow the row
-                    row[center_start + i] = char
-    
-            # Join the list of characters into a single string and return it
-            return ''.join(row)
+            center_start = (self.COL - len(center)) // 2
+            for i, cell in enumerate(center):
+                if 0 <= center_start + i < self.COL:
+                    row[center_start + i] = cell
+
+            return row
 
 
         # Function to convert numbers to Cyrillic
@@ -197,7 +218,12 @@ class MCDU:
             return ''.join(number_to_cyrillic.get(c, c) for c in text)
 
 
-        def parse_display_line(self, input_str, lower_case = False):
+        def parse_display_line(self, input_str, lower_case=False) -> list:
+            """Splits a ProSim line into left, center and right (char, style) cell lists."""
+            return [self.tokenize(part, lower_case) for part in self.split_display_line(input_str)]
+
+        def split_display_line(self, input_str) -> list:
+            """Splits a ProSim line into raw left, center and right strings, markup kept."""
             DELIMITER = "\u00A8"
             left = ""
             center = ""
@@ -206,41 +232,6 @@ class MCDU:
             if not input_str:
                 return ["", "", ""]
 
-            # Find and handle text wrapped in [s][/s] for lowercase conversion and small number conversion
-            def process_s_tags(content):
-                # Convert to lowercase
-                content = content.lower()
-                # Convert numbers to Cyrillic
-                return self.convert_numbers_to_cyrillic(content)
-
-            def replace_nested_s_tags(input_str):
-                # Replace the innermost [s][/s] or [S][/S] first
-                new_str = re.sub(r'\[s\](.*?)\[/s\]', lambda m: process_s_tags(m.group(1)), input_str)
-                new_str = re.sub(r'\[S\](.*?)\[/S\]', lambda m: process_s_tags(m.group(1)), new_str)
-                input_str = new_str
-                # Replace any remaining [s] from nested
-                input_str = input_str.replace("[s]", "").replace("[/s]", "")
-                return input_str
-
-            if (lower_case and input_str):
-                input_str = input_str.lower()
-                input_str = self.convert_numbers_to_cyrillic(input_str)
-
-            # Process nested [s][/s] and [S][/S] tags
-            input_str = replace_nested_s_tags(input_str)
-
-            # Replace Prosim's box symbols with '#'
-            input_str = input_str.replace("[]", "#")
-        
-            # Replace any [L] and [/L] tags with an empty string (Supposed to be large but not used)
-            input_str = input_str.replace("[l]", "").replace("[/l]", "")
-
-            # Replace any [3] and [/3] tags with special characters
-            input_str = input_str.replace("[I]", "Ф").replace("[/I]", "Ю")
-            input_str = input_str.replace("[1]", "Ф").replace("[/1]", "Ю")
-            input_str = input_str.replace("[2]", "Ф").replace("[/2]", "Ю")
-            input_str = input_str.replace("[3]", "Ф").replace("[/3]", "Ю")
-            
             delimiter_count = input_str.count(DELIMITER)
     
             # Handle cases with two delimiters (left, center, right)
@@ -256,7 +247,7 @@ class MCDU:
 
 
             # Find the text wrapped in [m][/m] tags for the center part
-            center_match = re.search(r'\[m\](.*?)\[/m\]', input_str)
+            center_match = re.search(r'\[m\](.*?)\[/m\]', input_str, re.IGNORECASE)
             if center_match:
                 center = center_match.group(1)
                 # Remove the center text and tags from left and right parts
@@ -535,6 +526,48 @@ class MCDU:
             # time.sleep(0.05)
 
 
+class ColorProbe:
+    """Test pages that show what each block colour and character control code does.
+
+    Each page lists 12 consecutive codes, one per row, as "<hex code> <sample>".
+    BLOCK pages draw the whole row in one block with that block colour. CHAR pages
+    draw the code normally and the sample with that character control.
+    """
+
+    CODES = 512  # both fields are 9 bits wide
+    ROWS = 12
+    PAGES_PER_FIELD = (CODES + ROWS - 1) // ROWS
+    SAMPLE = "ABC abc 123 #`"
+
+    def __init__(self):
+        self.page = 0
+        self.dirty = True
+
+    def step(self, delta: int):
+        """Moves `delta` pages forward, wrapping from the last CHAR page to the first BLOCK page."""
+        self.page = (self.page + delta) % (2 * self.PAGES_PER_FIELD)
+        self.dirty = True
+
+    def draw(self, subsys: MCDU.Subsystem):
+        """Queues the current page on the subsystem."""
+        self.dirty = False
+        is_block = self.page < self.PAGES_PER_FIELD
+        first = (self.page % self.PAGES_PER_FIELD) * self.ROWS
+        width = MCDU.Subsystem.COL
+
+        title = f"{'BLOCK' if is_block else 'CHAR'} {first:03X} {self.page + 1}/{2 * self.PAGES_PER_FIELD}"
+        subsys.add_text(0, title.ljust(width))
+        for code in range(first, first + self.ROWS):
+            if code >= self.CODES:
+                subsys.add_text(0, " " * width)
+            elif is_block:
+                subsys.add_text(0, f"{code:03X} {self.SAMPLE}".ljust(width), color=code)
+            else:
+                subsys.add_text(0, f"{code:03X} ")
+                subsys.add_chars(self.SAMPLE.ljust(width - 4), control=code)
+        subsys.add_text(0, "NEXT/PREV PAGE TO STEP".ljust(width))
+
+
 class Logic:
     def __init__(self):
         self.version = "v2.2.0"
@@ -558,14 +591,22 @@ class Logic:
         }
         self._key_pulse_seconds = 0.12
         self._pending_key_release = {}
+        self._probe = ColorProbe() if COLOR_PROBE else None
 
     def key_pressed_callback(self, name):
         if name != 4612:
 
             key_hex = (name >> 12) & 0xFF
-               
+
             if (key_hex > 0):
                 selected_key = self.mcdu.get_ps_key(key_hex)
+                if self._probe is not None:
+                    # Page keys step the probe; nothing goes to ProSim
+                    if selected_key == "S_CDU1_KEY_NEXT_PAGE":
+                        self._probe.step(1)
+                    elif selected_key == "S_CDU1_KEY_PREV_PAGE":
+                        self._probe.step(-1)
+                    return
                 # if hasattr(self, 'fmc_subsys') and self.fmc_subsys is not None:
                 #     self.fmc_subsys.add_text(0, 
                 #         str(key_hex) + "  "
@@ -602,7 +643,11 @@ class Logic:
         # inverted color
 
 
-        if xml_string.startswith("<") and xml_string != self.cdu1_text:
+        if self._probe is not None:
+            if self._probe.dirty:
+                self._probe.draw(self.fmc_subsys)
+                self.mcdu._trig_update = True
+        elif xml_string.startswith("<") and xml_string != self.cdu1_text:
             self.cdu1_text = xml_string
 
             # self.fmc_subsys.add_text(1, "inversed", control=1)
@@ -616,24 +661,24 @@ class Logic:
             xml_lines = xml_result["lines"]
             xml_title_page = xml_result["title_page"]
             xml_scratchpad = xml_result["scratchpad"]
-            xml_title = self.fmc_subsys.parse_display_line(xml_result["title"])
-            xml_title_spaces = int(xml_title[1]) if xml_title[1] else "" 
+            xml_title = self.fmc_subsys.split_display_line(xml_result["title"])
+            xml_title_spaces = int(xml_title[1]) if xml_title[1] else ""
             xml_title_left_align = xml_title[0]  if xml_title[0] else ""
 
             # Add Page Title. If title has spaces in the xml, then add the spaces and flush to the left
             # If the title doesn't have spaces then center it.
-            self.fmc_subsys.add_text(0,  
+            self.fmc_subsys.add_row(
                 self.fmc_subsys.format_row(
-                    ' ' * xml_title_spaces + xml_title[2] if xml_title_left_align == "True" else "",
-                    xml_title[2] if xml_title_left_align == "False" else "", 
-                self.fmc_subsys.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "" ))
-            
+                    self.fmc_subsys.tokenize(' ' * xml_title_spaces + xml_title[2] if xml_title_left_align == "True" else ""),
+                    self.fmc_subsys.tokenize(xml_title[2] if xml_title_left_align == "False" else ""),
+                    self.fmc_subsys.tokenize(self.fmc_subsys.convert_numbers_to_cyrillic(xml_title_page) if xml_title_page else "")))
+
             #Add Lines
             for ln in range(12):
                 # check that the line has changed
                 # if (xml_lines[ln] != self.cdu_xml["xml_lines"][ln]):
                 xml1 = self.fmc_subsys.parse_display_line(xml_lines[ln], ln % 2 == 0)
-                self.fmc_subsys.add_text(offset, 
+                self.fmc_subsys.add_row(
                     self.fmc_subsys.format_row(*xml1)
                 )
                 # else:
@@ -646,8 +691,8 @@ class Logic:
 
             # check the scratch pad has changed and update
             # if (self.cdu_xml["xml_scratchpad"] != xml_scratchpad):
-            self.fmc_subsys.add_text(offset,  
-                self.fmc_subsys.format_row(xml_scratchpad, "", "")
+            self.fmc_subsys.add_row(
+                self.fmc_subsys.format_row(self.fmc_subsys.tokenize(xml_scratchpad))
             )
             # print("offset")
             # print(offset)
